@@ -5,6 +5,15 @@ use Config\Paths;
 
 /*
  *---------------------------------------------------------------
+ * MOSTRAR ERRORES EN DESARROLLO
+ *---------------------------------------------------------------
+ */
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+/*
+ *---------------------------------------------------------------
  * CHECK PHP VERSION
  *---------------------------------------------------------------
  */
@@ -41,19 +50,16 @@ if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
  *---------------------------------------------------------------
  * BOOTSTRAP THE APPLICATION
  *---------------------------------------------------------------
- * This process sets up the path constants, loads and registers
- * our autoloader, along with Composer's, loads our constants
- * and fires up an environment-specific bootstrapping.
  */
 
 // LOAD OUR PATHS CONFIG FILE
-// This is the line that might need to be changed, depending on your folder structure.
-require FCPATH . '../app/Config/Paths.php';
-// ^^^ Change this line if you move your application folder
+require FCPATH . 'app/Config/Paths.php';
+// IMPORTANTE: esta línea funciona si index.php está en la raíz del proyecto
 
 $paths = new Paths();
 
 // LOAD THE FRAMEWORK BOOTSTRAP FILE
 require $paths->systemDirectory . '/Boot.php';
 
+// INICIAR CODEIGNITER
 exit(Boot::bootWeb($paths));

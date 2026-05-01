@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css?family=Sofia');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Lobster&display=swap');
+
+*{
+    background-color: rgb(214, 197, 145);
+    font-family: 'Crimson Pro Bold';
+} 
+
+h1{
+    font-family: 'Sofia';
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-size: 70px;
+    margin-top: 30px;
+}
+
+h2{
+    font-family: 'Sofia', cursive;
+    text-align: center;
+    font-size: 60px;
+    padding-top:30px;
+    padding-left: 30px;
+    padding-bottom: 10px;
+    padding-right: 30px;
+}
+
+h3{
+    font-weight: bold;/* negrito o fuerte*/
+    font-family: 'Crimson Pro Bold', cursive;
+    text-align: center;/*alineación*/
+    padding-top:15px;
+    padding-left: 30px;
+    padding-bottom: 30px;
+    padding-right: 30px;
+    font-size: 30px;
+}
+
+h4{
+    font-weight: bold;/* negrito o fuerte*/
+    text-align: justify;/*alineación*/
+    padding: 10px; /* Espacio alrededor del párrafo */
+}
+
+/* .miClase {
+    font-family: 'Sofia', cursive;
+    font-weight: bold; negrito o fuerte
+    text-align: center; alineación
+    padding-top:15px;
+    padding-left: 30px;
+    padding-bottom: 30px;
+    padding-right: 30px;
+    font-size: 60px;
+} */
+
+.map-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.item > img {
+    height: 100%;
+    width: 100%;
+}
+
+.card {
+    width: 300px;
+    border-radius: 10px;
+    padding: 5px;
+    margin: 5px;
+    background-color: rgb(214, 197, 145);
+}
+
+nav {
+    font-size: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+body {
+    background-color: rgb(214, 197, 145);
+    height: 100vh; /* Altura total del viewport */
+}
+
+/* .carousel-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.5); <Fondo semi-transparente>
+    padding: 20px;
+    color: white;
+    border-radius: 10px;
+} */
+
+/* .header {
+    
+  } */
+
+
+
+
