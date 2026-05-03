@@ -1,23 +1,40 @@
-<nav class="navbar navbar-expand-lg navbar-dark position-absolute w-100">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <img src="<?= base_url('assets/img/logopngb.png') ?>" alt="Logo New Fitness Systems" height="100">
+<header class="site-header">
+    <div class="container nav-container">
+
+        <a class="brand-logo" href="<?= base_url('/') ?>">
+            <img src="<?= base_url('assets/img/logob.png') ?>" alt="New Fitness Systems">
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
-            <span class="navbar-toggler-icon"></span>
+        <button class="menu-toggle" id="menuToggle" type="button">
+            ☰
         </button>
 
-        <div class="collapse navbar-collapse justify-content-center" id="menu">
-            <ul class="navbar-nav gap-4">
-                <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Nosotros</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Programas</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Horarios</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Precios</a></li>
-            </ul>
-        </div>
+        <nav class="nav-links" id="navMenu">
+            <a href="#">Inicio</a>
 
-        <a href="#" class="btn btn-outline-light">Inscribirse</a>
+            <!-- <div class="custom-dropdown" id="programasDropdown">
+                <a class="nav-item-custom dropdown-link" href="#" id="programasToggle">
+                    Programas <span class="arrow">▾</span>
+                </a>
+
+                <ul class="dropdown-menu-custom">
+                    <li><a href="#">BodyPump</a></li>
+                    <li><a href="#">PowerJump</a></li>
+                    <li><a href="#">BodyStep</a></li>
+                    <li><a href="#">Funcional</a></li>
+                    <li><a href="#">Zumba</a></li>
+                    <li><a href="#">Ritmo-Cardio-Mix</a></li>
+                </ul>
+            </div> -->
+
+            <a href="#">Horarios</a>
+            <a href="#">Precios</a>
+            <a href="#">Nosotros</a>
+
+            <a href="#" class="btn-nav mobile-btn">Iniciar sesión</a>
+        </nav>
+
+        <a href="#" class="btn-nav desktop-btn">Iniciar sesión</a>
+
     </div>
-</nav>
+</header>

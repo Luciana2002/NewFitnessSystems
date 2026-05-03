@@ -1,0 +1,415 @@
+/* =========================
+   GENERAL
+========================= */
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #111;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* =========================
+   HERO
+========================= */
+.hero {
+    min-height: 100vh;
+    background:
+        linear-gradient(90deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.68) 38%, rgba(0,0,0,0.35) 100%),
+        url('../img/banner.png');
+    background-size: cover;
+    background-position: right center;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.hero-content {
+    padding-top: 90px;
+}
+
+.hero-tag {
+    display: inline-block;
+    background-color: rgba(255,255,255,0.16);
+    padding: 8px 16px;
+    margin-bottom: 22px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    max-width: 720px;
+    font-size: 62px;
+    line-height: 1.05;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+    color: #ffffff;
+}
+
+.hero p {
+    max-width: 520px;
+    font-size: 20px;
+    line-height: 1.4;
+    color: #f1f1f1;
+    margin-bottom: 36px;
+}
+
+.btn-hero {
+    display: inline-block;
+    background-color: #0b8f70;
+    color: white;
+    padding: 17px 34px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.btn-hero:hover {
+    background-color: #0aa87f;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.site-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 24px 0;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand-logo img {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    margin-left: auto;
+}
+
+.nav-links a,
+.nav-item-custom {
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.nav-links a:hover,
+.nav-item-custom:hover {
+    color: #0b8f70;
+}
+
+.btn-nav {
+    background-color: #0b8f70;
+    color: white !important;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.btn-nav:hover {
+    background-color: #0aa87f;
+}
+
+.desktop-btn {
+    margin-left: 30px;
+}
+
+.mobile-btn {
+    display: none !important;
+}
+
+/* =========================
+   DROPDOWN
+========================= */
+.custom-dropdown {
+    position: relative;
+}
+
+.dropdown-menu-custom {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #111;
+    display: none;
+    min-width: 200px;
+}
+
+.dropdown-menu-custom a {
+    display: block;
+    padding: 10px 20px;
+    color: white;
+    font-size: 13px;
+}
+
+.dropdown-menu-custom a:hover {
+    background-color: #0b8f70;
+}
+
+.custom-dropdown:hover .dropdown-menu-custom {
+    display: block;
+}
+
+/* =========================
+   MOBILE
+========================= */
+.menu-toggle {
+    display: none;
+    background-color: #0b8f70;
+    color: white;
+    border: none;
+    font-size: 28px;
+    width: 55px;
+    height: 55px;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .desktop-btn {
+        display: none;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 90px;
+        left: 0;
+        width: 100%;
+        background: rgba(17,17,17,0.97);
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .mobile-btn {
+        display: block !important;
+        margin-top: 10px;
+    }
+
+    .custom-dropdown:hover .dropdown-menu-custom {
+        display: none;
+    }
+
+    .custom-dropdown.open .dropdown-menu-custom {
+        display: block;
+    }
+}
+
+/* =========================
+   SECCIÓN ENTRENAMIENTOS
+========================= */
+.section-light {
+    background-color: #f5f5f5;
+    padding: 90px 0;
+}
+
+.section-white {
+    background-color: #ffffff;
+    padding: 90px 0;
+}
+
+/* LABEL */
+.section-label {
+    display: inline-block;
+    color: #0b8f70;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+}
+
+/* TITULOS */
+.section-light h2,
+.section-white h2 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 22px;
+    color: #111;
+}
+
+/* PÁRRAFOS */
+.section-light p,
+.section-white p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: #555;
+}
+
+/* BOTÓN */
+.btn-main {
+    display: inline-block;
+    background-color: #0b8f70;
+    color: white;
+    padding: 14px 30px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.3s;
+}
+
+.btn-main:hover {
+    background-color: #0aa87f;
+    color: white;
+}
+
+/* =========================
+   SISTEMAS / PROGRAMAS
+========================= */
+.programs-section {
+    background-color: #111;
+    color: white;
+    padding: 90px 0;
+}
+
+.programs-section h2 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 18px;
+}
+
+.programs-subtitle {
+    max-width: 700px;
+    margin: 0 auto;
+    color: #cfcfcf;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+.program-card {
+    background-color: #1b1b1b;
+    padding: 35px 28px;
+    min-height: 220px;
+    border-left: 5px solid #0b8f70;
+    transition: 0.3s;
+}
+
+.program-card:hover {
+    transform: translateY(-8px);
+    background-color: #202020;
+}
+
+.program-card h3 {
+    font-size: 23px;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+.program-card p {
+    color: #cfcfcf;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    background: linear-gradient(135deg, #0b8f70, #0aa87f);
+    color: white;
+    padding: 60px 0 0;
+    text-align: center;
+}
+
+.footer-logo {
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.footer-social a {
+    width: 42px;
+    height: 42px;
+    background: white;
+    color: #0b8f70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 18px;
+    transition: 0.3s;
+}
+
+.footer-social a:hover {
+    transform: scale(1.1);
+}
+
+.footer-address {
+    margin-bottom: 25px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* BARRA INFERIOR */
+.footer-bottom {
+    background-color: #000;
+    padding: 12px;
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .hero {
+        background-position: 70% center;
+        text-align: left;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+    .section-light h2,
+    .programs-section h2 {
+        font-size: 32px;
+    }
+
+    .program-card {
+        min-height: auto;
+    }
+}
