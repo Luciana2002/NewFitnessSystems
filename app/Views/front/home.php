@@ -1,6 +1,4 @@
-<?= view('front/header') ?>
-<?= view('front/navbar') ?>
-
+<main>
 <section class="hero">
     <div class="container hero-content">
         <span class="hero-tag">EL MEJOR GIMNASIO PARA ENTRENAR</span>
@@ -138,5 +136,4 @@
         </div>
     </div>
 </section>
-
-<?= view('front/footer') ?>
+</main>

@@ -1,0 +1,12 @@
+CRITICAL - 2026-05-03 03:49:42 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "front/home.php"
+[Method: GET, Route: /]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('front/home.php')
+ 2 SYSTEMPATH\Common.php(1250): CodeIgniter\View\View->render('front/home', [], true)
+ 3 APPPATH\Controllers\Home.php(11): view('front/home')
+ 4 SYSTEMPATH\CodeIgniter.php(951): App\Controllers\Home->index()
+ 5 SYSTEMPATH\CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Home))
+ 6 SYSTEMPATH\CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(65): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

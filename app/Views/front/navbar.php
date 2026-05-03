@@ -1,3 +1,4 @@
+<body>
 <header class="site-header">
     <div class="container nav-container">
 
@@ -10,7 +11,7 @@
         </button>
 
         <nav class="nav-links" id="navMenu">
-            <a href="#">Inicio</a>
+            <a href="<?= base_url('/') ?>">Inicio</a>
 
             <!-- <div class="custom-dropdown" id="programasDropdown">
                 <a class="nav-item-custom dropdown-link" href="#" id="programasToggle">
@@ -27,9 +28,10 @@
                 </ul>
             </div> -->
 
-            <a href="#">Horarios</a>
-            <a href="#">Precios</a>
-            <a href="#">Nosotros</a>
+            <a href="<?= base_url('horarios') ?>">Horarios</a>
+            <a href="<?= base_url('precios') ?>">Precios</a>
+            <a href="<?= base_url('contacto') ?>">Contacto</a>
+            <a href="<?= base_url('nosotros') ?>">Nosotros</a>
 
             <a href="#" class="btn-nav mobile-btn">Iniciar sesión</a>
         </nav>
