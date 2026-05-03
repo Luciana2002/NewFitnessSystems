@@ -21,10 +21,9 @@
                 <ul class="dropdown-menu-custom">
                     <li><a href="#">BodyPump</a></li>
                     <li><a href="#">PowerJump</a></li>
-                    <li><a href="#">BodyStep</a></li>
                     <li><a href="#">Funcional</a></li>
                     <li><a href="#">Zumba</a></li>
-                    <li><a href="#">Ritmo-Cardio-Mix</a></li>
+                    <li><a href="#">Artes Marciales</a></li>
                 </ul>
             </div> -->
 

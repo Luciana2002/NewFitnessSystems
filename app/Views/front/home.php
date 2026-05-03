@@ -14,7 +14,7 @@
             para todos los niveles.
         </p>
 
-        <a href="#" class="btn-hero">COMENZAR AHORA</a>
+        <a href="<?= base_url('precios') ?>" class="btn-hero">COMENZAR AHORA</a>
     </div>
 </section>
 
@@ -63,7 +63,7 @@
                     preparado para desarrollar fuerza, resistencia y masa muscular.
                 </p>
                 <p>
-                    Podés seguir entrenamientos personalizadas según tus objetivos.
+                    Podés solicitar entrenamientos personalizadas según tus objetivos.
                 </p>
                 <!--<a href="#" class="btn-main">Conocer más</a>-->
             </div>
@@ -101,13 +101,6 @@
 
             <div class="col-md-4">
                 <div class="program-card">
-                    <h3>BodyStep</h3>
-                    <p>Clase aeróbica con step, ideal para trabajar piernas, coordinación y energía.</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="program-card">
                     <h3>Funcional</h3>
                     <p>Ejercicios dinámicos para fortalecer todo el cuerpo y mejorar el rendimiento diario.</p>
                 </div>
@@ -122,15 +115,15 @@
 
             <div class="col-md-4">
                 <div class="program-card">
-                    <h3>Ritmo-Cardio-Mix</h3>
-                    <p>Entrenamiento cardiovascular con música, pasos combinados y mucha energía.</p>
+                    <h3>Artes Marciales</h3>
+                    <p>Entrenamiento funcional con técnicas de combate para mejorar fuerza, agilidad y resistencia.</p>
                 </div>
             </div>
 
             <div class="col-md-4 mx-auto">
                 <div class="program-card">
-                    <h3>Gimnasio tradicional</h3>
-                    <p>Máquinas, musculación y rutinas libres para entrenar fuerza a tu propio ritmo.</p>
+                    <h3>Musculación</h3>
+                    <p>Máquinas y rutinas libres para entrenar fuerza a tu propio ritmo.</p>
                 </div>
             </div>
         </div>

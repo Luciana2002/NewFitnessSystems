@@ -3,13 +3,13 @@
 ========================= */
 html, body {
     height: 100%;
+    scroll-behavior: smooth;
 }
 
 body {
     margin: 0;
     font-family: 'Montserrat', sans-serif;
     background-color: #111;
-
     display: flex;
     flex-direction: column;
 }
@@ -23,7 +23,7 @@ a {
 }
 
 /* =========================
-   HERO
+   HERO INICIO
 ========================= */
 .hero {
     min-height: 100vh;
@@ -58,9 +58,8 @@ a {
     line-height: 1.05;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 1px;
     margin-bottom: 28px;
-    color: #ffffff;
+    color: white;
 }
 
 .hero p {
@@ -71,21 +70,44 @@ a {
     margin-bottom: 36px;
 }
 
-.btn-hero {
+/* =========================
+   BOTONES
+========================= */
+.btn-hero,
+.btn-main,
+.btn-nav {
     display: inline-block;
     background-color: #0b8f70;
-    color: white;
-    padding: 17px 34px;
-    font-size: 14px;
+    color: white !important;
     font-weight: 800;
-    letter-spacing: 1.2px;
     text-transform: uppercase;
+    letter-spacing: 1px;
     transition: 0.3s;
 }
 
-.btn-hero:hover {
+.btn-hero {
+    padding: 17px 34px;
+    font-size: 14px;
+}
+
+.btn-main {
+    padding: 14px 30px;
+}
+
+.btn-nav {
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.btn-hero:hover,
+.btn-main:hover,
+.btn-nav:hover {
     background-color: #0aa87f;
-    color: white;
+    color: white !important;
+}
+
+.btn-hero:hover {
     transform: translateY(-2px);
 }
 
@@ -135,25 +157,22 @@ a {
     color: #0b8f70;
 }
 
-.btn-nav {
-    background-color: #0b8f70;
-    color: white !important;
-    padding: 14px 28px;
-    font-size: 14px;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-.btn-nav:hover {
-    background-color: #0aa87f;
-}
-
 .desktop-btn {
     margin-left: 30px;
 }
 
 .mobile-btn {
     display: none !important;
+}
+
+.menu-toggle {
+    display: none;
+    background-color: #0b8f70;
+    color: white;
+    border: none;
+    font-size: 28px;
+    width: 55px;
+    height: 55px;
 }
 
 /* =========================
@@ -170,6 +189,8 @@ a {
     background: #111;
     display: none;
     min-width: 200px;
+    padding: 0;
+    list-style: none;
 }
 
 .dropdown-menu-custom a {
@@ -188,58 +209,7 @@ a {
 }
 
 /* =========================
-   MOBILE
-========================= */
-.menu-toggle {
-    display: none;
-    background-color: #0b8f70;
-    color: white;
-    border: none;
-    font-size: 28px;
-    width: 55px;
-    height: 55px;
-}
-
-@media (max-width: 992px) {
-    .menu-toggle {
-        display: block;
-    }
-
-    .desktop-btn {
-        display: none;
-    }
-
-    .nav-links {
-        display: none;
-        position: absolute;
-        top: 90px;
-        left: 0;
-        width: 100%;
-        background: rgba(17,17,17,0.97);
-        flex-direction: column;
-        padding: 20px;
-    }
-
-    .nav-links.active {
-        display: flex;
-    }
-
-    .mobile-btn {
-        display: block !important;
-        margin-top: 10px;
-    }
-
-    .custom-dropdown:hover .dropdown-menu-custom {
-        display: none;
-    }
-
-    .custom-dropdown.open .dropdown-menu-custom {
-        display: block;
-    }
-}
-
-/* =========================
-   SECCIÓN ENTRENAMIENTOS
+   SECCIONES GENERALES
 ========================= */
 .section-light {
     background-color: #f5f5f5;
@@ -251,7 +221,6 @@ a {
     padding: 90px 0;
 }
 
-/* LABEL */
 .section-label {
     display: inline-block;
     color: #0b8f70;
@@ -261,7 +230,6 @@ a {
     margin-bottom: 12px;
 }
 
-/* TITULOS */
 .section-light h2,
 .section-white h2 {
     font-size: 42px;
@@ -270,7 +238,6 @@ a {
     color: #111;
 }
 
-/* PÁRRAFOS */
 .section-light p,
 .section-white p {
     font-size: 17px;
@@ -278,25 +245,8 @@ a {
     color: #555;
 }
 
-/* BOTÓN */
-.btn-main {
-    display: inline-block;
-    background-color: #0b8f70;
-    color: white;
-    padding: 14px 30px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: 0.3s;
-}
-
-.btn-main:hover {
-    background-color: #0aa87f;
-    color: white;
-}
-
 /* =========================
-   SISTEMAS / PROGRAMAS
+   PROGRAMAS
 ========================= */
 .programs-section {
     background-color: #111;
@@ -344,9 +294,181 @@ a {
 }
 
 /* =========================
+   PÁGINAS INTERNAS
+========================= */
+.page-hero {
+    min-height: 45vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
+        url('../img/banner.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-top: 130px;
+}
+
+.page-hero h1 {
+    font-size: 54px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+}
+
+.page-hero p {
+    font-size: 18px;
+    max-width: 650px;
+    color: #e5e5e5;
+}
+
+/* =========================
+   CONTACTO
+========================= */
+.contact-section {
+    background-color: #f5f5f5;
+    color: #111;
+    padding: 90px 0;
+}
+
+.contact-section h2,
+.contact-section h3,
+.contact-item h5 {
+    color: #111;
+}
+
+.contact-info {
+    margin-bottom: 30px;
+}
+
+.contact-item {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.contact-item i {
+    color: #0b8f70;
+    font-size: 26px;
+}
+
+.contact-item p {
+    margin: 0;
+    color: #555;
+}
+
+.contact-item a {
+    color: #0b8f70;
+}
+
+.contact-card {
+    background-color: white;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.contact-card h3 {
+    font-weight: 900;
+    margin-bottom: 25px;
+}
+
+.form-control {
+    border-radius: 0;
+    padding: 12px;
+}
+
+.form-control:focus {
+    border-color: #0b8f70;
+    box-shadow: none;
+}
+
+.map-section {
+    background-color: white;
+    color: #111;
+    padding: 90px 0;
+}
+
+.map-section h2 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #111;
+}
+
+.map-section p {
+    color: #555;
+}
+
+.map-box {
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* =========================
+   HORARIOS
+========================= */
+.schedule-section {
+    background-color: #f5f5f5;
+    color: #111;
+    padding: 90px 0;
+}
+
+.schedule-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+    background-color: white;
+}
+
+.schedule-table th {
+    background-color: #0b8f70;
+    color: white;
+    text-align: center;
+    padding: 18px 12px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    border: 1px solid #ddd;
+}
+
+.schedule-table td {
+    text-align: center;
+    padding: 18px 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    border: 1px solid #ddd;
+    height: 65px;
+}
+
+.schedule-table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.schedule-table td:first-child {
+    background-color: #e9f7f3;
+    font-weight: 900;
+}
+
+.class-horario {
+    font-weight: 900;
+}
+
+.schedule-note {
+    text-align: center;
+    margin-top: 40px;
+    color: #555;
+}
+
+/* =========================
    FOOTER
 ========================= */
-
 .footer {
     background: linear-gradient(135deg, #0b8f70, #0aa87f);
     color: white;
@@ -390,7 +512,6 @@ a {
     opacity: 0.9;
 }
 
-/* BARRA INFERIOR */
 .footer-bottom {
     background-color: #000;
     padding: 12px;
@@ -401,6 +522,93 @@ a {
 /* =========================
    RESPONSIVE
 ========================= */
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: block;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    .menu-toggle:hover {
+        background-color: #0aa87f;
+        transform: scale(1.05);
+    }
+
+    .desktop-btn {
+        display: none;
+    }
+
+    .nav-links {
+        display: flex;
+        position: absolute;
+        top: 90px;
+        right: 0;
+        width: 280px;
+        background: rgba(17, 17, 17, 0.96);
+        backdrop-filter: blur(8px);
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        padding: 25px 20px;
+        border-left: 4px solid #0b8f70;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-15px);
+        transition: 0.35s ease;
+    }
+
+    .nav-links.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .nav-links a,
+    .nav-item-custom {
+        width: 100%;
+        text-align: center;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-links a:hover,
+    .nav-item-custom:hover {
+        color: #0b8f70;
+        transform: translateX(4px);
+    }
+
+    .mobile-btn {
+        display: block !important;
+        margin-top: 18px;
+        width: 100%;
+        text-align: center;
+        border-bottom: none !important;
+    }
+
+    .custom-dropdown {
+        width: 100%;
+        text-align: center;
+    }
+
+    .dropdown-menu-custom {
+        position: static;
+        display: none;
+        background: rgba(0,0,0,0.35);
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .custom-dropdown:hover .dropdown-menu-custom {
+        display: none;
+    }
+
+    .custom-dropdown.open .dropdown-menu-custom {
+        display: block;
+    }
+}
+
 @media (max-width: 768px) {
     .hero {
         background-position: 70% center;
@@ -416,8 +624,19 @@ a {
     }
 
     .section-light h2,
-    .programs-section h2 {
+    .section-white h2,
+    .programs-section h2,
+    .contact-section h2,
+    .map-section h2 {
         font-size: 32px;
+    }
+
+    .page-hero h1 {
+        font-size: 38px;
+    }
+
+    .contact-card {
+        padding: 28px;
     }
 
     .program-card {
@@ -426,242 +645,46 @@ a {
 }
 
 /* =========================
-   CONTACTO
+   PRECIOS
 ========================= */
 
-.page-hero {
-    min-height: 45vh;
-    background:
-        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
-        url('../img/banner.png');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    display: flex;
-    align-items: center;
-    padding-top: 120px;
+.pricing-section {
+    padding: 100px 0;
 }
 
-.page-hero h1 {
-    font-size: 54px;
+.pricing-card {
+    padding: 35px 30px;
+    height: 100%;
+    transition: 0.3s;
+}
+
+.pricing-card:hover {
+    transform: translateY(-8px);
+}
+
+.pricing-card h3 {
+    font-size: 22px;
     font-weight: 900;
-    text-transform: uppercase;
+    margin-bottom: 10px;
 }
 
-.page-hero p {
-    font-size: 18px;
-    max-width: 600px;
-    color: #e5e5e5;
+.pricing-card p {
+    font-size: 14px;
+    margin-bottom: 20px;
 }
 
-.contact-section {
-    background-color: #f5f5f5;
-    padding: 90px 0;
-}
-
-.contact-section h2 {
-    font-size: 42px;
+.price {
+    font-size: 30px;
     font-weight: 900;
-    margin-bottom: 30px;
-}
-
-.contact-info {
-    margin-bottom: 30px;
-}
-
-.contact-item {
-    display: flex;
-    gap: 18px;
-    margin-bottom: 24px;
-}
-
-.contact-item i {
-    color: #0b8f70;
-    font-size: 26px;
-}
-
-.contact-item h5 {
-    font-weight: 800;
-    margin-bottom: 5px;
-}
-
-.contact-item p {
-    margin: 0;
-    color: #555;
-}
-
-.contact-item a {
-    color: #555;
-}
-
-.contact-item a:hover {
-    color: #0b8f70;
-}
-
-.contact-card {
-    background-color: white;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-.contact-card h3 {
-    font-weight: 900;
-    margin-bottom: 25px;
-}
-
-.form-control {
-    border-radius: 0;
-    padding: 12px;
-}
-
-.form-control:focus {
-    border-color: #0b8f70;
-    box-shadow: none;
-}
-
-.map-section {
-    background-color: white;
-    padding: 90px 0;
-}
-
-.map-section h2 {
-    font-size: 42px;
-    font-weight: 900;
-}
-
-.map-section p {
-    color: #555;
-}
-
-.map-box {
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-}
-
-@media (max-width: 768px) {
-    .page-hero h1 {
-        font-size: 38px;
-    }
-
-    .contact-section h2,
-    .map-section h2 {
-        font-size: 32px;
-    }
-
-    .contact-card {
-        padding: 28px;
-    }
+    margin-bottom: 20px;
 }
 
 /* =========================
-   PÁGINAS INTERNAS
+   NOSOTROS
 ========================= */
 
-.page-hero {
-    min-height: 45vh;
-    background:
-        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
-        url('../img/banner.png');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    display: flex;
-    align-items: center;
-    padding-top: 130px;
-}
-
-.page-hero h1 {
-    font-size: 54px;
-    font-weight: 900;
-    text-transform: uppercase;
-    color: white;
-}
-
-.page-hero p {
-    font-size: 18px;
-    max-width: 650px;
-    color: #e5e5e5;
-}
-
-/* =========================
-   CONTACTO
-========================= */
-
-.contact-section {
-    background-color: #f5f5f5;
-    color: #111;
-    padding: 90px 0;
-}
-
-.contact-section h2,
-.contact-section h3,
-.contact-item h5 {
-    color: #111;
-}
-
-.contact-info {
-    margin-bottom: 30px;
-}
-
-.contact-item {
-    display: flex;
-    gap: 18px;
-    margin-bottom: 24px;
-}
-
-.contact-item i {
-    color: #0b8f70;
-    font-size: 26px;
-}
-
-.contact-item p {
-    margin: 0;
-    color: #555;
-}
-
-.contact-item a {
-    color: #0b8f70;
-    text-decoration: none;
-}
-
-.contact-card {
-    background-color: white;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-.contact-card h3 {
-    font-weight: 900;
-    margin-bottom: 25px;
-}
-
-.form-control {
-    border-radius: 0;
-    padding: 12px;
-}
-
-.form-control:focus {
-    border-color: #0b8f70;
-    box-shadow: none;
-}
-
-.map-section {
-    background-color: white;
-    color: #111;
-    padding: 90px 0;
-}
-
-.map-section h2 {
-    font-size: 42px;
-    font-weight: 900;
-    color: #111;
-}
-
-.map-section p {
-    color: #555;
-}
-
-.map-box {
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+.img-section {
+    height: 400px !important;
+    width: 100%;
+    object-fit: cover;
 }
