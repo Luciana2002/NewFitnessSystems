@@ -10,7 +10,7 @@
                 <i class="bi bi-facebook"></i></a>
             <a href="https://www.instagram.com/newfitnessystems?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
                 <i class="bi bi-instagram"></i></a>
-            <a href="#">
+            <a href="https://wa.me/3794268872">
                 <i class="bi bi-whatsapp"></i></a>
         </div>
 

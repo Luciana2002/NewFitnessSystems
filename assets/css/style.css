@@ -424,3 +424,244 @@ a {
         min-height: auto;
     }
 }
+
+/* =========================
+   CONTACTO
+========================= */
+
+.page-hero {
+    min-height: 45vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
+        url('../img/banner.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-top: 120px;
+}
+
+.page-hero h1 {
+    font-size: 54px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.page-hero p {
+    font-size: 18px;
+    max-width: 600px;
+    color: #e5e5e5;
+}
+
+.contact-section {
+    background-color: #f5f5f5;
+    padding: 90px 0;
+}
+
+.contact-section h2 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 30px;
+}
+
+.contact-info {
+    margin-bottom: 30px;
+}
+
+.contact-item {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.contact-item i {
+    color: #0b8f70;
+    font-size: 26px;
+}
+
+.contact-item h5 {
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.contact-item p {
+    margin: 0;
+    color: #555;
+}
+
+.contact-item a {
+    color: #555;
+}
+
+.contact-item a:hover {
+    color: #0b8f70;
+}
+
+.contact-card {
+    background-color: white;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.contact-card h3 {
+    font-weight: 900;
+    margin-bottom: 25px;
+}
+
+.form-control {
+    border-radius: 0;
+    padding: 12px;
+}
+
+.form-control:focus {
+    border-color: #0b8f70;
+    box-shadow: none;
+}
+
+.map-section {
+    background-color: white;
+    padding: 90px 0;
+}
+
+.map-section h2 {
+    font-size: 42px;
+    font-weight: 900;
+}
+
+.map-section p {
+    color: #555;
+}
+
+.map-box {
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+@media (max-width: 768px) {
+    .page-hero h1 {
+        font-size: 38px;
+    }
+
+    .contact-section h2,
+    .map-section h2 {
+        font-size: 32px;
+    }
+
+    .contact-card {
+        padding: 28px;
+    }
+}
+
+/* =========================
+   PÁGINAS INTERNAS
+========================= */
+
+.page-hero {
+    min-height: 45vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
+        url('../img/banner.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-top: 130px;
+}
+
+.page-hero h1 {
+    font-size: 54px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+}
+
+.page-hero p {
+    font-size: 18px;
+    max-width: 650px;
+    color: #e5e5e5;
+}
+
+/* =========================
+   CONTACTO
+========================= */
+
+.contact-section {
+    background-color: #f5f5f5;
+    color: #111;
+    padding: 90px 0;
+}
+
+.contact-section h2,
+.contact-section h3,
+.contact-item h5 {
+    color: #111;
+}
+
+.contact-info {
+    margin-bottom: 30px;
+}
+
+.contact-item {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.contact-item i {
+    color: #0b8f70;
+    font-size: 26px;
+}
+
+.contact-item p {
+    margin: 0;
+    color: #555;
+}
+
+.contact-item a {
+    color: #0b8f70;
+    text-decoration: none;
+}
+
+.contact-card {
+    background-color: white;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.contact-card h3 {
+    font-weight: 900;
+    margin-bottom: 25px;
+}
+
+.form-control {
+    border-radius: 0;
+    padding: 12px;
+}
+
+.form-control:focus {
+    border-color: #0b8f70;
+    box-shadow: none;
+}
+
+.map-section {
+    background-color: white;
+    color: #111;
+    padding: 90px 0;
+}
+
+.map-section h2 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #111;
+}
+
+.map-section p {
+    color: #555;
+}
+
+.map-box {
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
