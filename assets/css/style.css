@@ -747,3 +747,122 @@ a {
 .login-link:hover {
     color: #0aa87f;
 }
+
+/* =========================
+   USUARIO / NAV LOGUEADO
+========================= */
+
+.desktop-user-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: 30px;
+}
+
+.user-nav {
+    color: white !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 13px 18px;
+}
+
+.user-nav:hover {
+    color: white !important;
+    background-color: #0b8f70;
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard-page {
+    background-color: #111;
+    color: white;
+    min-height: 100vh;
+    padding-top: 135px;
+    display: flex;
+}
+
+.dashboard-sidebar {
+    width: 280px;
+    background-color: #1b1b1b;
+    border-right: 5px solid #0b8f70;
+    padding: 35px 25px;
+}
+
+.dashboard-sidebar h3 {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 25px;
+}
+
+.dashboard-sidebar a {
+    display: block;
+    color: white;
+    font-weight: 800;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background-color: rgba(255,255,255,0.06);
+}
+
+.dashboard-sidebar a:hover {
+    background-color: #0b8f70;
+    color: white;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 45px 60px;
+}
+
+.dashboard-content h1 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 30px;
+}
+
+.dashboard-card {
+    background-color: #1b1b1b;
+    border-left: 5px solid #0b8f70;
+    padding: 30px;
+    max-width: 520px;
+}
+
+.dashboard-card p {
+    margin-bottom: 12px;
+}
+
+/* =========================
+   RESPONSIVE DASHBOARD
+========================= */
+
+@media (max-width: 992px) {
+    .desktop-user-area {
+        display: none;
+    }
+
+    .dashboard-page {
+        flex-direction: column;
+        padding-top: 120px;
+    }
+
+    .dashboard-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 5px solid #0b8f70;
+    }
+
+    .dashboard-content {
+        padding: 35px 25px;
+    }
+
+    .dashboard-content h1 {
+        font-size: 32px;
+    }
+}
