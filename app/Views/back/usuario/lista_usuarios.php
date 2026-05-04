@@ -77,7 +77,7 @@
                                 <td><?= $usuario['email'] ?></td>
                                 <td><?= $usuario['telefono'] ?></td>
                                 <td><?= $usuario['nombre_usuario'] ?></td>
-                                <td><?= $usuario['baja'] == 'SI' ? 'Baja' : 'Activo' ?></td>
+                                <td><?= $usuario['baja'] == 'S' ? 'Baja' : 'Activo' ?></td>
 
                                 <td style="white-space: nowrap;">
                                     <div style="display:flex; gap:6px; flex-wrap:nowrap;">
@@ -85,7 +85,7 @@
                                             Editar
                                         </a>
 
-                                        <?php if($usuario['baja'] == 'NO'): ?>
+                                        <?php if($usuario['baja'] == 'N'): ?>
                                             <a href="<?= base_url('baja_usuario/'.$usuario['id_usuario']) ?>" class="btn btn-danger btn-sm">
                                                 Dar de baja
                                             </a>

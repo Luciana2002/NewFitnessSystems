@@ -18,7 +18,7 @@ class ClienteModel extends Model
         'baja'
     ];
 
-    public function getClientesAll()
+    public function getClientes()
     {
         return $this->select('
                 Datos_personales.id_persona,
@@ -28,16 +28,12 @@ class ClienteModel extends Model
                 Datos_personales.telefono,
                 Datos_personales.dni,
                 Datos_personales.baja,
-                Usuario.id_usuario,
-                Usuario.id_rol,
                 Rol.descripcion AS rol
             ')
             ->join('Usuario', 'Usuario.id_persona = Datos_personales.id_persona', 'left')
             ->join('Rol', 'Rol.id_rol = Usuario.id_rol', 'left')
-            ->groupStart()
-                ->where('Usuario.id_rol', 3)
-                ->orWhere('Usuario.id_usuario IS NULL')
-            ->groupEnd()
+            ->where('Usuario.id_rol', 3) // cliente
+            ->orWhere('Usuario.id_usuario IS NULL') // por si no tiene usuario
             ->findAll();
     }
 }

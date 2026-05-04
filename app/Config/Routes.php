@@ -50,7 +50,9 @@ $routes->get('/alta_usuario/(:num)', 'AdminUsuarioController::alta/$1');
 ========================= */
 
 $routes->get('/clientes', 'ClienteController::index');
+
 $routes->get('/editar_cliente/(:num)', 'ClienteController::editar/$1');
 $routes->post('/actualizar_cliente/(:num)', 'ClienteController::actualizar/$1');
+
 $routes->get('/baja_cliente/(:num)', 'ClienteController::baja/$1');
 $routes->get('/alta_cliente/(:num)', 'ClienteController::alta/$1');

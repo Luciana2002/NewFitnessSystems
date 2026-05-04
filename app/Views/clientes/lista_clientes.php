@@ -62,6 +62,8 @@
                         <th>Apellido</th>
                         <th>Email</th>
                         <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
 
@@ -74,6 +76,36 @@
                                 <td><?= $cliente['apellido'] ?></td>
                                 <td><?= $cliente['email'] ?></td>
                                 <td><?= $cliente['telefono'] ?></td>
+
+                                <!-- ESTADO -->
+                                <td>
+                                    <?= $cliente['baja'] == 'S' ? 'Baja' : 'Activo' ?>
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td style="white-space: nowrap;">
+                                    <div style="display:flex; gap:6px;">
+
+                                        <a href="<?= base_url('editar_cliente/'.$cliente['id_persona']) ?>"
+                                           class="btn btn-primary btn-sm">
+                                            Editar
+                                        </a>
+
+                                        <?php if($cliente['baja'] == 'N'): ?>
+                                            <a href="<?= base_url('baja_cliente/'.$cliente['id_persona']) ?>"
+                                               class="btn btn-danger btn-sm">
+                                                Dar de baja
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?= base_url('alta_cliente/'.$cliente['id_persona']) ?>"
+                                                class="btn btn-success btn-sm">
+                                                Activar
+                                            </a>
+                                        <?php endif; ?>
+
+                                    </div>
+                                </td>
+
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

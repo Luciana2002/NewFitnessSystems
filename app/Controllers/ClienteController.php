@@ -12,42 +12,28 @@ class ClienteController extends BaseController
             return redirect()->to('/login');
         }
 
-        if (session()->get('id_rol') != 1 && session()->get('id_rol') != 2) {
-            return redirect()->to('/usuario_logueado');
-        }
-
         $model = new ClienteModel();
-
-        $data['clientes'] = $model->getClientesAll();
+        $data['clientes'] = $model->getClientes();
 
         return view('front/header')
-             . view('front/navbar')
-             . view('back/clientes/lista_clientes', $data)
-             . view('front/footer');
+            . view('front/navbar')
+            . view('clientes/lista_clientes', $data)
+            . view('front/footer');
     }
 
     public function editar($id)
     {
-        if (session()->get('id_rol') != 1) {
-            return redirect()->to('/usuario_logueado');
-        }
-
         $model = new ClienteModel();
-
         $data['cliente'] = $model->find($id);
 
         return view('front/header')
-             . view('front/navbar')
-             . view('back/clientes/editar_clientes', $data)
-             . view('front/footer');
+            . view('front/navbar')
+            . view('clientes/editar_clientes', $data)
+            . view('front/footer');
     }
 
     public function actualizar($id)
     {
-        if (session()->get('id_rol') != 1) {
-            return redirect()->to('/usuario_logueado');
-        }
-
         $model = new ClienteModel();
 
         $model->update($id, [
@@ -58,33 +44,25 @@ class ClienteController extends BaseController
             'dni'      => $this->request->getPost('dni')
         ]);
 
-        session()->setFlashdata('success', 'Cliente modificado correctamente');
+        session()->setFlashdata('success', 'Cliente actualizado correctamente');
         return redirect()->to('/clientes');
     }
 
     public function baja($id)
     {
-        if (session()->get('id_rol') != 1) {
-            return redirect()->to('/usuario_logueado');
-        }
-
         $model = new ClienteModel();
         $model->update($id, ['baja' => 'S']);
 
-        session()->setFlashdata('success', 'Cliente dado de baja correctamente');
+        session()->setFlashdata('success', 'Cliente dado de baja');
         return redirect()->to('/clientes');
     }
 
     public function alta($id)
     {
-        if (session()->get('id_rol') != 1) {
-            return redirect()->to('/usuario_logueado');
-        }
-
         $model = new ClienteModel();
         $model->update($id, ['baja' => 'N']);
 
-        session()->setFlashdata('success', 'Cliente activado correctamente');
+        session()->setFlashdata('success', 'Cliente activado');
         return redirect()->to('/clientes');
     }
 }
