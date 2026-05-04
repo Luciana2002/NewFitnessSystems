@@ -87,7 +87,7 @@ class AdminUsuarioController extends BaseController
         }
 
         $usuarioModel = new UsuarioModel();
-        $usuarioModel->update($id, ['baja' => 'SI']);
+        $usuarioModel->update($id, ['baja' => 'S']);
 
         session()->setFlashdata('success', 'Usuario dado de baja correctamente');
         return redirect()->to('/usuarios');
@@ -100,7 +100,7 @@ class AdminUsuarioController extends BaseController
         }
 
         $usuarioModel = new UsuarioModel();
-        $usuarioModel->update($id, ['baja' => 'NO']);
+        $usuarioModel->update($id, ['baja' => 'N']);
 
         session()->setFlashdata('success', 'Usuario activado correctamente');
         return redirect()->to('/usuarios');
