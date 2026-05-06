@@ -87,7 +87,18 @@ class AdminUsuarioController extends BaseController
         }
 
         $usuarioModel = new UsuarioModel();
-        $usuarioModel->update($id, ['baja' => 'S']);
+        $personaModel = new DatosPersonalesModel();
+
+        $usuario = $usuarioModel->find($id);
+
+        if (!$usuario) {
+            session()->setFlashdata('error', 'Usuario no encontrado');
+            return redirect()->to('/usuarios');
+        }
+
+        $personaModel->update($usuario['id_persona'], [
+            'baja' => 'S'
+        ]);
 
         session()->setFlashdata('success', 'Usuario dado de baja correctamente');
         return redirect()->to('/usuarios');
@@ -100,7 +111,18 @@ class AdminUsuarioController extends BaseController
         }
 
         $usuarioModel = new UsuarioModel();
-        $usuarioModel->update($id, ['baja' => 'N']);
+         $personaModel = new DatosPersonalesModel();
+
+        $usuario = $usuarioModel->find($id);
+
+        if (!$usuario) {
+            session()->setFlashdata('error', 'Usuario no encontrado');
+            return redirect()->to('/usuarios');
+        }
+
+        $personaModel->update($usuario['id_persona'], [
+            'baja' => 'N'
+        ]);
 
         session()->setFlashdata('success', 'Usuario activado correctamente');
         return redirect()->to('/usuarios');

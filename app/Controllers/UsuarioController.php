@@ -107,7 +107,8 @@ class UsuarioController extends BaseController
             'apellido' => $this->request->getPost('apellido'),
             'email'    => $this->request->getPost('email'),
             'telefono' => $this->request->getPost('telefono'),
-            'dni'      => $this->request->getPost('dni')
+            'dni'      => $this->request->getPost('dni'),
+            'id_rol'   => 3 // cliente
         ]);
 
         $idPersona = $personaModel->getInsertID();
@@ -115,7 +116,6 @@ class UsuarioController extends BaseController
         $usuarioModel->insert([
             'nombre_usuario' => $this->request->getPost('usuario'),
             'contraseña'     => $this->request->getPost('pass'),
-            'id_rol'         => 3,
             'id_persona'     => $idPersona
         ]);
 

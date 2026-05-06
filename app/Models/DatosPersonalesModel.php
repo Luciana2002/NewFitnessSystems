@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class DatosPersonalesModel extends Model
 {
-    protected $table = 'Datos_personales';
+    protected $table = 'Persona';
     protected $primaryKey = 'id_persona';
 
     protected $allowedFields = [
@@ -15,6 +15,7 @@ class DatosPersonalesModel extends Model
         'email',
         'telefono',
         'dni',
+        'id_rol',
         'baja'
     ];
 }

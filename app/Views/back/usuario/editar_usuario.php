@@ -1,20 +1,6 @@
 <main class="dashboard-page" style="align-items:flex-start;">
-    <aside class="dashboard-sidebar">
-
-        <div style="text-align:center; padding:10px 0 40px;">
-            <img src="<?= base_url('assets/img/logob.png') ?>" style="width:90px;">
-        </div>
-
-        <h3>Panel Admin</h3>
-        <a href="<?= base_url('usuarios') ?>">Usuarios</a>
-        <a href="<?= base_url('clientes') ?>">Clientes</a>
-        <a href="<?= base_url('profesores') ?>">Profesores</a>
-        <a href="<?= base_url('sistemas') ?>">Sistemas</a>
-        <a href="<?= base_url('horarios') ?>">Horarios</a>
-        <a href="<?= base_url('pagos') ?>">Pagos</a>
-        <a href="<?= base_url('suscripciones') ?>">Suscripciones</a>
-
-    </aside>
+    
+    <?= view('back/layout/sidebar') ?>
 
     <section class="dashboard-content" style="padding:50px 70px;">
         <h1>Editar Usuario</h1>
