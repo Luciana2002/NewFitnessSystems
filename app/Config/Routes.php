@@ -23,7 +23,7 @@ $routes->get('/nosotros', 'Home::nosotros');
 $routes->get('/contacto', 'Home::contacto');
 
 /* =========================
-   USUARIO
+   LOGIN / REGISTRO / SESIÓN
 ========================= */
 
 $routes->get('/login', 'UsuarioController::login');
@@ -36,23 +36,19 @@ $routes->post('/enviar-registro', 'UsuarioController::guardarRegistro');
 $routes->get('/usuario_logueado', 'UsuarioController::usuarioLogueado');
 
 /* =========================
-   ADMINISTRADOR
+   PERSONAS
 ========================= */
 
-$routes->get('/usuarios', 'AdminUsuarioController::index');
-$routes->get('/editar_usuario/(:num)', 'AdminUsuarioController::editar/$1');
-$routes->post('/modificar_usuario/(:num)', 'AdminUsuarioController::modificar/$1');
-$routes->get('/baja_usuario/(:num)', 'AdminUsuarioController::baja/$1');
-$routes->get('/alta_usuario/(:num)', 'AdminUsuarioController::alta/$1');
+$routes->get('/personas', 'PersonaController::index');
+
+$routes->get('/personas/editar/(:num)', 'PersonaController::editar/$1');
+$routes->post('/personas/modificar/(:num)', 'PersonaController::modificar/$1');
+
+$routes->get('/personas/baja/(:num)', 'PersonaController::baja/$1');
+$routes->get('/personas/alta/(:num)', 'PersonaController::alta/$1');
 
 /* =========================
    CLIENTES
 ========================= */
 
-$routes->get('/clientes', 'ClienteController::index');
-
-$routes->get('/editar_cliente/(:num)', 'ClienteController::editar/$1');
-$routes->post('/actualizar_cliente/(:num)', 'ClienteController::actualizar/$1');
-
-$routes->get('/baja_cliente/(:num)', 'ClienteController::baja/$1');
-$routes->get('/alta_cliente/(:num)', 'ClienteController::alta/$1');
+//$routes->get('/clientes', 'PersonaController::clientes');

@@ -13,4 +13,9 @@ class SistemaModel extends Model
         'nombre_sistema',
         'baja'
     ];
+
+    public function getSistemasActivos()
+    {
+        return $this->where('baja', 'N')->findAll();
+    }
 }
