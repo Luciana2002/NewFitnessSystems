@@ -21,6 +21,7 @@ class HorarioModel extends Model
     {
         return $this->select('
                 Horario.id_horario,
+                Horario.id_sistema,
                 Horario.hora_inicio,
                 Horario.hora_fin,
                 Horario.dia_semana,

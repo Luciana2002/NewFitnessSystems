@@ -36,14 +36,16 @@ $routes->post('/enviar-registro', 'UsuarioController::guardarRegistro');
 $routes->get('/usuario_logueado', 'UsuarioController::usuarioLogueado');
 
 /* =========================
-   ADMINISTRADOR
+   USUARIOS
 ========================= */
 
-$routes->get('/usuarios', 'AdminUsuarioController::index');
-$routes->get('/editar_usuario/(:num)', 'AdminUsuarioController::editar/$1');
-$routes->post('/modificar_usuario/(:num)', 'AdminUsuarioController::modificar/$1');
-$routes->get('/baja_usuario/(:num)', 'AdminUsuarioController::baja/$1');
-$routes->get('/alta_usuario/(:num)', 'AdminUsuarioController::alta/$1');
+$routes->get('/usuarios', 'ClienteController::usuarios');
+
+$routes->get('/editar_usuario/(:num)', 'ClienteController::editarUsuario/$1');
+$routes->post('/modificar_usuario/(:num)', 'ClienteController::modificarUsuario/$1');
+
+$routes->get('/baja_usuario/(:num)', 'ClienteController::bajaUsuario/$1');
+$routes->get('/alta_usuario/(:num)', 'ClienteController::altaUsuario/$1');
 
 /* =========================
    CLIENTES
@@ -51,8 +53,37 @@ $routes->get('/alta_usuario/(:num)', 'AdminUsuarioController::alta/$1');
 
 $routes->get('/clientes', 'ClienteController::index');
 
+$routes->get('/suscripciones', 'ClienteController::reporte');
+
+$routes->get('/cliente_info/(:num)', 'ClienteController::detalle/$1');
+
 $routes->get('/editar_cliente/(:num)', 'ClienteController::editar/$1');
 $routes->post('/actualizar_cliente/(:num)', 'ClienteController::actualizar/$1');
 
 $routes->get('/baja_cliente/(:num)', 'ClienteController::baja/$1');
 $routes->get('/alta_cliente/(:num)', 'ClienteController::alta/$1');
+
+$routes->post('/registrar_cliente', 'ClienteController::nuevoCliente');
+
+/* =========================
+   PANEL (profesores, sistemas, horarios, pagos)
+========================= */
+
+$routes->get('/profesores', 'PanelController::profesores');
+
+$routes->get('/sistemas', 'PanelController::sistemas');
+$routes->post('/actualizar_sistema/(:num)', 'PanelController::actualizarSistema/$1');
+$routes->get('/baja_sistema/(:num)', 'PanelController::bajaSistema/$1');
+$routes->get('/alta_sistema/(:num)', 'PanelController::altaSistema/$1');
+
+$routes->get('/admin_horarios', 'PanelController::horarios');
+$routes->post('/actualizar_horario/(:num)', 'PanelController::actualizarHorario/$1');
+$routes->get('/baja_horario/(:num)', 'PanelController::bajaHorario/$1');
+$routes->get('/alta_horario/(:num)', 'PanelController::altaHorario/$1');
+
+$routes->get('/pagos', 'PanelController::pagos');
+/* =========================
+   PAGOS DE CLIENTES
+========================= */
+
+$routes->get('/pagos_cliente/(:num)', 'ClienteController::detalle/$1');

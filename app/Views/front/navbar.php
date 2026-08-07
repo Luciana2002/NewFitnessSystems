@@ -10,6 +10,8 @@
             $uri === 'usuarios' ||
             str_starts_with($uri, 'editar_usuario') ||
             $uri === 'clientes' ||
+            str_starts_with($uri, 'cliente_info') ||
+            str_starts_with($uri, 'editar_cliente') ||
             $uri === 'profesores' ||
             $uri === 'sistemas' ||
             $uri === 'pagos' ||

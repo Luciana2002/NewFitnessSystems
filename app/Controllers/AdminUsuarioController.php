@@ -23,6 +23,22 @@ class AdminUsuarioController extends BaseController
              . view('front/footer');
     }
 
+    public function clientes()
+    {
+        if (session()->get('id_rol') != 1) {
+            return redirect()->to('/usuario_logueado');
+        }
+
+        $usuarioModel = new UsuarioModel();
+
+        $data['clientes'] = $usuarioModel->getClientesAll();
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('back/usuario/lista_clientes', $data)
+             . view('front/footer');
+    }
+
     public function editar($id)
     {
         if (session()->get('id_rol') != 1) {
@@ -50,17 +66,22 @@ class AdminUsuarioController extends BaseController
 
         $usuario = $usuarioModel->find($id);
 
+        if (!$usuario) {
+            session()->setFlashdata('error', 'Usuario no encontrado');
+            return redirect()->to('/usuarios');
+        }
+
         $personaModel->update($usuario['id_persona'], [
             'nombre'   => $this->request->getPost('nombre'),
             'apellido' => $this->request->getPost('apellido'),
             'email'    => $this->request->getPost('email'),
             'telefono' => $this->request->getPost('telefono'),
-            'dni'      => $this->request->getPost('dni')
+            'dni'      => $this->request->getPost('dni'),
+            'id_rol'   => $this->request->getPost('id_rol')
         ]);
 
         $datosUsuario = [
-            'nombre_usuario' => $this->request->getPost('nombre_usuario'),
-            'id_rol'         => $this->request->getPost('id_rol')
+            'nombre_usuario' => $this->request->getPost('nombre_usuario')
         ];
 
         $pass = $this->request->getPost('pass');
@@ -111,7 +132,7 @@ class AdminUsuarioController extends BaseController
         }
 
         $usuarioModel = new UsuarioModel();
-         $personaModel = new DatosPersonalesModel();
+        $personaModel = new DatosPersonalesModel();
 
         $usuario = $usuarioModel->find($id);
 

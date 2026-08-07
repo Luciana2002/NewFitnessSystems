@@ -6,7 +6,6 @@
 
     <?php if (session()->get('id_rol') == 1): ?>
         <h3>Panel Admin</h3>
-        <a href="<?= base_url('usuarios') ?>">Usuarios</a>
         <a href="<?= base_url('clientes') ?>">Clientes</a>
         <a href="<?= base_url('profesores') ?>">Profesores</a>
         <a href="<?= base_url('sistemas') ?>">Sistemas</a>

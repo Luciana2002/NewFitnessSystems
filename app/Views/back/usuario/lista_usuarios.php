@@ -1,6 +1,5 @@
 <main class="dashboard-page">
 
-    <!-- BOTÓN LATERAL (flecha) -->
     <button type="button" id="sidebarOpen" class="sidebar-handle">
         <span>›</span>
     </button>
@@ -36,56 +35,65 @@
         <?php endif; ?>
 
         <div class="table-responsive" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto;">
-            <table class="table table-dark table-striped table-hover" id="tablaUsuarios">
+            <table class="table table-dark table-striped table-hover align-middle" id="tablaUsuarios">
                 <thead>
                     <tr>
                         <th>DNI</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
-                        <th>Rol</th>
                         <th>Email</th>
-                        <th>Teléfono</th>
-                        <th>Usuario</th>
+                        <th>Rol</th>
                         <th>Estado</th>
-                        <th>Acción</th>
+                        <th>Usuario</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <?php if($usuarios): ?>
+                    <?php if(!empty($usuarios)): ?>
                         <?php foreach($usuarios as $usuario): ?>
                             <tr>
-                                <td><?= $usuario['dni'] ?></td>
-                                <td><?= $usuario['nombre'] ?></td>
-                                <td><?= $usuario['apellido'] ?></td>
-                                <td><?= $usuario['rol'] ?></td>
-                                <td><?= $usuario['email'] ?></td>
-                                <td><?= $usuario['telefono'] ?></td>
-                                <td><?= $usuario['nombre_usuario'] ?></td>
-                                <td><?= $usuario['baja'] == 'S' ? 'Baja' : 'Activo' ?></td>
-
+                                <td><?= esc($usuario['dni']) ?></td>
+                                <td><?= esc($usuario['nombre']) ?></td>
+                                <td><?= esc($usuario['apellido']) ?></td>
+                                <td><?= esc($usuario['email']) ?></td>
+                                <td><?= esc($usuario['rol']) ?></td>
+                                <td>
+                                    <?php if($usuario['baja'] == 'S'): ?>
+                                        <span class="badge bg-danger">Dado de baja</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">Activo</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= esc($usuario['nombre_usuario']) ?></td>
                                 <td style="white-space: nowrap;">
-                                    <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                                        <a href="<?= base_url('editar_usuario/'.$usuario['id_usuario']) ?>" class="btn btn-primary btn-sm">
-                                            Editar
-                                        </a>
+                                    <a href="<?= base_url('editar_usuario/'.$usuario['id_usuario']) ?>"
+                                       class="btn btn-primary btn-sm">
+                                        Editar
+                                    </a>
 
-                                        <?php if($usuario['baja'] == 'N'): ?>
-                                            <a href="<?= base_url('baja_usuario/'.$usuario['id_usuario']) ?>" class="btn btn-danger btn-sm">
-                                                Dar de baja
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="<?= base_url('alta_usuario/'.$usuario['id_usuario']) ?>" class="btn btn-success btn-sm">
-                                                Activar
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
+                                    <?php if($usuario['baja'] == 'S'): ?>
+                                        <a href="<?= base_url('alta_usuario/'.$usuario['id_usuario']) ?>"
+                                           class="btn btn-success btn-sm"
+                                           onclick="return confirm('¿Desea activar a este usuario?');">
+                                            Activar
+                                        </a>
+                                    <?php elseif($usuario['id_usuario'] != session()->get('id_usuario')): ?>
+                                        <a href="<?= base_url('baja_usuario/'.$usuario['id_usuario']) ?>"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('¿Desea dar de baja a este usuario?');">
+                                            Dar de baja
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8" class="text-center">No hay usuarios registrados.</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
-
             </table>
         </div>
     </section>
@@ -133,7 +141,8 @@
             const filas = tablaUsuarios.querySelectorAll('tbody tr');
 
             filas.forEach(function (fila) {
-                fila.style.display = fila.textContent.toLowerCase().includes(texto) ? '' : 'none';
+                const coincide = fila.textContent.toLowerCase().includes(texto);
+                fila.style.display = coincide ? '' : 'none';
             });
         });
     }

@@ -12,31 +12,29 @@ class UsuarioModel extends Model
     protected $allowedFields = [
         'nombre_usuario',
         'contraseña',
-        'id_rol',
-        'id_persona',
-        'baja'
+        'id_persona'
     ];
 
     public function getUsuariosAll()
     {
         return $this->select('
-            Usuario.id_usuario,
-            Usuario.nombre_usuario,
-            Usuario.contraseña,
-            Usuario.id_persona,
-            Persona.baja,
-            Rol.descripcion AS rol,
-            Persona.id_rol,
-            Persona.nombre,
-            Persona.apellido,
-            Persona.email,
-            Persona.telefono,
-            Persona.dni
-        ')
-        ->join('Persona', 'Persona.id_persona = Usuario.id_persona')
-        ->join('Rol', 'Rol.id_rol = Persona.id_rol')
-        ->findAll();
-    }   
+                Usuario.id_usuario,
+                Usuario.nombre_usuario,
+                Usuario.contraseña,
+                Usuario.id_persona,
+                Persona.nombre,
+                Persona.apellido,
+                Persona.email,
+                Persona.telefono,
+                Persona.dni,
+                Persona.id_rol,
+                Persona.baja,
+                Rol.descripcion AS rol
+            ')
+            ->join('Persona', 'Persona.id_persona = Usuario.id_persona')
+            ->join('Rol', 'Rol.id_rol = Persona.id_rol')
+            ->findAll();
+    }
 
     public function getUsuarioCompleto($id)
     {
@@ -44,18 +42,18 @@ class UsuarioModel extends Model
                 Usuario.id_usuario,
                 Usuario.nombre_usuario,
                 Usuario.contraseña,
-                Usuario.id_rol,
                 Usuario.id_persona,
-                Usuario.baja,
-                Rol.descripcion AS rol,
-                Datos_personales.nombre,
-                Datos_personales.apellido,
-                Datos_personales.email,
-                Datos_personales.telefono,
-                Datos_personales.dni
+                Persona.nombre,
+                Persona.apellido,
+                Persona.email,
+                Persona.telefono,
+                Persona.dni,
+                Persona.id_rol,
+                Persona.baja,
+                Rol.descripcion AS rol
             ')
-            ->join('Rol', 'Rol.id_rol = Usuario.id_rol')
-            ->join('Datos_personales', 'Datos_personales.id_persona = Usuario.id_persona')
+            ->join('Persona', 'Persona.id_persona = Usuario.id_persona')
+            ->join('Rol', 'Rol.id_rol = Persona.id_rol')
             ->where('Usuario.id_usuario', $id)
             ->first();
     }
@@ -66,19 +64,75 @@ class UsuarioModel extends Model
                 Usuario.id_usuario,
                 Usuario.nombre_usuario,
                 Usuario.contraseña,
-                Usuario.id_rol,
                 Usuario.id_persona,
-                Usuario.baja,
-                Rol.descripcion AS rol,
-                Datos_personales.nombre,
-                Datos_personales.apellido,
-                Datos_personales.email,
-                Datos_personales.telefono,
-                Datos_personales.dni
+                Persona.nombre,
+                Persona.apellido,
+                Persona.email,
+                Persona.telefono,
+                Persona.dni,
+                Persona.id_rol,
+                Persona.baja,
+                Rol.descripcion AS rol
             ')
-            ->join('Rol', 'Rol.id_rol = Usuario.id_rol')
-            ->join('Datos_personales', 'Datos_personales.id_persona = Usuario.id_persona')
+            ->join('Persona', 'Persona.id_persona = Usuario.id_persona')
+            ->join('Rol', 'Rol.id_rol = Persona.id_rol')
             ->where('Persona.email', $email)
             ->first();
+    }
+
+    public function getUsuarioPorNombreUsuario($nombre_usuario)
+    {
+        return $this->select('
+                Usuario.id_usuario,
+                Usuario.nombre_usuario,
+                Usuario.contraseña,
+                Usuario.id_persona,
+                Persona.nombre,
+                Persona.apellido,
+                Persona.email,
+                Persona.telefono,
+                Persona.dni,
+                Persona.id_rol,
+                Persona.baja,
+                Rol.descripcion AS rol
+            ')
+            ->join('Persona', 'Persona.id_persona = Usuario.id_persona')
+            ->join('Rol', 'Rol.id_rol = Persona.id_rol')
+            ->where('Usuario.nombre_usuario', $nombre_usuario)
+            ->first();
+    }
+
+    public function getUsuarioPorPersona($idPersona)
+    {
+        return $this->select('
+                Usuario.id_usuario,
+                Usuario.nombre_usuario,
+                Usuario.contraseña,
+                Usuario.id_persona
+            ')
+            ->where('Usuario.id_persona', $idPersona)
+            ->first();
+    }
+
+    public function getClientesAll()
+    {
+        return $this->select('
+            Usuario.id_usuario,
+            Usuario.nombre_usuario,
+            Usuario.contraseña,
+            Usuario.id_persona,
+            Persona.nombre,
+            Persona.apellido,
+            Persona.email,
+            Persona.telefono,
+            Persona.dni,
+            Persona.id_rol,
+            Persona.baja,
+            Rol.descripcion AS rol
+        ')
+        ->join('Persona', 'Persona.id_persona = Usuario.id_persona', 'right')
+        ->join('Rol', 'Rol.id_rol = Persona.id_rol')
+        ->where('Persona.id_rol', 3)
+        ->findAll();
     }
 }

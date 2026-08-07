@@ -1,6 +1,5 @@
 <main class="dashboard-page">
 
-    <!-- BOTÓN LATERAL -->
     <button type="button" id="sidebarOpen" class="sidebar-handle">
         <span>›</span>
     </button>
@@ -15,24 +14,14 @@
 
     <section class="dashboard-content" style="padding:50px 70px;">
 
-        <!-- TÍTULO + BOTÓN REGISTRAR -->
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:15px;">
-            <h1 style="margin:0;">Lista de Clientes</h1>
-
-            <button type="button"
-                    class="btn btn-success"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalRegistrarCliente">
-                <i class="bi bi-person-plus"></i> Registrar cliente
-            </button>
+            <h1 style="margin:0;">Lista de Profesores</h1>
         </div>
 
-        <!-- BUSCADOR -->
-        <input type="text" id="buscarCliente" class="form-control"
+        <input type="text" id="buscarProfesor" class="form-control"
                placeholder="Buscar..."
                style="max-width:320px; margin-bottom:30px;">
 
-        <!-- ALERTAS -->
         <?php if(session()->getFlashdata('success')): ?>
             <div class="toast-custom success">
                 <?= session()->getFlashdata('success') ?>
@@ -45,131 +34,106 @@
             </div>
         <?php endif; ?>
 
-        <!-- SCROLL HORIZONTAL SUPERIOR (accesible desde cualquier lugar de la lista) -->
-        <div id="scrollTopClientes"
+        <!-- SCROLL HORIZONTAL SUPERIOR -->
+        <div id="scrollTopProfesores"
              style="position:sticky; top:0; z-index:20; overflow-x:auto; overflow-y:hidden; height:14px; background:#262626; display:none;">
-            <div id="scrollTopInnerClientes" style="height:1px;"></div>
+            <div id="scrollTopInnerProfesores" style="height:1px;"></div>
         </div>
 
-        <!-- TABLA -->
-        <div class="table-responsive" id="tablaScrollClientes" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto;">
-            <table class="table table-dark table-striped table-hover align-middle" id="tablaClientes">
+        <div class="table-responsive" id="tablaScrollProfesores" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto;">
+            <table class="table table-dark table-striped table-hover align-middle" id="tablaProfesores">
                 <thead>
                     <tr>
                         <th>DNI</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
-                        <th>Estado cuota</th>
+                        <th>Estado</th>
                         <th>Teléfono</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <?php if(!empty($clientes)): ?>
-                        <?php foreach($clientes as $cliente): ?>
-
-                            <?php
-                                $sistemas = $cliente['sistemas'] ?? [];
-                                $ultimoPago = $cliente['ultimo_pago'] ?? null;
-
-                                if (empty($sistemas)) {
-                                    $estadoCuota = 'Sin suscripción';
-                                    $badgeClass  = 'secondary';
-                                } elseif (empty($ultimoPago)) {
-                                    $estadoCuota = 'Sin pagos';
-                                    $badgeClass  = 'warning';
-                                } else {
-                                    $tsPago = $ultimoPago instanceof DateTimeInterface
-                                        ? $ultimoPago->getTimestamp()
-                                        : strtotime((string) $ultimoPago);
-
-                                    if ($tsPago && strtotime('+1 month', $tsPago) < time()) {
-                                        $estadoCuota = 'Vencido';
-                                        $badgeClass  = 'danger';
-                                    } else {
-                                        $estadoCuota = 'Al día';
-                                        $badgeClass  = 'success';
-                                    }
-                                }
-                            ?>
+                    <?php if(!empty($profesores)): ?>
+                        <?php foreach($profesores as $profesor): ?>
+                            <?php $sistemas = $profesor['sistemas'] ?? []; ?>
 
                             <tr>
-                                <td><?= esc($cliente['dni']) ?></td>
-                                <td><?= esc($cliente['nombre']) ?></td>
-                                <td><?= esc($cliente['apellido']) ?></td>
+                                <td><?= esc($profesor['dni']) ?></td>
+                                <td><?= esc($profesor['nombre']) ?></td>
+                                <td><?= esc($profesor['apellido']) ?></td>
                                 <td>
-                                    <span class="badge bg-<?= $badgeClass ?>">
-                                        <?= esc($estadoCuota) ?>
-                                    </span>
+                                    <?php if($profesor['baja'] == 'S'): ?>
+                                        <span class="badge bg-danger">Dado de baja</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">Activo</span>
+                                    <?php endif; ?>
                                 </td>
-                                <td><?= esc($cliente['telefono']) ?></td>
+                                <td><?= esc($profesor['telefono']) ?></td>
                                 <td style="white-space: nowrap;">
                                     <div style="display:flex; gap:6px;">
-                                        <a href="<?= base_url('cliente_info/'.$cliente['id_persona']) ?>"
+                                        <a href="<?= base_url('cliente_info/'.$profesor['id_persona']) ?>"
                                            class="btn btn-outline-success btn-sm">
                                             Ver más
                                         </a>
 
-                                        <?php if(session()->get('id_rol') == 1): ?>
-                                            <a href="<?= base_url('editar_cliente/'.$cliente['id_persona']) ?>"
-                                               class="btn btn-primary btn-sm">
-                                                Editar
-                                            </a>
+                                        <a href="<?= base_url('editar_cliente/'.$profesor['id_persona']) ?>"
+                                           class="btn btn-primary btn-sm">
+                                            Editar
+                                        </a>
 
-                                            <?php if($cliente['baja'] == 'N'): ?>
-                                                <a href="<?= base_url('baja_cliente/'.$cliente['id_persona']) ?>"
-                                                   class="btn btn-danger btn-sm">
-                                                    Dar de baja
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="<?= base_url('alta_cliente/'.$cliente['id_persona']) ?>"
-                                                   class="btn btn-success btn-sm">
-                                                    Activar
-                                                </a>
-                                            <?php endif; ?>
+                                        <?php if($profesor['baja'] == 'N'): ?>
+                                            <a href="<?= base_url('baja_cliente/'.$profesor['id_persona']) ?>"
+                                               class="btn btn-danger btn-sm">
+                                                Dar de baja
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?= base_url('alta_cliente/'.$profesor['id_persona']) ?>"
+                                               class="btn btn-success btn-sm">
+                                                Activar
+                                            </a>
                                         <?php endif; ?>
 
                                         <button type="button"
                                                 class="btn btn-success btn-sm btnVerMas"
-                                                data-target="detalle-<?= $cliente['id_persona'] ?>">
+                                                data-target="detalle-<?= $profesor['id_persona'] ?>">
                                             +
                                         </button>
                                     </div>
                                 </td>
                             </tr>
 
-                            <tr id="detalle-<?= $cliente['id_persona'] ?>" class="fila-detalle" style="display:none;">
+                            <tr id="detalle-<?= $profesor['id_persona'] ?>" class="fila-detalle" style="display:none;">
                                 <td colspan="6">
                                     <div style="background:#111; padding:20px; border-left:4px solid #0b8f70; border-radius:8px;">
                                         <h5 style="margin-bottom:15px;">
-                                            Información de <?= esc($cliente['nombre']) ?> <?= esc($cliente['apellido']) ?>
+                                            Información de <?= esc($profesor['nombre']) ?> <?= esc($profesor['apellido']) ?>
                                         </h5>
 
                                         <div class="row">
                                             <div class="col-md-4 mb-2">
                                                 <strong>Email:</strong>
-                                                <?= esc($cliente['email'] ?? 'Sin email') ?>
+                                                <?= esc($profesor['email'] ?? 'Sin email') ?>
                                             </div>
 
                                             <div class="col-md-4 mb-2">
                                                 <strong>Usuario:</strong>
-                                                <?= !empty($cliente['nombre_usuario']) ? esc($cliente['nombre_usuario']) : 'No tiene usuario registrado' ?>
+                                                <?= !empty($profesor['nombre_usuario']) ? esc($profesor['nombre_usuario']) : 'No tiene usuario registrado' ?>
                                             </div>
 
                                             <div class="col-md-4 mb-2">
                                                 <strong>Rol:</strong>
-                                                <?= esc($cliente['rol'] ?? 'Cliente') ?>
+                                                <?= esc($profesor['rol'] ?? 'Profesor') ?>
                                             </div>
 
                                             <div class="col-md-4 mb-2">
                                                 <strong>Último pago:</strong>
-                                                <?= formatear_fecha($cliente['ultimo_pago'] ?? null) ?>
+                                                <?= formatear_fecha($profesor['ultimo_pago'] ?? null) ?>
                                             </div>
 
                                             <div class="col-md-4 mb-2">
                                                 <strong>Estado persona:</strong>
-                                                <?= ($cliente['baja'] ?? 'N') == 'S' ? 'Dado de baja' : 'Activo' ?>
+                                                <?= ($profesor['baja'] ?? 'N') == 'S' ? 'Dado de baja' : 'Activo' ?>
                                             </div>
                                         </div>
 
@@ -222,7 +186,7 @@
                                                 </table>
                                             </div>
                                         <?php else: ?>
-                                            <p class="mb-0 mt-3" style="color:#cfcfcf;">El cliente no tiene sistemas ni suscripciones registradas.</p>
+                                            <p class="mb-0 mt-3" style="color:#cfcfcf;">El profesor no tiene sistemas ni suscripciones registradas.</p>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -231,104 +195,13 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" class="text-center">No hay registros.</td>
+                            <td colspan="6" class="text-center">No hay profesores registrados.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
-
             </table>
         </div>
     </section>
-
-    <!-- MODAL REGISTRAR CLIENTE -->
-    <div class="modal fade" id="modalRegistrarCliente" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="background:#1b1b1b; color:white; border:1px solid #0b8f70;">
-                <div class="modal-header" style="border-bottom:1px solid #333;">
-                    <h5 class="modal-title" style="color:#0b8f70;">Registrar nuevo cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1);"></button>
-                </div>
-
-                <form action="<?= base_url('registrar_cliente') ?>" method="post">
-                    <div class="modal-body">
-                        <h6 style="margin-bottom:15px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:14px;">
-                            Datos del cliente
-                        </h6>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nombre *</label>
-                                <input type="text" name="nombre" class="form-control" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Apellido *</label>
-                                <input type="text" name="apellido" class="form-control" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Teléfono *</label>
-                                <input type="text" name="telefono" class="form-control" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">DNI *</label>
-                                <input type="text" name="dni" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <h6 style="margin:20px 0 15px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:14px;">
-                            Primer pago
-                        </h6>
-
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Sistema *</label>
-                                <select name="id_sistema" id="sistemaRegistro" class="form-control" required>
-                                    <option value="">Seleccionar sistema...</option>
-                                    <?php foreach($sistemasRegistro as $sistema): ?>
-                                        <option value="<?= $sistema['id_sistema'] ?>"
-                                                data-precio="<?= esc($sistema['precio']) ?>">
-                                            <?= esc($sistema['nombre_sistema']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Medio de pago *</label>
-                                <select name="id_medio_pago" class="form-control" required>
-                                    <option value="">Seleccionar medio...</option>
-                                    <?php foreach($mediosPago as $medio): ?>
-                                        <option value="<?= $medio['id_medio_pago'] ?>">
-                                            <?= esc($medio['descripcion']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Monto</label>
-                                <input type="number" step="0.01" min="0" name="monto"
-                                       id="montoRegistro" class="form-control"
-                                       placeholder="Se carga automático">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer" style="border-top:1px solid #333;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Registrar cliente y primer pago</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
 </main>
 
@@ -365,13 +238,13 @@
     }
 
     // BUSCADOR
-    const buscarCliente = document.getElementById('buscarCliente');
-    const tablaClientes = document.getElementById('tablaClientes');
+    const buscarProfesor = document.getElementById('buscarProfesor');
+    const tablaProfesores = document.getElementById('tablaProfesores');
 
-    if (buscarCliente && tablaClientes) {
-        buscarCliente.addEventListener('keyup', function () {
+    if (buscarProfesor && tablaProfesores) {
+        buscarProfesor.addEventListener('keyup', function () {
             const texto = this.value.toLowerCase();
-            const filas = tablaClientes.querySelectorAll('tbody tr');
+            const filas = tablaProfesores.querySelectorAll('tbody tr');
 
             filas.forEach(function (fila) {
                 if (fila.classList.contains('fila-detalle')) {
@@ -408,9 +281,9 @@
     });
 
     // SCROLL HORIZONTAL SUPERIOR
-    const tablaScroll = document.getElementById('tablaScrollClientes');
-    const scrollTop = document.getElementById('scrollTopClientes');
-    const scrollTopInner = document.getElementById('scrollTopInnerClientes');
+    const tablaScroll = document.getElementById('tablaScrollProfesores');
+    const scrollTop = document.getElementById('scrollTopProfesores');
+    const scrollTopInner = document.getElementById('scrollTopInnerProfesores');
 
     function sincronizarScrollSuperior() {
         if (!tablaScroll || !scrollTop || !scrollTopInner) return;
@@ -435,17 +308,6 @@
 
         window.addEventListener('resize', sincronizarScrollSuperior);
         sincronizarScrollSuperior();
-    }
-
-    // MONTO AUTOMÁTICO SEGÚN SISTEMA
-    const selectSistema = document.getElementById('sistemaRegistro');
-    const inputMonto = document.getElementById('montoRegistro');
-
-    if (selectSistema && inputMonto) {
-        selectSistema.addEventListener('change', function() {
-            const opcion = this.options[this.selectedIndex];
-            inputMonto.value = opcion && opcion.dataset.precio ? opcion.dataset.precio : '';
-        });
     }
 
     // TOASTS
