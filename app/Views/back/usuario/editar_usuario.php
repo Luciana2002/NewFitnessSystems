@@ -26,7 +26,7 @@
                 </div>
 
                 <div>
-                    <label style="color:white;">Teléfono</label>
+                    <label style="color:white;">Tel├®fono</label>
                     <input type="text" name="telefono" class="form-control" value="<?= $usuario['telefono'] ?>">
                 </div>
 

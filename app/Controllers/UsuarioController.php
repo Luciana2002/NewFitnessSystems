@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UsuarioModel;
-use App\Models\DatosPersonalesModel;
+use App\Models\PersonaModel;
 
 class UsuarioController extends BaseController
 {
@@ -13,7 +13,7 @@ class UsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('back/usuario/login')
+             . view('personas/login')
              . view('front/footer');
     }
 
@@ -27,43 +27,44 @@ class UsuarioController extends BaseController
 
         $data = $model->getUsuarioPorEmail($email);
 
-        if ($data) {
-
-            /*
-             * Si tus contraseñas están con password_hash(), usá esto:
-             * $verifyPass = password_verify($password, $data['contraseña']);
-             *
-             * Como tus inserts tienen '1234' en texto plano, usamos comparación directa:
-             */
-            $verifyPass = ($password === $data['contraseña']);
-
-            if ($verifyPass) {
-                $sessionData = [
-                    'id_usuario'    => $data['id_usuario'],
-                    'id_persona'    => $data['id_persona'],
-                    'nombre'        => $data['nombre'],
-                    'apellido'      => $data['apellido'],
-                    'email'         => $data['email'],
-                    'telefono'      => $data['telefono'],
-                    'dni'           => $data['dni'],
-                    'nombre_usuario'=> $data['nombre_usuario'],
-                    'id_rol'        => $data['id_rol'],
-                    'rol'           => $data['rol'],
-                    'logged_in'     => true
-                ];
-
-                $session->set($sessionData);
-
-                return redirect()->to('/usuario_logueado');
-            } else {
-                $session->setFlashdata('msg', 'Contraseña incorrecta');
-                return redirect()->to('/login');
-            }
-
-        } else {
+        if (!$data) {
             $session->setFlashdata('msg', 'No existe el correo o es incorrecto');
             return redirect()->to('/login');
         }
+
+        if ($data['baja'] == 'S') {
+            $session->setFlashdata('msg', 'El usuario se encuentra dado de baja');
+            return redirect()->to('/login');
+        }
+
+        if (password_get_info($data['contraseña'])['algo'] !== 0) {
+            $verifyPass = password_verify($password, $data['contraseña']);
+        } else {
+            $verifyPass = ($password === $data['contraseña']);
+        }
+
+        if (!$verifyPass) {
+            $session->setFlashdata('msg', 'Contraseña incorrecta');
+            return redirect()->to('/login');
+        }
+
+        $sessionData = [
+            'id_usuario'     => $data['id_usuario'],
+            'id_persona'     => $data['id_persona'],
+            'nombre'         => $data['nombre'],
+            'apellido'       => $data['apellido'],
+            'email'          => $data['email'],
+            'telefono'       => $data['telefono'],
+            'dni'            => $data['dni'],
+            'nombre_usuario' => $data['nombre_usuario'],
+            'id_rol'         => $data['id_rol'],
+            'rol'            => $data['rol'],
+            'logged_in'      => true
+        ];
+
+        $session->set($sessionData);
+
+        return redirect()->to('/usuario_logueado');
     }
 
     public function registro(): string
@@ -72,7 +73,7 @@ class UsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('back/usuario/registro')
+             . view('personas/registro')
              . view('front/footer');
     }
 
@@ -84,22 +85,22 @@ class UsuarioController extends BaseController
             'nombre'   => 'required|min_length[3]',
             'apellido' => 'required|min_length[3]|max_length[50]',
             'usuario'  => 'required|min_length[3]|is_unique[Usuario.nombre_usuario]',
-            'email'    => 'required|min_length[4]|max_length[100]|valid_email',
+            'email'    => 'required|min_length[4]|max_length[100]|valid_email|is_unique[Persona.email]',
             'telefono' => 'required',
-            'dni'      => 'required|is_unique[Datos_personales.dni]',
+            'dni'      => 'required|is_unique[Persona.dni]',
             'pass'     => 'required|min_length[4]|max_length[50]'
         ];
 
         if (!$this->validate($validationRules)) {
             return view('front/header')
                  . view('front/navbar')
-                 . view('back/usuario/registro', [
+                 . view('personas/registro', [
                      'validation' => $this->validator
                  ])
                  . view('front/footer');
         }
 
-        $personaModel = new DatosPersonalesModel();
+        $personaModel = new PersonaModel();
         $usuarioModel = new UsuarioModel();
 
         $personaModel->insert([
@@ -108,14 +109,15 @@ class UsuarioController extends BaseController
             'email'    => $this->request->getPost('email'),
             'telefono' => $this->request->getPost('telefono'),
             'dni'      => $this->request->getPost('dni'),
-            'id_rol'   => 3 // cliente
+            'id_rol'   => 3,
+            'baja'     => 'N'
         ]);
 
         $idPersona = $personaModel->getInsertID();
 
         $usuarioModel->insert([
             'nombre_usuario' => $this->request->getPost('usuario'),
-            'contraseña'     => $this->request->getPost('pass'),
+            'contraseña'     => password_hash($this->request->getPost('pass'), PASSWORD_DEFAULT),
             'id_persona'     => $idPersona
         ]);
 
@@ -131,7 +133,7 @@ class UsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('back/usuario/usuario_logueado')
+             . view('personas/usuario_logueado')
              . view('front/footer');
     }
 

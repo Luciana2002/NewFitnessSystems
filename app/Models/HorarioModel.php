@@ -25,10 +25,27 @@ class HorarioModel extends Model
                 Horario.hora_inicio,
                 Horario.hora_fin,
                 Horario.dia_semana,
+                Horario.id_sistema,
                 Horario.baja,
                 Sistema.nombre_sistema
             ')
             ->join('Sistema', 'Sistema.id_sistema = Horario.id_sistema')
+            ->findAll();
+    }
+
+    public function getHorariosActivos()
+    {
+        return $this->select('
+                Horario.id_horario,
+                Horario.hora_inicio,
+                Horario.hora_fin,
+                Horario.dia_semana,
+                Horario.id_sistema,
+                Horario.baja,
+                Sistema.nombre_sistema
+            ')
+            ->join('Sistema', 'Sistema.id_sistema = Horario.id_sistema')
+            ->where('Horario.baja', 'N')
             ->findAll();
     }
 }

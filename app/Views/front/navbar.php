@@ -7,8 +7,8 @@
 
         $ocultarLogo =
             $uri === 'usuario_logueado' ||
-            $uri === 'usuarios' ||
-            str_starts_with($uri, 'editar_usuario') ||
+            $uri === 'personas' ||
+            str_starts_with($uri, 'editar_persona') ||
             $uri === 'clientes' ||
             str_starts_with($uri, 'cliente_info') ||
             str_starts_with($uri, 'editar_cliente') ||
