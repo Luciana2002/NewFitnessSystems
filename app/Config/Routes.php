@@ -75,11 +75,13 @@ $routes->post('/registrar_cliente', 'ClienteController::nuevoCliente');
 $routes->get('/profesores', 'PanelController::profesores');
 
 $routes->get('/sistemas', 'PanelController::sistemas');
+$routes->post('/guardar_sistema', 'PanelController::guardarSistema');
 $routes->post('/actualizar_sistema/(:num)', 'PanelController::actualizarSistema/$1');
 $routes->get('/baja_sistema/(:num)', 'PanelController::bajaSistema/$1');
 $routes->get('/alta_sistema/(:num)', 'PanelController::altaSistema/$1');
 
 $routes->get('/admin_horarios', 'PanelController::horarios');
+$routes->post('/guardar_horario', 'PanelController::guardarHorario');
 $routes->post('/actualizar_horario/(:num)', 'PanelController::actualizarHorario/$1');
 $routes->get('/baja_horario/(:num)', 'PanelController::bajaHorario/$1');
 $routes->get('/alta_horario/(:num)', 'PanelController::altaHorario/$1');

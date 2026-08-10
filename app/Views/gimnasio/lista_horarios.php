@@ -16,6 +16,10 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:15px;">
             <h1 style="margin:0;">Horarios</h1>
+
+            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarHorario">
+                <i class="bi bi-plus-lg"></i> Agregar horario
+            </button>
         </div>
 
         <input type="text" id="buscarHorario" class="form-control"
@@ -57,13 +61,14 @@
                         <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Inicio</th>
                         <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Fin</th>
                         <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Acciones</th>
+                        <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;"></th>
                     </tr>
                 </thead>
 
                 <?php if (empty($horarios)): ?>
                     <tbody>
                         <tr>
-                            <td colspan="4" class="text-center">No hay horarios registrados.</td>
+                            <td colspan="5" class="text-center">No hay horarios registrados.</td>
                         </tr>
                     </tbody>
                 <?php else: ?>
@@ -73,7 +78,7 @@
 
                         <tbody class="seccionDia" data-dia="<?= $dia ?>">
                             <tr>
-                                <th colspan="4" class="text-center"
+                                <th colspan="5" class="text-center"
                                     style="background:linear-gradient(90deg,#0fb892,#0b8f70); color:#fff; text-transform:uppercase; letter-spacing:2px; font-size:17px; font-weight:800; padding:12px 12px; border-bottom:3px solid #14ffc0;">
                                     <?= $dia ?>
                                 </th>
@@ -94,6 +99,18 @@
                                     </td>
                                     <td><?= formatear_hora($horario['hora_inicio']) ?></td>
                                     <td><?= formatear_hora($horario['hora_fin']) ?></td>
+                                    <td>
+                                        <label class="switch"
+                                               title="Encendido: activo — Apagado: dado de baja"
+                                               style="margin-bottom:0;">
+                                            <input type="checkbox"
+                                                   class="toggle-estado"
+                                                   data-url-activar="<?= base_url('alta_horario/'.$horario['id_horario']) ?>"
+                                                   data-url-desactivar="<?= base_url('baja_horario/'.$horario['id_horario']) ?>"
+                                                   <?= $horario['baja'] == 'N' ? 'checked' : '' ?>>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </td>
                                     <td style="white-space: nowrap;">
                                         <button type="button"
                                                 class="btn btn-primary btn-sm btnEditarHorario"
@@ -120,7 +137,7 @@
 
                     <tbody id="sinResultados" style="display:none;">
                         <tr>
-                            <td colspan="4" class="text-center">Sin resultados para la búsqueda.</td>
+                            <td colspan="5" class="text-center">Sin resultados para la búsqueda.</td>
                         </tr>
                     </tbody>
 
@@ -130,6 +147,64 @@
             <input type="color" id="colorPickerGlobal" style="display:none;">
         </div>
     </section>
+
+    <!-- MODAL AGREGAR HORARIO -->
+    <div class="modal fade" id="modalAgregarHorario" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background:#1b1b1b; color:white; border:1px solid #0b8f70;">
+                <div class="modal-header" style="border-bottom:1px solid #333;">
+                    <h5 class="modal-title" style="color:#0b8f70;">Agregar horario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1);"></button>
+                </div>
+
+                <form action="<?= base_url('guardar_horario') ?>" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Sistema *</label>
+                            <select name="id_sistema" class="form-control" required>
+                                <option value="">Seleccionar sistema...</option>
+                                <?php foreach($sistemasActivos as $sistema): ?>
+                                    <option value="<?= $sistema['id_sistema'] ?>">
+                                        <?= esc($sistema['nombre_sistema']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Día de la semana *</label>
+                            <select name="dia_semana" class="form-control" required>
+                                <?php foreach(['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'] as $dia): ?>
+                                    <option value="<?= $dia ?>"><?= $dia ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Hora inicio *</label>
+                                    <input type="time" name="hora_inicio" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Hora fin *</label>
+                                    <input type="time" name="hora_fin" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="border-top:1px solid #333;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Agregar horario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL EDITAR HORARIO -->
     <div class="modal fade" id="modalEditarHorario" tabindex="-1" aria-hidden="true">
@@ -190,6 +265,54 @@
     </div>
 
 </main>
+
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        vertical-align: middle;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .switch .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        border-radius: 24px;
+        transition: 0.3s;
+    }
+
+    .switch .slider::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+    .switch input:checked + .slider {
+        background-color: #dc3545;
+    }
+
+    .switch input:checked + .slider::before {
+        transform: translateX(20px);
+    }
+</style>
 
 <script>
     const sidebarOpen = document.getElementById('sidebarOpen');
@@ -294,6 +417,17 @@
             document.getElementById('diaHorario').value = dia;
             document.getElementById('inicioHorario').value = inicio;
             document.getElementById('finHorario').value = fin;
+        });
+    });
+
+    // TOGGLE ACTIVAR / DESACTIVAR
+    document.querySelectorAll('.toggle-estado').forEach(function(chk) {
+        chk.addEventListener('change', function() {
+            const url = this.checked
+                ? this.getAttribute('data-url-activar')
+                : this.getAttribute('data-url-desactivar');
+
+            if (url) window.location.href = url;
         });
     });
 

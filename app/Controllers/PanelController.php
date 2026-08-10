@@ -63,6 +63,50 @@ class PanelController extends BaseController
              . view('front/footer');
     }
 
+    public function guardarSistema()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $nombre = trim($this->request->getPost('nombre') ?? '');
+        $precio = $this->request->getPost('precio');
+        $color  = trim($this->request->getPost('color') ?? '');
+
+        if ($nombre === '' || !is_numeric($precio) || (float) $precio < 0) {
+            session()->setFlashdata('error', 'Datos inválidos para el sistema');
+            return redirect()->to('/sistemas');
+        }
+
+        $db = \Config\Database::connect();
+
+        $db->transBegin();
+
+        $idSistema = $db->table('Sistema')->insert([
+            'nombre_sistema' => $nombre,
+            'baja'           => 'N',
+            'color'          => preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : '#0b8f70'
+        ]);
+
+        if (!$idSistema) {
+            $db->transRollback();
+            session()->setFlashdata('error', 'No se pudo registrar el sistema');
+            return redirect()->to('/sistemas');
+        }
+
+        $idSistema = $db->insertID();
+
+        $db->table('Mensualidad')->insert([
+            'precio'         => (float) $precio,
+            'fecha_vigencia' => date('Y-m-d'),
+            'id_sistema'     => $idSistema
+        ]);
+
+        $db->transCommit();
+
+        session()->setFlashdata('success', 'Sistema agregado correctamente');
+        return redirect()->to('/sistemas');
+    }
+
     public function actualizarSistema($id)
     {
         $validacion = $this->validarAdmin();
@@ -145,11 +189,50 @@ class PanelController extends BaseController
 
         $data['horarios'] = $horarioModel->getHorariosAll();
         $data['sistemas'] = $sistemaModel->getSistemasConPrecio(false);
+        $data['sistemasActivos'] = $sistemaModel->getSistemasConPrecio(true);
 
         return view('front/header')
              . view('front/navbar')
              . view('gimnasio/lista_horarios', $data)
              . view('front/footer');
+    }
+
+    public function guardarHorario()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $horaInicio = $this->request->getPost('hora_inicio');
+        $horaFin    = $this->request->getPost('hora_fin');
+        $diaSemana  = trim($this->request->getPost('dia_semana') ?? '');
+        $idSistema  = (int) $this->request->getPost('id_sistema');
+
+        $diasValidos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+        if ($horaInicio === null || $horaFin === null || !in_array($diaSemana, $diasValidos, true) || !$idSistema) {
+            session()->setFlashdata('error', 'Datos inválidos para el horario');
+            return redirect()->to('/admin_horarios');
+        }
+
+        $sistemaModel = new SistemaModel();
+
+        if (!$sistemaModel->find($idSistema)) {
+            session()->setFlashdata('error', 'El sistema seleccionado no existe');
+            return redirect()->to('/admin_horarios');
+        }
+
+        $horarioModel = new HorarioModel();
+
+        $horarioModel->insert([
+            'hora_inicio' => date('H:i:s', strtotime($horaInicio)),
+            'hora_fin'    => date('H:i:s', strtotime($horaFin)),
+            'dia_semana'  => $diaSemana,
+            'id_sistema'  => $idSistema,
+            'baja'        => 'N'
+        ]);
+
+        session()->setFlashdata('success', 'Horario agregado correctamente');
+        return redirect()->to('/admin_horarios');
     }
 
     public function actualizarHorario($id)

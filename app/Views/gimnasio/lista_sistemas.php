@@ -16,6 +16,10 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:15px;">
             <h1 style="margin:0;">Sistemas</h1>
+
+            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarSistema">
+                <i class="bi bi-plus-lg"></i> Agregar sistema
+            </button>
         </div>
 
         <input type="text" id="buscarSistema" class="form-control"
@@ -42,6 +46,7 @@
                         <th>Mensualidad</th>
                         <th>Estado</th>
                         <th>Acciones</th>
+                        <th></th>
                     </tr>
                 </thead>
 
@@ -63,7 +68,19 @@
                                         <span class="badge bg-success">Activo</span>
                                     <?php endif; ?>
                                 </td>
-                                <td style="white-space: nowrap;">
+                                <td>
+                                    <label class="switch"
+                                           title="Encendido: activo — Apagado: dado de baja"
+                                           style="margin-bottom:0;">
+                                        <input type="checkbox"
+                                               class="toggle-estado"
+                                               data-url-activar="<?= base_url('alta_sistema/'.$sistema['id_sistema']) ?>"
+                                               data-url-desactivar="<?= base_url('baja_sistema/'.$sistema['id_sistema']) ?>"
+                                               <?= $sistema['baja'] == 'N' ? 'checked' : '' ?>>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
                                     <button type="button"
                                             class="btn btn-primary btn-sm btnEditarSistema"
                                             data-id="<?= $sistema['id_sistema'] ?>"
@@ -74,31 +91,54 @@
                                             data-bs-target="#modalEditarSistema">
                                         Editar
                                     </button>
-
-                                    <?php if($sistema['baja'] == 'N'): ?>
-                                        <a href="<?= base_url('baja_sistema/'.$sistema['id_sistema']) ?>"
-                                           class="btn btn-danger btn-sm"
-                                           onclick="return confirm('¿Desea dar de baja este sistema?');">
-                                            Dar de baja
-                                        </a>
-                                    <?php else: ?>
-                                        <a href="<?= base_url('alta_sistema/'.$sistema['id_sistema']) ?>"
-                                           class="btn btn-success btn-sm">
-                                            Activar
-                                        </a>
-                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4" class="text-center">No hay sistemas registrados.</td>
+                            <td colspan="5" class="text-center">No hay sistemas registrados.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </section>
+
+    <!-- MODAL AGREGAR SISTEMA -->
+    <div class="modal fade" id="modalAgregarSistema" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background:#1b1b1b; color:white; border:1px solid #0b8f70;">
+                <div class="modal-header" style="border-bottom:1px solid #333;">
+                    <h5 class="modal-title" style="color:#0b8f70;">Agregar sistema</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1);"></button>
+                </div>
+
+                <form action="<?= base_url('guardar_sistema') ?>" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del sistema *</label>
+                            <input type="text" name="nombre" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mensualidad (precio) *</label>
+                            <input type="number" step="0.01" min="0" name="precio" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Color del sistema</label>
+                            <input type="color" name="color" class="form-control form-control-color" value="#0b8f70" style="height:44px; padding:5px;">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="border-top:1px solid #333;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Agregar sistema</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL EDITAR SISTEMA -->
     <div class="modal fade" id="modalEditarSistema" tabindex="-1" aria-hidden="true">
@@ -137,6 +177,54 @@
     </div>
 
 </main>
+
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        vertical-align: middle;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .switch .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        border-radius: 24px;
+        transition: 0.3s;
+    }
+
+    .switch .slider::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+    .switch input:checked + .slider {
+        background-color: #dc3545;
+    }
+
+    .switch input:checked + .slider::before {
+        transform: translateX(20px);
+    }
+</style>
 
 <script>
     const sidebarOpen = document.getElementById('sidebarOpen');
@@ -186,7 +274,7 @@
         });
     }
 
-    // MODAL EDITAR: cargar datos del sistema
+    <!-- MODAL EDITAR: cargar datos del sistema -->
     const formEditarSistema = document.getElementById('formEditarSistema');
     const botonesEditar = document.querySelectorAll('.btnEditarSistema');
 
@@ -201,6 +289,17 @@
             document.getElementById('nombreSistema').value = nombre;
             document.getElementById('precioSistema').value = precio;
             document.getElementById('colorSistema').value = color;
+        });
+    });
+
+    // TOGGLE ACTIVAR / DESACTIVAR
+    document.querySelectorAll('.toggle-estado').forEach(function(chk) {
+        chk.addEventListener('change', function() {
+            const url = this.checked
+                ? this.getAttribute('data-url-activar')
+                : this.getAttribute('data-url-desactivar');
+
+            if (url) window.location.href = url;
         });
     });
 
