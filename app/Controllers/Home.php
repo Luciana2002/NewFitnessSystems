@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\HorarioModel;
+
 class Home extends BaseController
 {
     public function index(): string
@@ -14,9 +16,13 @@ class Home extends BaseController
 
     public function horarios(): string
     {
+        $horarioModel = new HorarioModel();
+
+        $data['horarios'] = $horarioModel->getHorariosActivos();
+
         return view('front/header')
              . view('front/navbar')
-             . view('front/horarios')
+             . view('front/horarios', $data)
              . view('front/footer');
     }
 

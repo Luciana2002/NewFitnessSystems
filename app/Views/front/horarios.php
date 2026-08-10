@@ -9,87 +9,77 @@
 </section>
 
 <?php
-$dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+$horarios = $horarios ?? [];
 
-$horarios = [
-    "8:30" => [
-        "Lunes" => ["Body Pump", "#d63b4c"],
-        "Martes" => ["Body Pump", "#d63b4c"],
-        "Miércoles" => ["", ""],
-        "Jueves" => ["Body Pump", "#d63b4c"],
-        "Viernes" => ["Body Pump", "#d63b4c"],
-    ],
-    "10:00" => [
-        "Lunes" => ["Power Jump", "#d98b45"],
-        "Martes" => ["Power Jump", "#d98b45"],
-        "Miércoles" => ["", ""],
-        "Jueves" => ["Power Jump", "#d98b45"],
-        "Viernes" => ["Power Jump", "#d98b45"],
-    ],
-    "11:30" => [
-        "Lunes" => ["", ""],
-        "Martes" => ["", ""],
-        "Miércoles" => ["", ""],
-        "Jueves" => ["", ""],
-        "Viernes" => ["", ""],
-    ],
-    "12:30" => [
-        "Lunes" => ["Funcional", "#006c9c"],
-        "Martes" => ["Funcional", "#006c9c"],
-        "Miércoles" => ["Funcional", "#006c9c"],
-        "Jueves" => ["Funcional", "#006c9c"],
-        "Viernes" => ["Funcional", "#006c9c"],
-    ],
-    "14:00" => [
-        "Lunes" => ["Power Jump", "#d98b45"],
-        "Martes" => ["Power Jump", "#d98b45"],
-        "Miércoles" => ["", ""],
-        "Jueves" => ["Power Jump", "#d98b45"],
-        "Viernes" => ["Power Jump", "#d98b45"],
-    ],
-    "15:00" => [
-        "Lunes" => ["Power Jump", "#d98b45"],
-        "Martes" => ["Power Jump", "#d98b45"],
-        "Miércoles" => ["", ""],
-        "Jueves" => ["Power Jump", "#d98b45"],
-        "Viernes" => ["Power Jump", "#d98b45"],
-    ],
-    "16:00" => [
-        "Lunes" => ["Body Pump", "#d63b4c"],
-        "Martes" => ["Body Pump", "#d63b4c"],
-        "Miércoles" => ["", ""],
-        "Jueves" => ["Body Pump", "#d63b4c"],
-        "Viernes" => ["Body Pump", "#d63b4c"],
-    ],
-    "18:00" => [
-        "Lunes" => ["Funcional", "#006c9c"],
-        "Martes" => ["Funcional", "#006c9c"],
-        "Miércoles" => ["Funcional", "#006c9c"],
-        "Jueves" => ["Funcional", "#006c9c"],
-        "Viernes" => ["Funcional", "#006c9c"],
-    ],
-    "19:00" => [
-        "Lunes" => ["Artes marciales", "#c92f45"],
-        "Martes" => ["", ""],
-        "Miércoles" => ["Artes marciales", "#c92f45"],
-        "Jueves" => ["", ""],
-        "Viernes" => ["Artes marciales", "#c92f45"],
-    ],
-    "20:00" => [
-        "Lunes" => ["", ""],
-        "Martes" => ["", ""],
-        "Miércoles" => ["Power Jump", "#d98b45"],
-        "Jueves" => ["", ""],
-        "Viernes" => ["", ""],
-    ],
-    "21:00" => [
-        "Lunes" => ["Zumba", "#7b3fc9"],
-        "Martes" => ["Power Jump", "#d98b45"],
-        "Miércoles" => ["Zumba", "#7b3fc9"],
-        "Jueves" => ["Power Jump", "#d98b45"],
-        "Viernes" => ["Zumba", "#7b3fc9"],
-    ],
+$ordenDias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+$nombresDias = [
+    'Lunes'    => 'Lunes',
+    'Martes'   => 'Martes',
+    'Miercoles'=> 'Miércoles',
+    'Jueves'   => 'Jueves',
+    'Viernes'  => 'Viernes',
+    'Sabado'   => 'Sábado',
+    'Domingo'  => 'Domingo',
 ];
+
+$paletaSistemas = [
+    1 => '#d63b4c', // BodyPump
+    2 => '#d98b45', // PowerJump
+    3 => '#006c9c', // Funcional
+    4 => '#7b3fc9', // Zumba
+    5 => '#c92f45', // Artes Marciales
+    6 => '#0b8f70', // Gimnasio
+];
+
+$paletaGeneral = ['#e65c7a', '#4e9cff', '#2abf88', '#f2a33c', '#9b6bff', '#d44f6a', '#00b8c9', '#8fce00'];
+
+$diasPresentes = [];
+$celdas = [];
+$horas = [];
+
+foreach ($horarios as $h) {
+    $dia = $h['dia_semana'];
+    $hora = formatear_hora($h['hora_inicio']);
+
+    $diasPresentes[$dia] = true;
+    $celdas[$hora . '|' . $dia] = $h;
+    $horas[$hora] = true;
+}
+
+$dias = array_values(array_filter($ordenDias, fn($d) => isset($diasPresentes[$d])));
+
+if (empty($dias)) {
+    $dias = array_slice($ordenDias, 0, 5);
+}
+
+$horas = array_keys($horas);
+usort($horas, fn($a, $b) => strtotime($a) <=> strtotime($b));
+
+if (!empty($horas)) {
+    $inicioGrilla = strtotime('08:30');
+    $finGrilla = strtotime(end($horas));
+
+    $horas = [];
+
+    for ($t = $inicioGrilla; $t <= $finGrilla; $t += 1800) {
+        $horas[] = date('H:i', $t);
+    }
+}
+
+$colorSistema = [];
+$indicePaleta = 0;
+
+foreach ($horarios as $h) {
+    $id = $h['id_sistema'];
+
+    if (isset($colorSistema[$id])) {
+        continue;
+    }
+
+    $colorSistema[$id] = $h['color'] ?? ($paletaSistemas[$id] ?? $paletaGeneral[$indicePaleta % count($paletaGeneral)]);
+    $indicePaleta++;
+}
 ?>
 
 <section class="schedule-section">
@@ -102,23 +92,46 @@ $horarios = [
                     <tr>
                         <th>Hora</th>
                         <?php foreach ($dias as $dia): ?>
-                            <th><?= $dia ?></th>
+                            <th><?= $nombresDias[$dia] ?? $dia ?></th>
                         <?php endforeach; ?>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                    <?php foreach ($horarios as $hora => $clases): ?>
+                    <?php if (empty($horas)): ?>
+                        <tr>
+                            <td colspan="<?= count($dias) + 1 ?>" class="text-center">
+                                No hay horarios disponibles.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php foreach ($horas as $hora): ?>
+                        <?php
+                        $hayClase = false;
+
+                        foreach ($dias as $dia) {
+                            if (isset($celdas[$hora . '|' . $dia])) {
+                                $hayClase = true;
+                                break;
+                            }
+                        }
+
+                        if (!$hayClase) {
+                            continue;
+                        }
+                        ?>
                         <tr>
 
                             <td><?= $hora ?></td>
 
                             <?php foreach ($dias as $dia): ?>
+                                <?php $clase = $celdas[$hora . '|' . $dia] ?? null; ?>
                                 <td>
-                                    <?php if ($clases[$dia][0] != ""): ?>
-                                        <span style="color:<?= $clases[$dia][1] ?>; font-weight:900;">
-                                            <?= $clases[$dia][0] ?>
+                                    <?php if ($clase): ?>
+                                        <span style="color:<?= $clase['color'] ?? ($colorSistema[$clase['id_sistema']] ?? '#ccc') ?>; font-weight:900;">
+                                            <?= esc($clase['nombre_sistema']) ?>
                                         </span>
                                     <?php endif; ?>
                                 </td>

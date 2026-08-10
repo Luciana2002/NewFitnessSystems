@@ -33,7 +33,7 @@ class PersonaController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('personas/lista_personas', $data)
+             . view('usuario/lista_personas', $data)
              . view('front/footer');
     }
 
@@ -49,7 +49,7 @@ class PersonaController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('personas/lista_personas', $data)
+             . view('usuario/lista_personas', $data)
              . view('front/footer');
     }
 
@@ -72,7 +72,7 @@ class PersonaController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('personas/editar_persona', $data)
+             . view('usuario/editar_persona', $data)
              . view('front/footer');
     }
 

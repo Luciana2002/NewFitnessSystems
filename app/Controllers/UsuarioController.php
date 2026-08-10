@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UsuarioModel;
 use App\Models\PersonaModel;
+use CodeIgniter\HTTP\RedirectResponse;
 
 class UsuarioController extends BaseController
 {
@@ -13,7 +14,7 @@ class UsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('personas/login')
+             . view('usuario/login')
              . view('front/footer');
     }
 
@@ -37,7 +38,9 @@ class UsuarioController extends BaseController
             return redirect()->to('/login');
         }
 
-        if (password_get_info($data['contraseña'])['algo'] !== 0) {
+        $algo = password_get_info($data['contraseña'])['algo'];
+
+        if ($algo !== null) {
             $verifyPass = password_verify($password, $data['contraseña']);
         } else {
             $verifyPass = ($password === $data['contraseña']);
@@ -73,7 +76,7 @@ class UsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('personas/registro')
+             . view('usuario/registro')
              . view('front/footer');
     }
 
@@ -94,7 +97,7 @@ class UsuarioController extends BaseController
         if (!$this->validate($validationRules)) {
             return view('front/header')
                  . view('front/navbar')
-                 . view('personas/registro', [
+                 . view('usuario/registro', [
                      'validation' => $this->validator
                  ])
                  . view('front/footer');
@@ -125,7 +128,7 @@ class UsuarioController extends BaseController
         return redirect()->to('/login');
     }
 
-    public function usuarioLogueado(): string
+    public function usuarioLogueado(): string|RedirectResponse
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
@@ -133,7 +136,7 @@ class UsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('personas/usuario_logueado')
+             . view('usuario/usuario_logueado')
              . view('front/footer');
     }
 

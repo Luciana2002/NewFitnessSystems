@@ -19,7 +19,7 @@ class AdminUsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('back/usuario/lista_usuarios', $data)
+             . view('usuario/lista_usuarios', $data)
              . view('front/footer');
     }
 
@@ -35,7 +35,7 @@ class AdminUsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('back/usuario/lista_clientes', $data)
+             . view('usuario/lista_clientes', $data)
              . view('front/footer');
     }
 
@@ -51,7 +51,7 @@ class AdminUsuarioController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('back/usuario/editar_usuario', $data)
+             . view('usuario/editar_usuario', $data)
              . view('front/footer');
     }
 

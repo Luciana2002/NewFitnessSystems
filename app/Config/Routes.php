@@ -60,6 +60,9 @@ $routes->get('/cliente_info/(:num)', 'ClienteController::detalle/$1');
 $routes->get('/editar_cliente/(:num)', 'ClienteController::editar/$1');
 $routes->post('/actualizar_cliente/(:num)', 'ClienteController::actualizar/$1');
 
+$routes->get('/editar_profesor/(:num)', 'ClienteController::editarProfesor/$1');
+$routes->post('/actualizar_profesor/(:num)', 'ClienteController::actualizarProfesor/$1');
+
 $routes->get('/baja_cliente/(:num)', 'ClienteController::baja/$1');
 $routes->get('/alta_cliente/(:num)', 'ClienteController::alta/$1');
 
@@ -80,8 +83,11 @@ $routes->get('/admin_horarios', 'PanelController::horarios');
 $routes->post('/actualizar_horario/(:num)', 'PanelController::actualizarHorario/$1');
 $routes->get('/baja_horario/(:num)', 'PanelController::bajaHorario/$1');
 $routes->get('/alta_horario/(:num)', 'PanelController::altaHorario/$1');
+$routes->get('/eliminar_horario/(:num)', 'PanelController::eliminarHorario/$1');
+$routes->post('/cambiar_color_sistema/(:num)', 'PanelController::cambiarColorSistema/$1');
 
 $routes->get('/pagos', 'PanelController::pagos');
+$routes->post('/registrar_pago', 'PanelController::nuevoPago');
 /* =========================
    PAGOS DE CLIENTES
 ========================= */

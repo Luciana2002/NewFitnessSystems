@@ -11,13 +11,14 @@
 
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-    <?= view('back/layout/sidebar') ?>
+    <?= view('layout/sidebar') ?>
 
     <section class="dashboard-content" style="padding:50px 70px;">
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
             <div style="display:flex; align-items:center; gap:15px;">
-                <a href="<?= base_url('clientes') ?>" class="btn btn-outline-success btn-sm">← Volver</a>
+                <a href="<?= base_url(empty($esProfesor) ? 'clientes' : 'profesores') ?>"
+                   class="btn btn-outline-success btn-sm">← Volver</a>
                 <h1 style="margin:0;">
                     <?= esc($cliente['nombre']) ?> <?= esc($cliente['apellido']) ?>
                 </h1>
@@ -93,6 +94,7 @@
         </div>
 
         <!-- SUSCRIPCIONES -->
+        <?php if(empty($esProfesor)): ?>
         <div class="table-responsive" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto; margin-bottom:25px;">
             <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
                 Suscripciones / Sistemas
@@ -102,7 +104,7 @@
                 <thead>
                     <tr>
                         <th>Sistema</th>
-                        <th>Inscripción</th>
+                        <th>Último pago</th>
                         <th>Inicio suscripción</th>
                         <th>Vencimiento</th>
                         <th>Estado</th>
@@ -118,17 +120,27 @@
 
                                 $susBadge = 'secondary';
 
-                                if ($estadoSus == 'Activa') {
-                                    $susBadge = 'success';
-                                } elseif ($estadoSus == 'Vencida') {
-                                    $susBadge = 'danger';
-                                } elseif ($estadoSus == 'Cancelada') {
-                                    $susBadge = 'warning';
+                                if ($estadoSus !== 'Cancelada' && $estadoSus !== 'Sin suscripción') {
+                                    $tsVenc = !empty($suscripcion['fecha_vencimiento'])
+                                        ? strtotime((string) $suscripcion['fecha_vencimiento'])
+                                        : null;
+
+                                    if ($tsVenc && $tsVenc < strtotime(date('Y-m-d'))) {
+                                        $estadoSus = 'Vencida';
+                                        $susBadge  = 'danger';
+                                    } else {
+                                        $estadoSus = 'Activa';
+                                        $susBadge  = 'success';
+                                    }
                                 }
                             ?>
                             <tr>
                                 <td><?= esc($suscripcion['nombre_sistema']) ?></td>
-                                <td><?= formatear_fecha($suscripcion['fecha_inscripcion']) ?></td>
+                                <td>
+                                    <?= !empty($suscripcion['ultimo_pago_sistema'])
+                                        ? formatear_fecha($suscripcion['ultimo_pago_sistema'])
+                                        : '<span style="color:#d98b45;">Sin pagos</span>' ?>
+                                </td>
                                 <td><?= formatear_fecha($suscripcion['fecha_inicio']) ?></td>
                                 <td><?= formatear_fecha($suscripcion['fecha_vencimiento']) ?></td>
                                 <td>
@@ -147,8 +159,10 @@
                 </tbody>
             </table>
         </div>
+        <?php endif; ?>
 
         <!-- PAGOS -->
+        <?php if(empty($esProfesor)): ?>
         <div class="table-responsive" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto;">
             <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
                 Historial de pagos
@@ -194,6 +208,7 @@
                 </tbody>
             </table>
         </div>
+        <?php endif; ?>
     </section>
 
 </main>

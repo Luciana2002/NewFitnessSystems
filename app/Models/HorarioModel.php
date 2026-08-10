@@ -27,7 +27,8 @@ class HorarioModel extends Model
                 Horario.dia_semana,
                 Horario.id_sistema,
                 Horario.baja,
-                Sistema.nombre_sistema
+                Sistema.nombre_sistema,
+                Sistema.color
             ')
             ->join('Sistema', 'Sistema.id_sistema = Horario.id_sistema')
             ->findAll();
@@ -42,7 +43,8 @@ class HorarioModel extends Model
                 Horario.dia_semana,
                 Horario.id_sistema,
                 Horario.baja,
-                Sistema.nombre_sistema
+                Sistema.nombre_sistema,
+                Sistema.color
             ')
             ->join('Sistema', 'Sistema.id_sistema = Horario.id_sistema')
             ->where('Horario.baja', 'N')

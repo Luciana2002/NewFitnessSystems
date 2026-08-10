@@ -11,7 +11,7 @@
 
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-    <?= view('back/layout/sidebar') ?>
+    <?= view('layout/sidebar') ?>
 
     <section class="dashboard-content" style="padding:50px 70px;">
 
@@ -71,6 +71,9 @@
 
                             <?php
                                 $sistemas = $cliente['sistemas'] ?? [];
+                                $sistemas = array_values(array_filter($sistemas, function ($s) {
+                                    return ($s['estado_suscripcion'] ?? '') !== 'Cancelada';
+                                }));
                                 $ultimoPago = $cliente['ultimo_pago'] ?? null;
 
                                 if (empty($sistemas)) {
@@ -80,11 +83,20 @@
                                     $estadoCuota = 'Sin pagos';
                                     $badgeClass  = 'warning';
                                 } else {
-                                    $tsPago = $ultimoPago instanceof DateTimeInterface
-                                        ? $ultimoPago->getTimestamp()
-                                        : strtotime((string) $ultimoPago);
+                                    $hoyTs = strtotime(date('Y-m-d'));
+                                    $vencidos = 0;
 
-                                    if ($tsPago && strtotime('+1 month', $tsPago) < time()) {
+                                    foreach ($sistemas as $s) {
+                                        $tsVenc = !empty($s['fecha_vencimiento'])
+                                            ? strtotime((string) $s['fecha_vencimiento'])
+                                            : null;
+
+                                        if ($tsVenc && $tsVenc < $hoyTs) {
+                                            $vencidos++;
+                                        }
+                                    }
+
+                                    if ($vencidos > 0) {
                                         $estadoCuota = 'Vencido';
                                         $badgeClass  = 'danger';
                                     } else {
@@ -106,28 +118,11 @@
                                 <td><?= esc($cliente['telefono']) ?></td>
                                 <td style="white-space: nowrap;">
                                     <div style="display:flex; gap:6px;">
-                                        <a href="<?= base_url('cliente_info/'.$cliente['id_persona']) ?>"
-                                           class="btn btn-outline-success btn-sm">
-                                            Ver más
-                                        </a>
-
                                         <?php if(session()->get('id_rol') == 1): ?>
                                             <a href="<?= base_url('editar_cliente/'.$cliente['id_persona']) ?>"
                                                class="btn btn-primary btn-sm">
                                                 Editar
                                             </a>
-
-                                            <?php if($cliente['baja'] == 'N'): ?>
-                                                <a href="<?= base_url('baja_cliente/'.$cliente['id_persona']) ?>"
-                                                   class="btn btn-danger btn-sm">
-                                                    Dar de baja
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="<?= base_url('alta_cliente/'.$cliente['id_persona']) ?>"
-                                                   class="btn btn-success btn-sm">
-                                                    Activar
-                                                </a>
-                                            <?php endif; ?>
                                         <?php endif; ?>
 
                                         <button type="button"
@@ -148,28 +143,8 @@
 
                                         <div class="row">
                                             <div class="col-md-4 mb-2">
-                                                <strong>Email:</strong>
-                                                <?= esc($cliente['email'] ?? 'Sin email') ?>
-                                            </div>
-
-                                            <div class="col-md-4 mb-2">
-                                                <strong>Usuario:</strong>
-                                                <?= !empty($cliente['nombre_usuario']) ? esc($cliente['nombre_usuario']) : 'No tiene usuario registrado' ?>
-                                            </div>
-
-                                            <div class="col-md-4 mb-2">
-                                                <strong>Rol:</strong>
-                                                <?= esc($cliente['rol'] ?? 'Cliente') ?>
-                                            </div>
-
-                                            <div class="col-md-4 mb-2">
                                                 <strong>Último pago:</strong>
                                                 <?= formatear_fecha($cliente['ultimo_pago'] ?? null) ?>
-                                            </div>
-
-                                            <div class="col-md-4 mb-2">
-                                                <strong>Estado persona:</strong>
-                                                <?= ($cliente['baja'] ?? 'N') == 'S' ? 'Dado de baja' : 'Activo' ?>
                                             </div>
                                         </div>
 
@@ -178,52 +153,78 @@
                                                 Sistemas / suscripciones
                                             </h6>
 
+                                            <?php if(count($sistemas) > 1): ?>
+                                                <?php
+                                                    $hoyTs = strtotime(date('Y-m-d'));
+
+                                                    $alDia = count(array_filter($sistemas, function ($s) use ($hoyTs) {
+                                                        $tsVenc = !empty($s['fecha_vencimiento'])
+                                                            ? strtotime((string) $s['fecha_vencimiento'])
+                                                            : null;
+
+                                                        return $tsVenc && $tsVenc >= $hoyTs;
+                                                    }));
+                                                ?>
+                                                <p class="mb-2" style="color:#cfcfcf;">
+                                                    Sistemas al día: 
+                                                    <strong style="color:<?= $alDia === count($sistemas) ? '#0b8f70' : '#d98b45' ?>;">
+                                                        <?= $alDia ?>
+                                                    </strong>
+                                                    de <?= count($sistemas) ?>
+                                                </p>
+                                            <?php endif; ?>
+
                                             <div class="table-responsive">
                                                 <table class="table table-dark table-sm align-middle mb-0">
                                                     <thead>
                                                         <tr>
                                                             <th>Sistema</th>
-                                                            <th>Inscripción</th>
-                                                            <th>Inicio suscripción</th>
+                                                            <th>Último pago</th>
                                                             <th>Vencimiento</th>
-                                                            <th>Estado</th>
                                                             <th>Mensualidad</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <?php foreach($sistemas as $sistema): ?>
-                                                            <?php
-                                                                $estadoSus = $sistema['estado_suscripcion'] ?? 'Sin suscripción';
-
-                                                                $susBadge = 'secondary';
-
-                                                                if ($estadoSus == 'Activa') {
-                                                                    $susBadge = 'success';
-                                                                } elseif ($estadoSus == 'Vencida') {
-                                                                    $susBadge = 'danger';
-                                                                } elseif ($estadoSus == 'Cancelada') {
-                                                                    $susBadge = 'warning';
-                                                                }
-                                                            ?>
                                                             <tr>
                                                                 <td><?= esc($sistema['nombre_sistema']) ?></td>
-                                                                <td><?= formatear_fecha($sistema['fecha_inscripcion']) ?></td>
-                                                                <td><?= formatear_fecha($sistema['fecha_inicio']) ?></td>
-                                                                <td><?= formatear_fecha($sistema['fecha_vencimiento']) ?></td>
                                                                 <td>
-                                                                    <span class="badge bg-<?= $susBadge ?>">
-                                                                        <?= esc($estadoSus) ?>
-                                                                    </span>
+                                                                    <?= !empty($sistema['ultimo_pago_sistema'])
+                                                                        ? formatear_fecha($sistema['ultimo_pago_sistema'])
+                                                                        : '<span style="color:#d98b45;">Sin pagos</span>' ?>
                                                                 </td>
+                                                                <td><?= formatear_fecha($sistema['fecha_vencimiento']) ?></td>
                                                                 <td><?= formatear_monto($sistema['precio_mensualidad']) ?></td>
                                                             </tr>
                                                         <?php endforeach; ?>
                                                     </tbody>
+                                                    <?php if (count($sistemas) > 1): ?>
+                                                        <?php
+                                                            $totalMensualidad = array_sum(array_map(function ($s) {
+                                                                return (float) ($s['precio_mensualidad'] ?? 0);
+                                                            }, $sistemas));
+                                                        ?>
+                                                        <tfoot>
+                                                            <tr style="border-top:2px solid #0b8f70;">
+                                                                <td colspan="3" class="text-end" style="font-weight:bold;">Total</td>
+                                                                <td style="font-weight:bold; color:#0b8f70;">
+                                                                    <?= formatear_monto($totalMensualidad) ?>
+                                                                </td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    <?php endif; ?>
                                                 </table>
                                             </div>
                                         <?php else: ?>
                                             <p class="mb-0 mt-3" style="color:#cfcfcf;">El cliente no tiene sistemas ni suscripciones registradas.</p>
                                         <?php endif; ?>
+
+                                        <div style="margin-top:18px; text-align:right;">
+                                            <a href="<?= base_url('cliente_info/'.$cliente['id_persona']) ?>"
+                                               class="btn btn-outline-success btn-sm">
+                                                Ver más
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

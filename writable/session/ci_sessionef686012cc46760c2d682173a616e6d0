@@ -1,0 +1,1 @@
+__ci_last_regenerate|i:1786331653;id_usuario|i:9;id_persona|i:1046;nombre|s:4:"Test";apellido|s:5:"Admin";email|s:25:"test_admin@newfitness.com";telefono|s:6:"111111";dni|s:8:"99999999";nombre_usuario|s:9:"testadmin";id_rol|i:1;rol|s:13:"Administrador";logged_in|b:1;__ci_vars|a:0:{}_ci_previous_url|s:59:"http://localhost/NewFitnessSystems/index.php/admin_horarios";

@@ -10,7 +10,7 @@
 
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-    <?= view('back/layout/sidebar') ?>
+    <?= view('layout/sidebar') ?>
 
     <section class="dashboard-content" style="padding:50px 70px;">
         <div style="display:flex; align-items:center; gap:15px; margin-bottom:30px;">
@@ -60,14 +60,32 @@
                     <input type="text" name="dni" class="form-control" value="<?= esc($cliente['dni']) ?>">
                 </div>
 
-                <div>
-                    <label style="color:white;">Rol</label>
-                    <select name="id_rol" class="form-control">
-                        <option value="1" <?= ($cliente['id_rol'] ?? '') == 1 ? 'selected' : '' ?>>Administrador</option>
-                        <option value="2" <?= ($cliente['id_rol'] ?? '') == 2 ? 'selected' : '' ?>>Profesor</option>
-                        <option value="3" <?= ($cliente['id_rol'] ?? '') == 3 ? 'selected' : '' ?>>Cliente</option>
-                    </select>
-                </div>
+                <?php if(session()->get('id_rol') == 1): ?>
+                    <div>
+                        <label style="color:white;">Rol</label>
+                        <select name="id_rol" class="form-control">
+                            <option value="1" <?= ($cliente['id_rol'] ?? '') == 1 ? 'selected' : '' ?>>Administrador</option>
+                            <option value="2" <?= ($cliente['id_rol'] ?? '') == 2 ? 'selected' : '' ?>>Profesor</option>
+                            <option value="3" <?= ($cliente['id_rol'] ?? '') == 3 ? 'selected' : '' ?>>Cliente</option>
+                        </select>
+                    </div>
+                <?php else: ?>
+                    <?php
+                        $rolActual = (int) ($cliente['id_rol'] ?? 3);
+
+                        if ($rolActual == 1) {
+                            $nombreRol = 'Administrador';
+                        } elseif ($rolActual == 2) {
+                            $nombreRol = 'Profesor';
+                        } else {
+                            $nombreRol = 'Cliente';
+                        }
+                    ?>
+                    <div>
+                        <label style="color:white;">Rol</label>
+                        <input type="text" class="form-control" value="<?= esc($nombreRol) ?>" disabled>
+                    </div>
+                <?php endif; ?>
 
             </div>
 
@@ -93,15 +111,155 @@
                 </p>
             <?php endif; ?>
 
+            <?php
+                $sistemasActuales = $sistemas ?? [];
+                $idsActuales = array_map(function ($s) {
+                    return (int) $s['id_sistema'];
+                }, $sistemasActuales);
+            ?>
+
+            <h4 style="margin:30px 0 20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:16px;">
+                Sistemas
+            </h4>
+
+            <?php if(!empty($sistemasActuales)): ?>
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm align-middle mb-3">
+                        <thead>
+                            <tr>
+                                <th>Sistema</th>
+                                <th>Inscripción</th>
+                                <th>Vencimiento</th>
+                                <th>Estado</th>
+                                <th>Activo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($sistemasActuales as $sistema): ?>
+                                <?php
+                                    $estadoSus = $sistema['estado_suscripcion'] ?? 'Sin suscripción';
+
+                                    $susBadge = 'secondary';
+
+                                    if ($estadoSus == 'Activa') {
+                                        $susBadge = 'success';
+                                    } elseif ($estadoSus == 'Vencida') {
+                                        $susBadge = 'danger';
+                                    } elseif ($estadoSus == 'Cancelada') {
+                                        $susBadge = 'warning';
+                                    }
+                                ?>
+                                <tr>
+                                    <td><?= esc($sistema['nombre_sistema']) ?></td>
+                                    <td><?= formatear_fecha($sistema['fecha_inscripcion']) ?></td>
+                                    <td><?= formatear_fecha($sistema['fecha_vencimiento']) ?></td>
+                                    <td>
+                                        <span class="badge bg-<?= $susBadge ?>"><?= esc($estadoSus) ?></span>
+                                    </td>
+                                    <td class="text-start">
+                                        <label class="switch" title="Encendido: activo — Apagado: dado de baja">
+                                            <input type="checkbox" name="sistema_activo[]"
+                                                   value="<?= $sistema['id_inscripcion'] ?>"
+                                                   <?= $estadoSus === 'Cancelada' ? '' : 'checked' ?>>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <p style="color:#cfcfcf;">Este cliente no tiene sistemas inscriptos.</p>
+            <?php endif; ?>
+
+            <div style="max-width:400px;">
+                <label style="color:white;">Agregar sistema</label>
+                <select name="agregar_sistema" class="form-control">
+                    <option value="">— Seleccionar sistema —</option>
+                    <?php foreach($sistemasDisponibles as $sistema): ?>
+                        <?php if(!in_array((int) $sistema['id_sistema'], $idsActuales, true)): ?>
+                            <option value="<?= $sistema['id_sistema'] ?>">
+                                <?= esc($sistema['nombre_sistema']) ?> — <?= formatear_monto($sistema['precio']) ?>
+                            </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div style="margin-top:30px;">
-                <button type="submit" class="btn-main">Guardar cambios</button>
-                <a href="<?= base_url('clientes') ?>" class="btn-main" style="background:#555;">Cancelar</a>
+                <div style="display:flex; gap:30px; flex-wrap:wrap; align-items:center;">
+                    <button type="submit" class="btn-main">Guardar cambios</button>
+                    <a href="<?= base_url('clientes') ?>" class="btn-main" style="background:#555;">Cancelar</a>
+                </div>
+
+                <div style="margin-top:22px; padding-top:20px; border-top:1px solid #333;">
+                    <label style="color:white; display:block; margin-bottom:8px;">Estado de la cuenta</label>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label class="switch" title="Encendido: activo — Apagado: dado de baja">
+                            <input type="checkbox" name="persona_activa" value="1" id="personaActiva"
+                                   <?= ($cliente['baja'] ?? 'N') != 'S' ? 'checked' : '' ?>>
+                            <span class="slider"></span>
+                        </label>
+                        <span id="estadoPersona" style="color:#cfcfcf;">
+                            <?= ($cliente['baja'] ?? 'N') == 'S' ? 'Dado de baja' : 'Activo' ?>
+                        </span>
+                    </div>
+                </div>
             </div>
 
         </form>
     </section>
 
 </main>
+
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        vertical-align: middle;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .switch .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        border-radius: 24px;
+        transition: 0.3s;
+    }
+
+    .switch .slider::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+    .switch input:checked + .slider {
+        background-color: #dc3545;
+    }
+
+    .switch input:checked + .slider::before {
+        transform: translateX(20px);
+    }
+</style>
 
 <script>
     const sidebarOpen = document.getElementById('sidebarOpen');
@@ -150,4 +308,13 @@
             setTimeout(() => toast.remove(), 400);
         }, 2500 + (index * 200));
     });
+
+    const personaActiva = document.getElementById('personaActiva');
+    const estadoPersona = document.getElementById('estadoPersona');
+
+    if (personaActiva && estadoPersona) {
+        personaActiva.addEventListener('change', function () {
+            estadoPersona.textContent = this.checked ? 'Activo' : 'Dado de baja';
+        });
+    }
 </script>

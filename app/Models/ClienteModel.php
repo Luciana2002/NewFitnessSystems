@@ -83,7 +83,13 @@ class ClienteModel extends Model
                     INNER JOIN Suscripcion su2 ON su2.id_suscripcion = pg.id_suscripcion
                     INNER JOIN Inscripcion i2 ON i2.id_inscripcion = su2.id_inscripcion
                     WHERE i2.id_persona = p.id_persona
-                ) AS ultimo_pago
+                ) AS ultimo_pago,
+                (
+                    SELECT MAX(pg2.fecha_pago)
+                    FROM Pago pg2
+                    INNER JOIN Suscripcion su3 ON su3.id_suscripcion = pg2.id_suscripcion
+                    WHERE su3.id_inscripcion = i.id_inscripcion
+                ) AS ultimo_pago_sistema
             FROM Persona p
             LEFT JOIN Rol r ON r.id_rol = p.id_rol
             LEFT JOIN Usuario u ON u.id_persona = p.id_persona
@@ -135,6 +141,7 @@ class ClienteModel extends Model
             $clientes[$idPersona]['sistemas'][] = [
                 'id_inscripcion'      => $row['id_inscripcion'],
                 'fecha_inscripcion'   => $row['fecha_inscripcion'],
+                'ultimo_pago_sistema' => $row['ultimo_pago_sistema'],
                 'id_sistema'          => $row['id_sistema'],
                 'nombre_sistema'      => $row['nombre_sistema'],
                 'id_suscripcion'      => $row['id_suscripcion'],
@@ -200,7 +207,13 @@ class ClienteModel extends Model
                     FROM Mensualidad me
                     WHERE me.id_sistema = s.id_sistema
                     ORDER BY me.fecha_vigencia DESC
-                ) AS precio_mensualidad
+                ) AS precio_mensualidad,
+                (
+                    SELECT MAX(pg2.fecha_pago)
+                    FROM Pago pg2
+                    INNER JOIN Suscripcion su3 ON su3.id_suscripcion = pg2.id_suscripcion
+                    WHERE su3.id_inscripcion = i.id_inscripcion
+                ) AS ultimo_pago_sistema
             FROM Inscripcion i
             LEFT JOIN Sistema s ON s.id_sistema = i.id_sistema
             LEFT JOIN Suscripcion su ON su.id_inscripcion = i.id_inscripcion
