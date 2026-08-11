@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\HorarioModel;
+use App\Models\SistemaModel;
 
 class Home extends BaseController
 {
@@ -28,9 +29,13 @@ class Home extends BaseController
 
     public function precios(): string
     {
+        $sistemaModel = new SistemaModel();
+
+        $data['precios'] = $sistemaModel->getSistemasConPrecio(true);
+
         return view('front/header')
              . view('front/navbar')
-             . view('front/precios')
+             . view('front/precios', $data)
              . view('front/footer');
     }
 

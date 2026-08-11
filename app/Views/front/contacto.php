@@ -64,55 +64,28 @@
                 </a>
             </div>
 
-            <!-- FORMULARIO -->
+            <!-- MAPA -->
             <div class="col-md-7">
-                <div class="contact-card">
-                    <h3>Enviá tu consulta</h3>
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <span class="section-label">Dónde estamos</span>
+                        <h2>Visitá nuestro gimnasio</h2>
+                        <p>Nos encontrás en Córcega 4426.</p>
+                    </div>
 
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control" placeholder="Ingresá tu nombre">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" placeholder="Ingresá tu email">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Mensaje</label>
-                            <textarea class="form-control" rows="5" placeholder="Escribí tu mensaje"></textarea>
-                        </div>
-
-                        <button type="submit" class="btn-main">
-                            Enviar consulta
-                        </button>
-                    </form>
+                    <div class="map-box">
+                        <iframe 
+                            src="https://www.google.com/maps?q=C%C3%B3rcega%204426,%20Argentina&output=embed"
+                            width="100%" 
+                            height="380" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </div>
-</section>
-
-<section class="map-section">
-    <div class="container">
-        <div class="text-center mb-4">
-            <span class="section-label">Dónde estamos</span>
-            <h2>Visitá nuestro gimnasio</h2>
-            <p>Nos encontrás en Córcega 4426.</p>
-        </div>
-
-        <div class="map-box">
-            <iframe 
-                src="https://www.google.com/maps?q=C%C3%B3rcega%204426,%20Argentina&output=embed"
-                width="100%" 
-                height="380" 
-                style="border:0;" 
-                allowfullscreen="" 
-                loading="lazy">
-            </iframe>
         </div>
     </div>
 </section>

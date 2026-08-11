@@ -55,20 +55,11 @@
 
         <div class="table-responsive" id="tablaScrollHorarios" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto;">
             <table class="table table-dark table-striped table-hover align-middle" id="tablaHorarios">
-                <thead>
-                    <tr>
-                        <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Sistema</th>
-                        <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Inicio</th>
-                        <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Fin</th>
-                        <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Acciones</th>
-                        <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;"></th>
-                    </tr>
-                </thead>
 
                 <?php if (empty($horarios)): ?>
                     <tbody>
                         <tr>
-                            <td colspan="5" class="text-center">No hay horarios registrados.</td>
+                            <td colspan="4" class="text-center">No hay horarios registrados.</td>
                         </tr>
                     </tbody>
                 <?php else: ?>
@@ -78,10 +69,17 @@
 
                         <tbody class="seccionDia" data-dia="<?= $dia ?>">
                             <tr>
-                                <th colspan="5" class="text-center"
+                                <th colspan="4" class="text-center"
                                     style="background:linear-gradient(90deg,#0fb892,#0b8f70); color:#fff; text-transform:uppercase; letter-spacing:2px; font-size:17px; font-weight:800; padding:12px 12px; border-bottom:3px solid #14ffc0;">
                                     <?= $dia ?>
                                 </th>
+                            </tr>
+
+                            <tr>
+                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Sistema</th>
+                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Inicio</th>
+                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Fin</th>
+                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;"></th>
                             </tr>
 
                             <?php foreach ($porDia[$dia] as $horario): ?>
@@ -99,18 +97,6 @@
                                     </td>
                                     <td><?= formatear_hora($horario['hora_inicio']) ?></td>
                                     <td><?= formatear_hora($horario['hora_fin']) ?></td>
-                                    <td>
-                                        <label class="switch"
-                                               title="Encendido: activo — Apagado: dado de baja"
-                                               style="margin-bottom:0;">
-                                            <input type="checkbox"
-                                                   class="toggle-estado"
-                                                   data-url-activar="<?= base_url('alta_horario/'.$horario['id_horario']) ?>"
-                                                   data-url-desactivar="<?= base_url('baja_horario/'.$horario['id_horario']) ?>"
-                                                   <?= $horario['baja'] == 'N' ? 'checked' : '' ?>>
-                                            <span class="slider"></span>
-                                        </label>
-                                    </td>
                                     <td style="white-space: nowrap;">
                                         <button type="button"
                                                 class="btn btn-primary btn-sm btnEditarHorario"
@@ -123,12 +109,6 @@
                                                 data-bs-target="#modalEditarHorario">
                                             Editar
                                         </button>
-
-                                        <a href="<?= base_url('eliminar_horario/'.$horario['id_horario']) ?>"
-                                           class="btn btn-danger btn-sm"
-                                           onclick="return confirm('¿Desea eliminar este horario?');">
-                                            Eliminar
-                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -137,7 +117,7 @@
 
                     <tbody id="sinResultados" style="display:none;">
                         <tr>
-                            <td colspan="5" class="text-center">Sin resultados para la búsqueda.</td>
+                            <td colspan="4" class="text-center">Sin resultados para la búsqueda.</td>
                         </tr>
                     </tbody>
 
@@ -221,7 +201,7 @@
                             <label class="form-label">Sistema *</label>
                             <select name="id_sistema" id="sistemaHorario" class="form-control" required>
                                 <option value="">Seleccionar sistema...</option>
-                                <?php foreach($sistemas as $sistema): ?>
+                                <?php foreach($sistemasActivos as $sistema): ?>
                                     <option value="<?= $sistema['id_sistema'] ?>">
                                         <?= esc($sistema['nombre_sistema']) ?>
                                     </option>
@@ -256,6 +236,11 @@
                     </div>
 
                     <div class="modal-footer" style="border-top:1px solid #333;">
+                        <a id="btnEliminarHorario" href="#" class="btn btn-danger"
+                           style="margin-right:auto;"
+                           onclick="return confirm('¿Desea eliminar este horario?');">
+                            Eliminar
+                        </a>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-success">Guardar cambios</button>
                     </div>
@@ -265,54 +250,6 @@
     </div>
 
 </main>
-
-<style>
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 44px;
-        height: 24px;
-        vertical-align: middle;
-    }
-
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .switch .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #555;
-        border-radius: 24px;
-        transition: 0.3s;
-    }
-
-    .switch .slider::before {
-        content: "";
-        position: absolute;
-        height: 18px;
-        width: 18px;
-        left: 3px;
-        bottom: 3px;
-        background-color: #fff;
-        border-radius: 50%;
-        transition: 0.3s;
-    }
-
-    .switch input:checked + .slider {
-        background-color: #dc3545;
-    }
-
-    .switch input:checked + .slider::before {
-        transform: translateX(20px);
-    }
-</style>
 
 <script>
     const sidebarOpen = document.getElementById('sidebarOpen');
@@ -402,6 +339,7 @@
 
     // MODAL EDITAR: cargar datos del horario
     const formEditarHorario = document.getElementById('formEditarHorario');
+    const btnEliminarHorario = document.getElementById('btnEliminarHorario');
     const botonesEditar = document.querySelectorAll('.btnEditarHorario');
 
     botonesEditar.forEach(function(boton) {
@@ -413,21 +351,11 @@
             const fin = this.getAttribute('data-fin');
 
             formEditarHorario.action = '<?= base_url('actualizar_horario/') ?>' + id;
+            btnEliminarHorario.href = '<?= base_url('eliminar_horario/') ?>' + id;
             document.getElementById('sistemaHorario').value = idSistema;
             document.getElementById('diaHorario').value = dia;
             document.getElementById('inicioHorario').value = inicio;
             document.getElementById('finHorario').value = fin;
-        });
-    });
-
-    // TOGGLE ACTIVAR / DESACTIVAR
-    document.querySelectorAll('.toggle-estado').forEach(function(chk) {
-        chk.addEventListener('change', function() {
-            const url = this.checked
-                ? this.getAttribute('data-url-activar')
-                : this.getAttribute('data-url-desactivar');
-
-            if (url) window.location.href = url;
         });
     });
 

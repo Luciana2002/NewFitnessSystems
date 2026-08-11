@@ -76,6 +76,57 @@
                 </div>
             </div>
         </div>
+
+        <!-- RECOMENDACIONES DE PROMOS -->
+        <?php if (!empty($recomendaciones)): ?>
+        <div class="dashboard-card" style="padding:25px; margin-top:30px; max-width:none;">
+            <h4 style="margin-bottom:5px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
+                Recomendaciones de promos
+            </h4>
+            <p style="color:#aaa; margin-bottom:20px;">
+                Basadas en las suscripciones más elegidas por los clientes, para tomar decisiones estratégicas.
+            </p>
+
+            <?php
+                $colores = [
+                    'estrella'     => '#ffc107',
+                    'subir-precio' => '#28a745',
+                    'retencion'    => '#dc3545',
+                    'captacion'    => '#0b8f70'
+                ];
+                $badges = [
+                    'estrella'     => 'Sistema estrella',
+                    'subir-precio' => 'Candidato a subir precio',
+                    'retencion'    => 'Promo de retención',
+                    'captacion'    => 'Promo de captación'
+                ];
+            ?>
+
+            <div class="row g-4">
+                <?php foreach ($recomendaciones as $rec): ?>
+                    <?php $color = $colores[$rec['tipo']] ?? '#0b8f70'; ?>
+                    <div class="col-md-6">
+                        <div class="dashboard-card" style="padding:20px; border-left:4px solid <?= $color ?>; height:100%;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
+                                <span style="background:<?= $color ?>; color:#111; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; padding:4px 10px; border-radius:20px;">
+                                    <?= $badges[$rec['tipo']] ?? 'Recomendación' ?>
+                                </span>
+                                <span style="color:#cfcfcf; font-weight:700; text-transform:uppercase;"><?= esc($rec['sistema']) ?></span>
+                            </div>
+
+                            <p style="color:#ddd; margin-bottom:12px;"><?= esc($rec['mensaje']) ?></p>
+
+                            <div style="display:flex; gap:15px; font-size:13px; color:#aaa; flex-wrap:wrap;">
+                                <span>Precio actual: <strong style="color:white;">$<?= number_format($rec['precio'], 0, ',', '.') ?></strong></span>
+                                <span>Suscripciones: <strong style="color:white;"><?= $rec['activos'] ?></strong></span>
+                                <span>Vencidas: <strong style="color:white;"><?= $rec['vencidos'] ?></strong></span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </section>
 
 </main>

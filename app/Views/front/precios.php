@@ -7,17 +7,6 @@
     </div>
 </section>
 
-<?php
-$precios = [
-    ["sistema" => "BodyPump", "precio" => 30000],
-    ["sistema" => "PowerJump", "precio" => 30000],
-    ["sistema" => "Funcional", "precio" => 30000],
-    ["sistema" => "Zumba", "precio" => 30000],
-    ["sistema" => "Artes Marciales", "precio" => 30000],
-    ["sistema" => "Gimnasio", "precio" => 30000],
-];
-?>
-
 <section class="pricing-section" style="background-color:#111; color:white; padding:60px 0;">
     <div class="container">
 
@@ -28,26 +17,32 @@ $precios = [
 
         <div class="row g-4">
 
-            <?php foreach ($precios as $item): ?>
-                <div class="col-md-4">
-                    <div class="pricing-card text-center" style="background:#1b1b1b; border-left:4px solid #0b8f70; color:white; padding:40px 30px;">
+            <?php if (!empty($precios)): ?>
+                <?php foreach ($precios as $item): ?>
+                    <div class="col-md-4">
+                        <div class="pricing-card text-center" style="background:#1b1b1b; border-left:4px solid #0b8f70; color:white; padding:40px 30px;">
 
-                        <h3 style="margin-bottom:15px;">
-                            <?= esc($item['sistema']) ?>
-                        </h3>
+                            <h3 style="margin-bottom:15px;">
+                                <?= esc($item['nombre_sistema']) ?>
+                            </h3>
 
-                        <div class="price" style="color:#0b8f70; margin-bottom:20px;">
-                            $<?= number_format($item['precio'], 0, ',', '.') ?>
-                            <span style="font-size:14px; color:#aaa;">/mes</span>
+                            <div class="price" style="color:#0b8f70; margin-bottom:20px;">
+                                $<?= number_format($item['precio'] ?? 0, 0, ',', '.') ?>
+                                <span style="font-size:14px; color:#aaa;">/mes</span>
+                            </div>
+
+                            <a href="<?= base_url('contacto') ?>" class="btn-main">
+                                Inscribirme
+                            </a>
+
                         </div>
-
-                        <a href="<?= base_url('contacto') ?>" class="btn-main">
-                            Inscribirme
-                        </a>
-
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center">
+                    <p style="color:#aaa;">No hay sistemas disponibles por el momento.</p>
                 </div>
-            <?php endforeach; ?>
+            <?php endif; ?>
 
         </div>
 

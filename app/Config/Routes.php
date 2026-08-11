@@ -67,6 +67,7 @@ $routes->get('/baja_cliente/(:num)', 'ClienteController::baja/$1');
 $routes->get('/alta_cliente/(:num)', 'ClienteController::alta/$1');
 
 $routes->post('/registrar_cliente', 'ClienteController::nuevoCliente');
+$routes->post('/registrar_profesor', 'ClienteController::nuevoProfesor');
 
 /* =========================
    PANEL (profesores, sistemas, horarios, pagos)

@@ -72,7 +72,7 @@ class ClienteController extends BaseController
         $personaModel->insert([
             'nombre'   => $nombre,
             'apellido' => $apellido,
-            'email'    => $email !== '' ? $email : null,
+            'email'    => $email,
             'telefono' => $telefono,
             'dni'      => $dni,
             'id_rol'   => 3,
@@ -133,6 +133,69 @@ class ClienteController extends BaseController
         return redirect()->to('/clientes');
     }
 
+    public function nuevoProfesor()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $nombre   = trim($this->request->getPost('nombre') ?? '');
+        $apellido = trim($this->request->getPost('apellido') ?? '');
+        $email    = trim($this->request->getPost('email') ?? '');
+        $telefono = trim($this->request->getPost('telefono') ?? '');
+        $dni      = trim($this->request->getPost('dni') ?? '');
+        $usuario  = trim($this->request->getPost('usuario') ?? '');
+        $pass     = $this->request->getPost('pass');
+
+        if ($nombre === '' || $apellido === '' || $telefono === '' || $dni === '' || $usuario === '' || empty($pass)) {
+            session()->setFlashdata('error', 'Completá todos los campos obligatorios');
+            return redirect()->to('/profesores');
+        }
+
+        $personaModel = new DatosPersonalesModel();
+        $usuarioModel = new UsuarioModel();
+
+        if ($personaModel->where('dni', $dni)->first()) {
+            session()->setFlashdata('error', 'Ya existe una persona registrada con ese DNI');
+            return redirect()->to('/profesores');
+        }
+
+        if ($usuarioModel->where('nombre_usuario', $usuario)->first()) {
+            session()->setFlashdata('error', 'Ese nombre de usuario ya está en uso');
+            return redirect()->to('/profesores');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $personaModel->insert([
+            'nombre'   => $nombre,
+            'apellido' => $apellido,
+            'email'    => $email,
+            'telefono' => $telefono,
+            'dni'      => $dni,
+            'id_rol'   => 2,
+            'baja'     => 'N'
+        ]);
+
+        $idPersona = $personaModel->getInsertID();
+
+        $usuarioModel->insert([
+            'nombre_usuario' => $usuario,
+            'contraseña'     => password_hash($pass, PASSWORD_DEFAULT),
+            'id_persona'     => $idPersona
+        ]);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            session()->setFlashdata('error', 'No se pudo registrar el profesor');
+            return redirect()->to('/profesores');
+        }
+
+        session()->setFlashdata('success', 'Profesor registrado correctamente');
+        return redirect()->to('/profesores');
+    }
+
     public function index()
     {
         $validacion = $this->validarAcceso();
@@ -181,6 +244,7 @@ class ClienteController extends BaseController
         $sinPagos = 0;
         $sinSuscripcion = 0;
         $sistemas = [];
+        $vencidosPorSistema = [];
 
         foreach ($clientes as $cliente) {
             $sistemasCliente = $cliente['sistemas'] ?? [];
@@ -193,6 +257,14 @@ class ClienteController extends BaseController
             foreach ($sistemasActivos as $sistema) {
                 $nombreSistema = $sistema['nombre_sistema'] ?? 'Sin sistema';
                 $sistemas[$nombreSistema] = ($sistemas[$nombreSistema] ?? 0) + 1;
+
+                $tsVenc = !empty($sistema['fecha_vencimiento'])
+                    ? strtotime((string) $sistema['fecha_vencimiento'])
+                    : null;
+
+                if ($tsVenc && $tsVenc < strtotime(date('Y-m-d'))) {
+                    $vencidosPorSistema[$nombreSistema] = ($vencidosPorSistema[$nombreSistema] ?? 0) + 1;
+                }
             }
 
             if (empty($sistemasActivos)) {
@@ -224,12 +296,74 @@ class ClienteController extends BaseController
 
         arsort($sistemas);
 
+        // Recomendaciones de promos según la demanda
+        $sistemaModel = new SistemaModel();
+        $sistemasPrecios = [];
+
+        foreach ($sistemaModel->getSistemasConPrecio(false) as $s) {
+            $sistemasPrecios[$s['nombre_sistema']] = (float) ($s['precio'] ?? 0);
+        }
+
+        $recomendaciones = [];
+        $topNombre = !empty($sistemas) ? array_key_first($sistemas) : null;
+
+        if ($topNombre) {
+            $recomendaciones[] = [
+                'tipo'     => 'estrella',
+                'sistema'  => $topNombre,
+                'precio'   => $sistemasPrecios[$topNombre] ?? 0,
+                'activos'  => $sistemas[$topNombre],
+                'vencidos' => $vencidosPorSistema[$topNombre] ?? 0,
+                'mensaje'  => "Es el sistema con más suscripciones activas, el fuerte del negocio. Aprovechalo para fidelizar (programa de beneficios, descuento por referidos) antes que para subir el precio."
+            ];
+        }
+
+        foreach ($sistemas as $nombre => $activos) {
+            if ($nombre === $topNombre) continue;
+
+            $vencidos = $vencidosPorSistema[$nombre] ?? 0;
+            $precio   = $sistemasPrecios[$nombre] ?? 0;
+            $ratio    = $activos > 0 ? $vencidos / $activos : 0;
+
+            if ($ratio >= 0.4) {
+                $recomendaciones[] = [
+                    'tipo'     => 'retencion',
+                    'sistema'  => $nombre,
+                    'precio'   => $precio,
+                    'activos'  => $activos,
+                    'vencidos' => $vencidos,
+                    'mensaje'  => "Alta proporción de cuotas vencidas ({$vencidos} de {$activos}). Ofrecé una promo de recuperación: 2x1 en la cuota del mes o 25% de descuento por 30 días para recuperar clientes."
+                ];
+            } elseif ($ratio <= 0.15 && $activos >= 5) {
+                $recomendaciones[] = [
+                    'tipo'     => 'subir-precio',
+                    'sistema'  => $nombre,
+                    'precio'   => $precio,
+                    'activos'  => $activos,
+                    'vencidos' => $vencidos,
+                    'mensaje'  => "Alta demanda y cuotas al día: hay margen para subir el precio de $" . number_format($precio, 0, ',', '.') . " sin perder clientes."
+                ];
+            } elseif ($activos < 3) {
+                $recomendaciones[] = [
+                    'tipo'     => 'captacion',
+                    'sistema'  => $nombre,
+                    'precio'   => $precio,
+                    'activos'  => $activos,
+                    'vencidos' => $vencidos,
+                    'mensaje'  => "Poca demanda ({$activos} clientes). Lanzá una promo de captación: primer mes con 50% de descuento o una semana de prueba gratis."
+                ];
+            }
+
+            if (count($recomendaciones) >= 6) break;
+        }
+
         $data['total'] = $total;
         $data['alDia'] = $alDia;
         $data['vencido'] = $vencido;
         $data['sinPagos'] = $sinPagos;
         $data['sinSuscripcion'] = $sinSuscripcion;
         $data['sistemas'] = $sistemas;
+        $data['recomendaciones'] = $recomendaciones;
 
         return view('front/header')
              . view('front/navbar')
