@@ -13,9 +13,9 @@
     <?= view('layout/sidebar') ?>
 
     <section class="dashboard-content" style="padding:50px 70px;">
-        <div style="display:flex; align-items:center; gap:15px; margin-bottom:30px;">
-            <a href="<?= base_url('profesores') ?>" class="btn btn-outline-success btn-sm">← Volver</a>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:30px;">
             <h1 style="margin:0;">Editar Profesor</h1>
+            <a href="<?= base_url('profesores') ?>" class="btn btn-outline-success btn-sm">← Volver</a>
         </div>
 
         <?php if(session()->getFlashdata('success')): ?>

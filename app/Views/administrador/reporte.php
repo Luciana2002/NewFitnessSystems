@@ -84,7 +84,7 @@
                 Recomendaciones de promos
             </h4>
             <p style="color:#aaa; margin-bottom:20px;">
-                Basadas en las suscripciones más elegidas por los clientes, para tomar decisiones estratégicas.
+                Basadas en las suscripciones más elegidas por los clientes.
             </p>
 
             <?php
