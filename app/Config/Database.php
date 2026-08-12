@@ -29,7 +29,7 @@ class Database extends Config
         'hostname'     => 'localhost\SQLEXPRESS',
         'username'     => '',
         'password'     => '',
-        'database'     => 'NewFitnessSystems2',
+        'database'     => 'NewFitnessSystems',
         'DBDriver'     => 'SQLSRV',
         'DBPrefix'     => '',
         'pConnect'     => false,
