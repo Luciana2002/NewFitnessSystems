@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ClienteModel;
+use App\Models\PagoModel;
 use App\Models\SistemaModel;
 
 class ReporteController extends BaseController
@@ -21,15 +22,110 @@ class ReporteController extends BaseController
         $validacion = $this->validarAdmin();
         if ($validacion) return $validacion;
 
-        $clienteModel = new ClienteModel();
+        return view('front/header')
+             . view('front/navbar')
+             . view('reportes/index')
+             . view('front/footer');
+    }
 
+    public function cuotas()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $resumen = $this->resumenCuotas();
+
+        $data['total']   = $resumen['total'];
+        $data['alDia']   = $resumen['alDia'];
+        $data['vencido'] = $resumen['vencido'];
+        $data['sistemas'] = $resumen['sistemas'];
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('reportes/cuotas', $data)
+             . view('front/footer');
+    }
+
+    public function liquidacion()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $pagoModel = new PagoModel();
+        $data['liquidacionProfesores'] = $pagoModel->getLiquidacionProfesores(0.30);
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('reportes/liquidacion', $data)
+             . view('front/footer');
+    }
+
+    public function ingresos()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $pagoModel = new PagoModel();
+
+        $data['ingresosPorSistema'] = $pagoModel->getIngresosPorSistema();
+
+        $totalGanado = $pagoModel->getTotalGanado();
+        $data['totalGanado'] = (float) ($totalGanado['total'] ?? 0);
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('reportes/ingresos', $data)
+             . view('front/footer');
+    }
+
+    public function ingresosData($meses = 6)
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $meses = max(1, min((int) $meses, 60));
+
+        $pagoModel = new PagoModel();
+        $ingresosMensuales = $pagoModel->getIngresosPorMes($meses);
+
+        $mesesCortos = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        $ingresosOrdenados = array_reverse($ingresosMensuales);
+        $etiquetas = array_map(function ($r) use ($mesesCortos) {
+            return $mesesCortos[$r['mes'] - 1] . ' ' . $r['anio'];
+        }, $ingresosOrdenados);
+        $datos = array_map(function ($r) {
+            return (float) $r['total'];
+        }, $ingresosOrdenados);
+
+        return $this->response->setJSON([
+            'etiquetas'    => $etiquetas,
+            'datos'        => $datos,
+            'totalPeriodo' => array_sum($datos)
+        ]);
+    }
+
+    public function promos()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $resumen = $this->resumenCuotas();
+        $data['recomendaciones'] = $this->recomendaciones($resumen['sistemas'], $resumen['vencidosPorSistema']);
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('reportes/promos', $data)
+             . view('front/footer');
+    }
+
+    private function resumenCuotas()
+    {
+        $clienteModel = new ClienteModel();
         $clientes = $clienteModel->getClientesConInfo();
 
         $total = count($clientes);
         $alDia = 0;
         $vencido = 0;
-        $sinPagos = 0;
-        $sinSuscripcion = 0;
         $sistemas = [];
         $vencidosPorSistema = [];
 
@@ -54,36 +150,44 @@ class ReporteController extends BaseController
                 }
             }
 
-            if (empty($sistemasActivos)) {
-                $sinSuscripcion++;
-            } elseif (empty($ultimoPago)) {
-                $sinPagos++;
+            if (empty($sistemasActivos) || empty($ultimoPago)) {
+                continue;
+            }
+
+            $hoyTs = strtotime(date('Y-m-d'));
+            $vencidoCliente = false;
+
+            foreach ($sistemasActivos as $sistema) {
+                $tsVenc = !empty($sistema['fecha_vencimiento'])
+                    ? strtotime((string) $sistema['fecha_vencimiento'])
+                    : null;
+
+                if ($tsVenc && $tsVenc < $hoyTs) {
+                    $vencidoCliente = true;
+                    break;
+                }
+            }
+
+            if ($vencidoCliente) {
+                $vencido++;
             } else {
-                $hoyTs = strtotime(date('Y-m-d'));
-                $vencidoCliente = false;
-
-                foreach ($sistemasActivos as $sistema) {
-                    $tsVenc = !empty($sistema['fecha_vencimiento'])
-                        ? strtotime((string) $sistema['fecha_vencimiento'])
-                        : null;
-
-                    if ($tsVenc && $tsVenc < $hoyTs) {
-                        $vencidoCliente = true;
-                        break;
-                    }
-                }
-
-                if ($vencidoCliente) {
-                    $vencido++;
-                } else {
-                    $alDia++;
-                }
+                $alDia++;
             }
         }
 
         arsort($sistemas);
 
-        // Recomendaciones de promos según la demanda
+        return [
+            'total'             => $total,
+            'alDia'             => $alDia,
+            'vencido'           => $vencido,
+            'sistemas'          => $sistemas,
+            'vencidosPorSistema' => $vencidosPorSistema
+        ];
+    }
+
+    private function recomendaciones($sistemas, $vencidosPorSistema)
+    {
         $sistemaModel = new SistemaModel();
         $sistemasPrecios = [];
 
@@ -153,17 +257,6 @@ class ReporteController extends BaseController
             if (count($recomendaciones) >= 6) break;
         }
 
-        $data['total'] = $total;
-        $data['alDia'] = $alDia;
-        $data['vencido'] = $vencido;
-        $data['sinPagos'] = $sinPagos;
-        $data['sinSuscripcion'] = $sinSuscripcion;
-        $data['sistemas'] = $sistemas;
-        $data['recomendaciones'] = $recomendaciones;
-
-        return view('front/header')
-             . view('front/navbar')
-             . view('administrador/reporte', $data)
-             . view('front/footer');
+        return $recomendaciones;
     }
 }

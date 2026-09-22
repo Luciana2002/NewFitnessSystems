@@ -55,6 +55,12 @@ $routes->get('/clientes', 'ClienteController::index');
 
 $routes->get('/suscripciones', 'ReporteController::index');
 
+$routes->get('/suscripciones/cuotas', 'ReporteController::cuotas');
+$routes->get('/suscripciones/liquidacion', 'ReporteController::liquidacion');
+$routes->get('/suscripciones/ingresos', 'ReporteController::ingresos');
+$routes->get('/suscripciones/ingresos/(:num)', 'ReporteController::ingresosData/$1');
+$routes->get('/suscripciones/promos', 'ReporteController::promos');
+
 $routes->get('/cliente_info/(:num)', 'ClienteController::detalle/$1');
 
 $routes->get('/editar_cliente/(:num)', 'ClienteController::editar/$1');

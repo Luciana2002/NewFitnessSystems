@@ -16,6 +16,7 @@
             $uri === 'sistemas' ||
             $uri === 'pagos' ||
             $uri === 'suscripciones' ||
+            str_starts_with($uri, 'suscripciones') ||
             $uri === 'admin_horarios';
         ?>
 
