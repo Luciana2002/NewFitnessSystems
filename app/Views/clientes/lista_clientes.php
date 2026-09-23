@@ -55,15 +55,17 @@
         <div class="table-responsive" id="tablaScrollClientes" style="background:#1b1b1b; padding:25px; border-left:5px solid #0b8f70; overflow-x:auto;">
             <table class="table table-dark table-striped table-hover align-middle" id="tablaClientes">
                 <thead>
-                    <tr>
+                     <tr>
                         <th>DNI</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
-                        <th>Estado cuota</th>
-                        <th>Teléfono</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
+                        <th>Sistema</th>
+                        <th>Monto</th>
+                        <th>Último pago</th>
+                        <th>Estado</th>
+                                        <th style="text-align:center;"></th>
+                                    </tr>
+                                </thead>
 
                 <tbody>
                     <?php if(!empty($clientes)): ?>
@@ -75,6 +77,13 @@
                                     return ($s['estado_suscripcion'] ?? '') !== 'Cancelada';
                                 }));
                                 $ultimoPago = $cliente['ultimo_pago'] ?? null;
+
+                                $primerSistema = $sistemas[0] ?? null;
+                                $nombreSistema = $primerSistema['nombre_sistema'] ?? '—';
+                                $montoCuota    = $primerSistema['precio_mensualidad'] ?? null;
+                                $ultimoPagoSist= $primerSistema['ultimo_pago_sistema']
+                                                 ?? $primerSistema['ultimo_pago']
+                                                 ?? $ultimoPago;
 
                                 if (empty($sistemas)) {
                                     $estadoCuota = 'Sin suscripción';
@@ -110,32 +119,28 @@
                                 <td><?= esc($cliente['dni']) ?></td>
                                 <td><?= esc($cliente['nombre']) ?></td>
                                 <td><?= esc($cliente['apellido']) ?></td>
+                                <td><?= esc($nombreSistema) ?></td>
+                                <td><?= $montoCuota !== null ? '$ ' . number_format((float) $montoCuota, 2) : '—' ?></td>
+                                <td><?= !empty($ultimoPagoSist) ? date('d/m/Y', strtotime((string) $ultimoPagoSist)) : '—' ?></td>
                                 <td>
                                     <span class="badge bg-<?= $badgeClass ?>">
                                         <?= esc($estadoCuota) ?>
                                     </span>
                                 </td>
-                                <td><?= esc($cliente['telefono']) ?></td>
-                                <td style="white-space: nowrap;">
-                                    <div style="display:flex; gap:6px;">
-                                        <?php if(session()->get('id_rol') == 1): ?>
-                                            <a href="<?= base_url('editar_cliente/'.$cliente['id_persona']) ?>"
-                                               class="btn btn-primary btn-sm">
-                                                Editar
-                                            </a>
-                                        <?php endif; ?>
-
+                                 <td style="white-space: nowrap; text-align:center;">
                                         <button type="button"
-                                                class="btn btn-success btn-sm btnVerMas"
-                                                data-target="detalle-<?= $cliente['id_persona'] ?>">
-                                            +
+                                                class="btnVerMas"
+                                                data-target="detalle-<?= $cliente['id_persona'] ?>"
+                                                aria-expanded="false"
+                                                title="Ver detalles"
+                                                style="background:transparent; border:none; color:#0b8f70; font-size:22px; line-height:1; padding:2px 6px; cursor:pointer;">
+                                            <i class="bi bi-chevron-down" style="font-weight:900; -webkit-text-stroke:1.6px currentColor; font-size:28px;"></i>
                                         </button>
-                                    </div>
                                 </td>
                             </tr>
 
                             <tr id="detalle-<?= $cliente['id_persona'] ?>" class="fila-detalle" style="display:none;">
-                                <td colspan="6">
+                                <td colspan="8">
                                     <div style="background:#111; padding:20px; border-left:4px solid #0b8f70; border-radius:8px;">
                                         <h5 style="margin-bottom:15px;">
                                             Información de <?= esc($cliente['nombre']) ?> <?= esc($cliente['apellido']) ?>
@@ -143,8 +148,13 @@
 
                                         <div class="row">
                                             <div class="col-md-4 mb-2">
-                                                <strong>Último pago:</strong>
-                                                <?= formatear_fecha($cliente['ultimo_pago'] ?? null) ?>
+                                                <strong>Email:</strong>
+                                                <?= !empty($cliente['email']) ? esc($cliente['email']) : '<span style="color:#d98b45;">Sin email</span>' ?>
+                                            </div>
+
+                                            <div class="col-md-4 mb-2">
+                                                <strong>Teléfono:</strong>
+                                                <?= esc($cliente['telefono']) ?>
                                             </div>
                                         </div>
 
@@ -220,8 +230,15 @@
                                         <?php endif; ?>
 
                                         <div style="margin-top:18px; text-align:right;">
+                                            <?php if(session()->get('id_rol') == 1): ?>
+                                                <a href="<?= base_url('editar_cliente/'.$cliente['id_persona']) ?>"
+                                                   class="btn btn-primary btn-sm">
+                                                    Editar
+                                                </a>
+                                            <?php endif; ?>
+
                                             <a href="<?= base_url('cliente_info/'.$cliente['id_persona']) ?>"
-                                               class="btn btn-outline-success btn-sm">
+                                               class="btn btn-outline-success btn-sm" style="margin-left:6px;">
                                                 Ver más
                                             </a>
                                         </div>
@@ -397,13 +414,16 @@
         boton.addEventListener('click', function() {
             const idDetalle = this.getAttribute('data-target');
             const filaDetalle = document.getElementById(idDetalle);
+            const icono = this.querySelector('i');
 
             if (filaDetalle.style.display === 'none' || filaDetalle.style.display === '') {
                 filaDetalle.style.display = 'table-row';
-                this.textContent = '-';
+                icono.className = 'bi bi-chevron-up';
+                this.setAttribute('aria-expanded', 'true');
             } else {
                 filaDetalle.style.display = 'none';
-                this.textContent = '+';
+                icono.className = 'bi bi-chevron-down';
+                this.setAttribute('aria-expanded', 'false');
             }
         });
     });

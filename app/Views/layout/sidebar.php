@@ -11,7 +11,7 @@
         <a href="<?= base_url('sistemas') ?>">Sistemas</a>
         <a href="<?= base_url('admin_horarios') ?>">Horarios</a>
         <a href="<?= base_url('pagos') ?>">Pagos</a>
-        <a href="<?= base_url('suscripciones') ?>">Reporte</a>
+        <a href="<?= base_url('suscripciones') ?>">Reportes</a>
 
     <?php elseif (session()->get('id_rol') == 2): ?>
         <h3>Panel Profesor</h3>

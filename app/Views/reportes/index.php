@@ -56,12 +56,8 @@
     <section class="dashboard-content" style="padding:50px 70px;">
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
-            <h1 style="margin:0;">Reporte del Negocio</h1>
+            <h1 style="margin:0;">Reportes del Negocio</h1>
         </div>
-
-        <p style="color:#aaa; margin-bottom:30px; max-width:600px;">
-            Elegí un reporte para ver la información completa de cada tema.
-        </p>
 
         <div class="row g-4">
 

@@ -56,7 +56,7 @@
                         <th>Apellido</th>
                         <th>Estado</th>
                         <th>Teléfono</th>
-                        <th>Acciones</th>
+                        <th style="text-align:center;"></th>
                     </tr>
                 </thead>
 
@@ -67,6 +67,7 @@
                                 <td><?= esc($profesor['dni']) ?></td>
                                 <td><?= esc($profesor['nombre']) ?></td>
                                 <td><?= esc($profesor['apellido']) ?></td>
+                                <td><?= esc($profesor['telefono']) ?></td>
                                 <td>
                                     <?php if($profesor['baja'] == 'S'): ?>
                                         <span class="badge bg-danger">Dado de baja</span>
@@ -74,18 +75,43 @@
                                         <span class="badge bg-success">Activo</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= esc($profesor['telefono']) ?></td>
-                                <td style="white-space: nowrap;">
-                                    <div style="display:flex; gap:6px;">
-                                        <a href="<?= base_url('editar_profesor/'.$profesor['id_persona']) ?>"
-                                           class="btn btn-primary btn-sm">
-                                            Editar
-                                        </a>
+                                <td style="white-space: nowrap; text-align:center;">
+                                    <button type="button"
+                                            class="btnVerMas"
+                                            data-target="detalle-<?= $profesor['id_persona'] ?>"
+                                            aria-expanded="false"
+                                            title="Ver detalles"
+                                            style="background:transparent; border:none; color:#0b8f70; font-size:22px; line-height:1; padding:2px 6px; cursor:pointer;">
+                                        <i class="bi bi-chevron-down" style="font-weight:900; -webkit-text-stroke:1.6px currentColor; font-size:28px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
 
-                                        <a href="<?= base_url('cliente_info/'.$profesor['id_persona']) ?>"
-                                           class="btn btn-outline-success btn-sm">
-                                            Ver más
-                                        </a>
+                            <tr id="detalle-<?= $profesor['id_persona'] ?>" class="fila-detalle" style="display:none;">
+                                <td colspan="6">
+                                    <div style="background:#111; padding:20px; border-left:4px solid #0b8f70; border-radius:8px;">
+                                        <h5 style="margin-bottom:15px;">
+                                            Información de <?= esc($profesor['nombre']) ?> <?= esc($profesor['apellido']) ?>
+                                        </h5>
+
+                                        <div class="row">
+                                            <div class="col-md-4 mb-2">
+                                                <strong>Nombre usuario:</strong>
+                                                <?= !empty($profesor['nombre_usuario']) ? esc($profesor['nombre_usuario']) : '<span style="color:#d98b45;">Sin usuario</span>' ?>
+                                            </div>
+
+                                            <div class="col-md-4 mb-2">
+                                                <strong>Email:</strong>
+                                                <?= !empty($profesor['email']) ? esc($profesor['email']) : '<span style="color:#d98b45;">Sin email</span>' ?>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-top:18px; text-align:right;">
+                                            <a href="<?= base_url('editar_profesor/'.$profesor['id_persona']) ?>"
+                                               class="btn btn-primary btn-sm">
+                                                Editar
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -212,11 +238,41 @@
             const filas = tablaProfesores.querySelectorAll('tbody tr');
 
             filas.forEach(function (fila) {
+                if (fila.classList.contains('fila-detalle')) {
+                    return;
+                }
+
                 const coincide = fila.textContent.toLowerCase().includes(texto);
                 fila.style.display = coincide ? '' : 'none';
+
+                const siguiente = fila.nextElementSibling;
+                if (siguiente && siguiente.classList.contains('fila-detalle')) {
+                    siguiente.style.display = 'none';
+                }
             });
         });
     }
+
+    // DESPLEGAR INFORMACIÓN
+    const botonesVerMasProf = document.querySelectorAll('.btnVerMas');
+
+    botonesVerMasProf.forEach(function(boton) {
+        boton.addEventListener('click', function() {
+            const idDetalle = this.getAttribute('data-target');
+            const filaDetalle = document.getElementById(idDetalle);
+            const icono = this.querySelector('i');
+
+            if (filaDetalle.style.display === 'none' || filaDetalle.style.display === '') {
+                filaDetalle.style.display = 'table-row';
+                icono.className = 'bi bi-chevron-up';
+                this.setAttribute('aria-expanded', 'true');
+            } else {
+                filaDetalle.style.display = 'none';
+                icono.className = 'bi bi-chevron-down';
+                this.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
 
     // SCROLL HORIZONTAL SUPERIOR
     const tablaScroll = document.getElementById('tablaScrollProfesores');
