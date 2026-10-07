@@ -10,9 +10,8 @@ body {
     margin: 0;
     font-family: 'Montserrat', sans-serif;
     background-color: #111;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    /* Sin min-height:100vh ni flex: el footer NO queda anclado abajo,
+       sigue al contenido (así los desplegables no quedan tapados). */
 }
 
 main {
@@ -505,7 +504,6 @@ a {
     color: white;
     padding: 60px 0 0;
     text-align: center;
-    margin-top: auto;
     position: relative;
 }
 
@@ -858,7 +856,8 @@ a {
 .dashboard-content { 
     flex: 1;
     padding: 45px 60px;
-    overflow-x: auto;
+    /* Sin overflow: recortaba los desplegables (filtros) contra el footer.
+       El scroll horizontal de las tablas lo hace cada .table-responsive. */
 }
 
 .dashboard-content h1 {
@@ -900,7 +899,6 @@ a {
 
     .dashboard-content {
         width: 100%;
-        overflow-x: auto;
     }
 
     .dashboard-content h1 {

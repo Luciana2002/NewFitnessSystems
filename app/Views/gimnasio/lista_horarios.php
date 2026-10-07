@@ -22,10 +22,6 @@
             </button>
         </div>
 
-        <input type="text" id="buscarHorario" class="form-control"
-               placeholder="Buscar..."
-               style="max-width:320px; margin-bottom:30px;">
-
         <?php if(session()->getFlashdata('success')): ?>
             <div class="toast-custom success">
                 <?= session()->getFlashdata('success') ?>
@@ -114,12 +110,6 @@
                             <?php endforeach; ?>
                         </tbody>
                     <?php endforeach; ?>
-
-                    <tbody id="sinResultados" style="display:none;">
-                        <tr>
-                            <td colspan="4" class="text-center">Sin resultados para la búsqueda.</td>
-                        </tr>
-                    </tbody>
 
                 <?php endif; ?>
             </table>
@@ -279,30 +269,6 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === "Escape") {
                 cerrarSidebar();
-            }
-        });
-    }
-
-    // BUSCADOR (por sección de día)
-    const buscarHorario = document.getElementById('buscarHorario');
-    const tablaHorarios = document.getElementById('tablaHorarios');
-    const sinResultados = document.getElementById('sinResultados');
-
-    if (buscarHorario && tablaHorarios) {
-        buscarHorario.addEventListener('keyup', function () {
-            const texto = this.value.toLowerCase();
-            const secciones = tablaHorarios.querySelectorAll('tbody.seccionDia');
-
-            let coincidencias = 0;
-
-            secciones.forEach(function (seccion) {
-                const coincide = seccion.textContent.toLowerCase().includes(texto);
-                seccion.style.display = coincide ? '' : 'none';
-                if (coincide) coincidencias++;
-            });
-
-            if (sinResultados) {
-                sinResultados.style.display = coincidencias === 0 ? '' : 'none';
             }
         });
     }

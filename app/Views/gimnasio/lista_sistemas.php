@@ -22,10 +22,6 @@
             </button>
         </div>
 
-        <input type="text" id="buscarSistema" class="form-control"
-               placeholder="Buscar..."
-               style="max-width:320px; margin-bottom:30px;">
-
         <?php if(session()->getFlashdata('success')): ?>
             <div class="toast-custom success">
                 <?= session()->getFlashdata('success') ?>
@@ -255,22 +251,6 @@
             if (e.key === "Escape") {
                 cerrarSidebar();
             }
-        });
-    }
-
-    // BUSCADOR
-    const buscarSistema = document.getElementById('buscarSistema');
-    const tablaSistemas = document.getElementById('tablaSistemas');
-
-    if (buscarSistema && tablaSistemas) {
-        buscarSistema.addEventListener('keyup', function () {
-            const texto = this.value.toLowerCase();
-            const filas = tablaSistemas.querySelectorAll('tbody tr');
-
-            filas.forEach(function (fila) {
-                const coincide = fila.textContent.toLowerCase().includes(texto);
-                fila.style.display = coincide ? '' : 'none';
-            });
         });
     }
 

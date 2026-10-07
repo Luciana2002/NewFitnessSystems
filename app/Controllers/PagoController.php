@@ -51,6 +51,8 @@ class PagoController extends BaseController
         $data['pagos'] = $pagoModel->getPagosAll();
         $data['clientes'] = $clientes;
         $data['mediosPago'] = $pagoModel->getMediosPago();
+        $data['sistemasPagos'] = array_values(array_unique(array_column($data['pagos'], 'nombre_sistema')));
+        $data['cobradoresPagos'] = array_values(array_unique(array_column($data['pagos'], 'cobrado_por')));
 
         return view('front/header')
              . view('front/navbar')

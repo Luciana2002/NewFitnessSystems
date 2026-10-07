@@ -25,9 +25,125 @@
             </button>
         </div>
 
-        <input type="text" id="buscarProfesor" class="form-control"
-               placeholder="Buscar..."
-               style="max-width:320px; margin-bottom:30px;">
+        <!-- FILTROS (tarjeta desplegable) + ORDEN -->
+        <style>
+            .toolbar-container { display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+
+            #buscarProfesor {
+                height:44px; border-radius:17px; font-size:14px; padding:4px 18px;
+                width:280px; background:#1f1f1f; border:1px solid #444; color:#eee;
+            }
+            #buscarProfesor:focus { box-shadow:none; border-color:#0b8f70; }
+            #buscarProfesor::placeholder { color:#777; }
+
+            .btn-filter-icon {
+                background-color:#0b8f70; color:#ffffff; border:none; border-radius:14px;
+                width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+                font-size:20px; cursor:pointer; transition:background-color 0.2s;
+            }
+            .btn-filter-icon:hover { background-color:#097a61; }
+
+            .btn-sort-pill {
+                background-color:#e9e8e2; color:#111; border:none; border-radius:14px;
+                padding:0 18px; height:44px; font-weight:600; font-size:14px;
+                display:flex; align-items:center; gap:8px; cursor:pointer; transition:background-color 0.2s;
+            }
+            .btn-sort-pill:hover { background-color:#dcdbd5; }
+            .btn-sort-pill:disabled {
+                background-color:#3a3a3a; color:#7a7a7a;
+                cursor:not-allowed; opacity:1;
+            }
+            .btn-sort-pill:disabled:hover { background-color:#3a3a3a; }
+
+            .dropdown-wrapper { position:relative; }
+
+            .filter-dropdown-card {
+                position:absolute; top:55px; left:0;
+                background-color:#1f1f1f; border-radius:16px;
+                box-shadow:0 4px 20px rgba(0,0,0,0.5);
+                padding:20px; width:300px; z-index:1000;
+                border:1px solid #333;
+                display:none;
+                animation:fadeInFiltros 0.2s ease-out;
+            }
+            @keyframes fadeInFiltros {
+                from { opacity:0; transform:translateY(-10px); }
+                to { opacity:1; transform:translateY(0); }
+            }
+
+            .menu-section-title { font-size:12px; color:#9a9a9a; margin-bottom:8px; font-weight:500; }
+
+            .filter-dropdown-card .form-control,
+            .filter-dropdown-card .form-select {
+                background:#2a2a2a; border:1px solid #444; color:#eee;
+                font-size:13px; border-radius:8px; padding:8px 12px;
+            }
+            .filter-dropdown-card .form-control:focus,
+            .filter-dropdown-card .form-select:focus {
+                box-shadow:none; border-color:#0b8f70;
+            }
+            .filter-dropdown-card .form-control::placeholder { color:#777; }
+
+            .btn-apply { background-color:#0b8f70; color:white; border-radius:20px; font-weight:bold; }
+            .btn-apply:hover { background-color:#097a61; color:white; }
+            .btn-clear {
+                background:transparent; color:#eee; border:1px solid #555;
+                border-radius:20px; font-weight:bold;
+            }
+            .btn-clear:hover { background:#333; color:#fff; }
+
+            th { white-space:nowrap; }
+        </style>
+
+        <div class="toolbar-container">
+            <input type="text" id="buscarProfesor" class="form-control" placeholder="Buscar">
+
+            <div class="dropdown-wrapper">
+                <button type="button" id="btnToggleFilters" class="btn-filter-icon" title="Filtros">
+                    <i class="bi bi-sliders"></i>
+                </button>
+
+                <div id="filterMenu" class="filter-dropdown-card" onclick="event.stopPropagation()">
+
+                    <div class="menu-section-title">Estado</div>
+                    <div class="mb-3">
+                        <select id="filtroEstado" class="form-select">
+                            <option value="">Todos los estados</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Dado de baja">Dado de baja</option>
+                        </select>
+                    </div>
+
+                    <div class="menu-section-title">Cuenta de usuario</div>
+                    <div class="mb-3">
+                        <select id="filtroUsuario" class="form-select">
+                            <option value="">Cualquier cuenta</option>
+                            <option value="con">Con usuario</option>
+                            <option value="sin">Sin usuario</option>
+                        </select>
+                    </div>
+
+                    <div class="menu-section-title">Email</div>
+                    <div class="mb-3">
+                        <select id="filtroEmail" class="form-select">
+                            <option value="">Cualquier email</option>
+                            <option value="con">Con email</option>
+                            <option value="sin">Sin email</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-apply w-100" id="btnAplicarFiltros">Aplicar</button>
+                        <button type="button" class="btn btn-clear w-100" id="btnLimpiarFiltros">Limpiar</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="btnSortProfesores" class="btn-sort-pill" title="Orden alfabético">
+                <i id="sortIconProfesores" class="bi bi-arrow-down"></i>
+                <span id="sortTextProfesores">A - Z</span>
+            </button>
+        </div>
 
         <?php if(session()->getFlashdata('success')): ?>
             <div class="toast-custom success">
@@ -54,8 +170,8 @@
                         <th>DNI</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
-                        <th>Estado</th>
                         <th>Teléfono</th>
+                        <th>Estado</th>
                         <th style="text-align:center;"></th>
                     </tr>
                 </thead>
@@ -63,8 +179,10 @@
                 <tbody>
                     <?php if(!empty($profesores)): ?>
                         <?php foreach($profesores as $profesor): ?>
-                            <tr>
-                                <td><?= esc($profesor['dni']) ?></td>
+                            <tr data-estado="<?= $profesor['baja'] == 'S' ? 'Dado de baja' : 'Activo' ?>"
+                                data-usuario="<?= !empty($profesor['nombre_usuario']) ? 'con' : 'sin' ?>"
+                                data-email="<?= !empty($profesor['email']) ? 'con' : 'sin' ?>">
+                                <td data-value="<?= esc($profesor['dni']) ?>"><?= esc($profesor['dni']) ?></td>
                                 <td><?= esc($profesor['nombre']) ?></td>
                                 <td><?= esc($profesor['apellido']) ?></td>
                                 <td><?= esc($profesor['telefono']) ?></td>
@@ -116,6 +234,9 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+                        <tr id="filtroVacioProfesores" class="text-center" style="display:none;">
+                            <td colspan="6">No hay profesores que coincidan con los filtros.</td>
+                        </tr>
                     <?php else: ?>
                         <tr>
                             <td colspan="6" class="text-center">No hay profesores registrados.</td>
@@ -228,30 +349,166 @@
         });
     }
 
-    // BUSCADOR
+    // ===== FILTROS (tarjeta desplegable) + BÚSQUEDA + ORDEN =====
+    const filtroMenu = document.getElementById('filterMenu');
+    const btnToggleFilters = document.getElementById('btnToggleFilters');
+    const btnAplicarFiltros = document.getElementById('btnAplicarFiltros');
+    const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+    const btnSortProfesores = document.getElementById('btnSortProfesores');
     const buscarProfesor = document.getElementById('buscarProfesor');
+
+    const filtroEstado = document.getElementById('filtroEstado');
+    const filtroUsuario = document.getElementById('filtroUsuario');
+    const filtroEmail = document.getElementById('filtroEmail');
     const tablaProfesores = document.getElementById('tablaProfesores');
 
-    if (buscarProfesor && tablaProfesores) {
-        buscarProfesor.addEventListener('keyup', function () {
-            const texto = this.value.toLowerCase();
-            const filas = tablaProfesores.querySelectorAll('tbody tr');
+    // Abrir / cerrar tarjeta
+    function toggleDropdown(e) {
+        e.stopPropagation();
+        if (!filtroMenu) return;
+        filtroMenu.style.display = filtroMenu.style.display === 'block' ? 'none' : 'block';
+    }
 
-            filas.forEach(function (fila) {
-                if (fila.classList.contains('fila-detalle')) {
-                    return;
-                }
+    if (btnToggleFilters) btnToggleFilters.addEventListener('click', toggleDropdown);
 
-                const coincide = fila.textContent.toLowerCase().includes(texto);
-                fila.style.display = coincide ? '' : 'none';
+    document.addEventListener('click', function (e) {
+        if (filtroMenu && filtroMenu.style.display === 'block'
+            && !filtroMenu.contains(e.target)
+            && e.target !== btnToggleFilters && !btnToggleFilters.contains(e.target)) {
+            filtroMenu.style.display = 'none';
+        }
+    });
 
-                const siguiente = fila.nextElementSibling;
-                if (siguiente && siguiente.classList.contains('fila-detalle')) {
-                    siguiente.style.display = 'none';
-                }
-            });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && filtroMenu) filtroMenu.style.display = 'none';
+    });
+
+    function colapsarDetalle(fila) {
+        const detalle = fila.nextElementSibling;
+        if (detalle && detalle.classList.contains('fila-detalle')) {
+            detalle.style.display = 'none';
+            const boton = fila.querySelector('.btnVerMas');
+            const icono = boton && boton.querySelector('i');
+            if (boton) boton.setAttribute('aria-expanded', 'false');
+            if (icono) icono.className = 'bi bi-chevron-down';
+        }
+    }
+
+    function aplicarFiltros() {
+        if (!tablaProfesores) return;
+
+        const texto = (buscarProfesor?.value || '').toLowerCase().trim();
+        const estado = filtroEstado?.value || '';
+        const usuario = filtroUsuario?.value || '';
+        const email = filtroEmail?.value || '';
+        let visibles = 0;
+
+        Array.from(tablaProfesores.tBodies[0].children).forEach(function (fila) {
+            if (fila.tagName !== 'TR' || fila.classList.contains('fila-detalle')) return;
+
+            const celdas = fila.children;
+            // Busca solo en nombre, apellido o DNI (los demás campos tienen filtro propio)
+            const busqueda = (celdas[1]?.textContent || '') + ' '
+                + (celdas[2]?.textContent || '') + ' '
+                + (celdas[0]?.textContent || '');
+            const coincideTexto = !texto || busqueda.toLowerCase().includes(texto);
+            const coincideEstado = !estado || (fila.dataset.estado || '') === estado;
+            const coincideUsuario = !usuario || (fila.dataset.usuario || 'sin') === usuario;
+            const coincideEmail = !email || (fila.dataset.email || 'sin') === email;
+            const visible = coincideTexto && coincideEstado
+                && coincideUsuario && coincideEmail;
+
+            fila.style.display = visible ? '' : 'none';
+            if (visible) visibles++;
+
+            colapsarDetalle(fila);
+        });
+
+        const vacio = document.getElementById('filtroVacioProfesores');
+        if (vacio) vacio.style.display = visibles === 0 ? 'table-row' : 'none';
+    }
+
+    // Búsqueda por nombre, apellido o DNI; filtra al instante
+    buscarProfesor?.addEventListener('input', aplicarFiltros);
+
+    // Aplicar (cierra la tarjeta como en el ejemplo)
+    if (btnAplicarFiltros) {
+        btnAplicarFiltros.addEventListener('click', function () {
+            aplicarFiltros();
+            if (filtroMenu) filtroMenu.style.display = 'none';
         });
     }
+
+    // Enter dentro de la tarjeta también aplica
+    filtroMenu?.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            aplicarFiltros();
+            filtroMenu.style.display = 'none';
+        }
+    });
+
+    // Limpiar
+    if (btnLimpiarFiltros) {
+        btnLimpiarFiltros.addEventListener('click', function () {
+            [filtroEstado, filtroUsuario, filtroEmail]
+                .forEach(el => { if (el) el.value = ''; });
+            aplicarFiltros();
+        });
+    }
+
+    // Botón A-Z (siempre activo): orden alfabético por nombre
+    // Primer clic aplica A-Z (el rótulo visible); después alterna.
+    let ordenAscProf = false;
+
+    btnSortProfesores?.addEventListener('click', function () {
+        ordenAscProf = !ordenAscProf;
+
+        const text = document.getElementById('sortTextProfesores');
+        const icon = document.getElementById('sortIconProfesores');
+        if (text) text.textContent = ordenAscProf ? 'A - Z' : 'Z - A';
+        if (icon) icon.className = ordenAscProf ? 'bi bi-arrow-down' : 'bi bi-arrow-up';
+
+        ordenarProfesores(1, 'texto', ordenAscProf);
+        aplicarFiltros();
+    });
+
+    function ordenarProfesores(indice, tipo, asc) {
+        const tbody = tablaProfesores.tBodies[0];
+        const filas = Array.from(tbody.children)
+            .filter(f => f.tagName === 'TR' && !f.classList.contains('fila-detalle') && f.id !== 'filtroVacioProfesores');
+
+        const parejas = filas.map(f => {
+            const detalle = f.nextElementSibling && f.nextElementSibling.classList.contains('fila-detalle')
+                ? f.nextElementSibling : null;
+            return { fila: f, detalle: detalle };
+        });
+
+        parejas.sort((a, b) => {
+            const celdaA = a.fila.children[indice];
+            const celdaB = b.fila.children[indice];
+
+            if (tipo === 'numero' || tipo === 'fecha') {
+                const valA = parseFloat(celdaA.dataset.value || '0') || 0;
+                const valB = parseFloat(celdaB.dataset.value || '0') || 0;
+                return asc ? valA - valB : valB - valA;
+            }
+
+            const valA = (celdaA.textContent || '').trim().toLowerCase();
+            const valB = (celdaB.textContent || '').trim().toLowerCase();
+            return asc ? valA.localeCompare(valB, 'es', { numeric: true }) : valB.localeCompare(valA, 'es', { numeric: true });
+        });
+
+        parejas.forEach(p => {
+            tbody.appendChild(p.fila);
+            if (p.detalle) tbody.appendChild(p.detalle);
+        });
+
+        const vacio = document.getElementById('filtroVacioProfesores');
+        if (vacio) tbody.appendChild(vacio);
+    }
+
+    aplicarFiltros();
 
     // DESPLEGAR INFORMACIÓN
     const botonesVerMasProf = document.querySelectorAll('.btnVerMas');
