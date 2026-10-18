@@ -92,6 +92,8 @@ class AdminUsuarioController extends BaseController
 
         $usuarioModel->update($id, $datosUsuario);
 
+        nfs_log('EDICION', 'Usuario', $id, 'Usuario modificado: ' . trim($this->request->getPost('nombre') . ' ' . $this->request->getPost('apellido')));
+
         session()->setFlashdata('success', 'Usuario modificado correctamente');
         return redirect()->to('/usuarios');
     }
@@ -121,6 +123,8 @@ class AdminUsuarioController extends BaseController
             'baja' => 'S'
         ]);
 
+        nfs_log('BAJA', 'Usuario', $id, 'Usuario dado de baja');
+
         session()->setFlashdata('success', 'Usuario dado de baja correctamente');
         return redirect()->to('/usuarios');
     }
@@ -144,6 +148,8 @@ class AdminUsuarioController extends BaseController
         $personaModel->update($usuario['id_persona'], [
             'baja' => 'N'
         ]);
+
+        nfs_log('ALTA', 'Usuario', $id, 'Usuario reactivado');
 
         session()->setFlashdata('success', 'Usuario activado correctamente');
         return redirect()->to('/usuarios');

@@ -1,3 +1,5 @@
+<?= view('reportes/_print_estilos') ?>
+
 <main class="dashboard-page">
 
     <button type="button" id="sidebarOpen" class="sidebar-handle">
@@ -20,6 +22,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
             <h1 style="margin:0;">Recomendaciones de Promos</h1>
+            <?= view('reportes/_acciones', ['exportUrl' => base_url('suscripciones/exportar/promos')]) ?>
         </div>
 
         <div class="dashboard-card" style="padding:25px; margin-bottom:30px; border-left:5px solid #4a6fa5; max-width:none;">

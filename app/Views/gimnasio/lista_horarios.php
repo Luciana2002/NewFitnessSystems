@@ -55,7 +55,7 @@
                 <?php if (empty($horarios)): ?>
                     <tbody>
                         <tr>
-                            <td colspan="4" class="text-center">No hay horarios registrados.</td>
+                            <td colspan="5" class="text-center">No hay horarios registrados.</td>
                         </tr>
                     </tbody>
                 <?php else: ?>
@@ -65,7 +65,7 @@
 
                         <tbody class="seccionDia" data-dia="<?= $dia ?>">
                             <tr>
-                                <th colspan="4" class="text-center"
+                                <th colspan="5" class="text-center"
                                     style="background:linear-gradient(90deg,#0fb892,#0b8f70); color:#fff; text-transform:uppercase; letter-spacing:2px; font-size:17px; font-weight:800; padding:12px 12px; border-bottom:3px solid #14ffc0;">
                                     <?= $dia ?>
                                 </th>
@@ -75,6 +75,7 @@
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Sistema</th>
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Inicio</th>
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Fin</th>
+                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Cupo</th>
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;"></th>
                             </tr>
 
@@ -93,6 +94,7 @@
                                     </td>
                                     <td><?= formatear_hora($horario['hora_inicio']) ?></td>
                                     <td><?= formatear_hora($horario['hora_fin']) ?></td>
+                                    <td><?= (int) ($horario['cupo_max'] ?? 20) ?></td>
                                     <td style="white-space: nowrap;">
                                         <button type="button"
                                                 class="btn btn-primary btn-sm btnEditarHorario"
@@ -101,6 +103,7 @@
                                                 data-dia="<?= esc($horario['dia_semana']) ?>"
                                                 data-inicio="<?= esc(formatear_hora($horario['hora_inicio'])) ?>"
                                                 data-fin="<?= esc(formatear_hora($horario['hora_fin'])) ?>"
+                                                data-cupo="<?= (int) ($horario['cupo_max'] ?? 20) ?>"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modalEditarHorario">
                                             Editar
@@ -165,6 +168,11 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Cupo máximo</label>
+                            <input type="number" name="cupo_max" class="form-control" value="20" min="1" step="1">
+                        </div>
                     </div>
 
                     <div class="modal-footer" style="border-top:1px solid #333;">
@@ -222,6 +230,11 @@
                                     <input type="time" name="hora_fin" id="finHorario" class="form-control" required>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Cupo máximo</label>
+                            <input type="number" name="cupo_max" id="cupoHorario" class="form-control" value="20" min="1" step="1">
                         </div>
                     </div>
 
@@ -315,6 +328,7 @@
             const dia = this.getAttribute('data-dia');
             const inicio = this.getAttribute('data-inicio');
             const fin = this.getAttribute('data-fin');
+            const cupo = this.getAttribute('data-cupo');
 
             formEditarHorario.action = '<?= base_url('actualizar_horario/') ?>' + id;
             btnEliminarHorario.href = '<?= base_url('eliminar_horario/') ?>' + id;
@@ -322,6 +336,7 @@
             document.getElementById('diaHorario').value = dia;
             document.getElementById('inicioHorario').value = inicio;
             document.getElementById('finHorario').value = fin;
+            document.getElementById('cupoHorario').value = cupo;
         });
     });
 

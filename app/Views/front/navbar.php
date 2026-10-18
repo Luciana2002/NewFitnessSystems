@@ -17,6 +17,12 @@
             $uri === 'pagos' ||
             $uri === 'suscripciones' ||
             str_starts_with($uri, 'suscripciones') ||
+            str_starts_with($uri, 'cliente/') ||
+            $uri === 'checkin' ||
+            $uri === 'rutinas' ||
+            str_starts_with($uri, 'rutinas/') ||
+            $uri === 'comunicaciones' ||
+            str_starts_with($uri, 'comunicaciones') ||
             $uri === 'admin_horarios';
         ?>
 

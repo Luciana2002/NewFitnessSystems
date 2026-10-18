@@ -91,6 +91,8 @@ class ProfesorController extends BaseController
             return redirect()->to('/profesores');
         }
 
+        nfs_log('ALTA', 'Profesor', $idPersona, "Profesor {$apellido}, {$nombre} ({$usuario})");
+
         session()->setFlashdata('success', 'Profesor registrado correctamente');
         return redirect()->to('/profesores');
     }
@@ -156,6 +158,8 @@ class ProfesorController extends BaseController
 
             $usuarioModel->update($usuario['id_usuario'], $datosUsuario);
         }
+
+        nfs_log('EDICION', 'Profesor', $id, 'Profesor modificado: ' . trim($this->request->getPost('nombre') . ' ' . $this->request->getPost('apellido')));
 
         session()->setFlashdata('success', 'Profesor actualizado correctamente');
         return redirect()->to('/profesores');

@@ -90,5 +90,8 @@ class Autoload extends AutoloadConfig
      */
     public $helpers = [
         'fecha',
+        'membresia',
+        'auditoria',
+        'export',
     ];
 }

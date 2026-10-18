@@ -14,6 +14,7 @@ class HorarioModel extends Model
         'hora_fin',
         'dia_semana',
         'id_sistema',
+        'cupo_max',
         'baja'
     ];
 
@@ -25,7 +26,7 @@ class HorarioModel extends Model
                 Horario.hora_inicio,
                 Horario.hora_fin,
                 Horario.dia_semana,
-                Horario.id_sistema,
+                Horario.cupo_max,
                 Horario.baja,
                 Sistema.nombre_sistema,
                 Sistema.color
@@ -43,6 +44,7 @@ class HorarioModel extends Model
                 Horario.hora_fin,
                 Horario.dia_semana,
                 Horario.id_sistema,
+                Horario.cupo_max,
                 Horario.baja,
                 Sistema.nombre_sistema,
                 Sistema.color

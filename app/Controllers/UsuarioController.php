@@ -77,6 +77,8 @@ class UsuarioController extends BaseController
 
         $usuarioModel->update($id, $datosUsuario);
 
+        nfs_log('EDICION', 'Usuario', $id, 'Usuario modificado: ' . trim($this->request->getPost('nombre') . ' ' . $this->request->getPost('apellido')));
+
         session()->setFlashdata('success', 'Usuario modificado correctamente');
         return redirect()->to('/usuarios');
     }
@@ -105,6 +107,8 @@ class UsuarioController extends BaseController
             'baja' => 'S'
         ]);
 
+        nfs_log('BAJA', 'Usuario', $id, 'Usuario dado de baja');
+
         session()->setFlashdata('success', 'Usuario dado de baja correctamente');
         return redirect()->to('/usuarios');
     }
@@ -127,6 +131,8 @@ class UsuarioController extends BaseController
         $personaModel->update($usuario['id_persona'], [
             'baja' => 'N'
         ]);
+
+        nfs_log('ALTA', 'Usuario', $id, 'Usuario reactivado');
 
         session()->setFlashdata('success', 'Usuario activado correctamente');
         return redirect()->to('/usuarios');
@@ -247,6 +253,10 @@ class UsuarioController extends BaseController
             'contraseña'     => password_hash($this->request->getPost('pass'), PASSWORD_DEFAULT),
             'id_persona'     => $idPersona
         ]);
+
+        $idUsuarioNuevo = $usuarioModel->getInsertID();
+
+        nfs_log('ALTA', 'Usuario', $idUsuarioNuevo, 'Registro de usuario: ' . trim($this->request->getPost('nombre') . ' ' . $this->request->getPost('apellido')) . ' (' . $this->request->getPost('usuario') . ')');
 
         session()->setFlashdata('success', 'Usuario registrado con éxito');
         return redirect()->to('/login');

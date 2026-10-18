@@ -121,6 +121,8 @@ class ClienteController extends BaseController
             return redirect()->to('/clientes');
         }
 
+        nfs_log('ALTA', 'Cliente', $idPersona, "Cliente {$apellido}, {$nombre} (DNI {$dni})");
+
         session()->setFlashdata('success', 'Cliente registrado con su primer pago');
         return redirect()->to('/clientes');
     }
@@ -331,6 +333,8 @@ class ClienteController extends BaseController
             }
         }
 
+        nfs_log('EDICION', 'Cliente', $id, 'Cliente modificado: ' . trim($this->request->getPost('nombre') . ' ' . $this->request->getPost('apellido')));
+
         session()->setFlashdata('success', 'Cliente actualizado correctamente');
         return redirect()->to('/clientes');
     }
@@ -346,6 +350,8 @@ class ClienteController extends BaseController
             'baja' => 'S'
         ]);
 
+        nfs_log('BAJA', 'Cliente', $id, 'Cliente dado de baja');
+
         session()->setFlashdata('success', 'Cliente dado de baja correctamente');
         return redirect()->to('/clientes');
     }
@@ -360,6 +366,8 @@ class ClienteController extends BaseController
         $personaModel->update($id, [
             'baja' => 'N'
         ]);
+
+        nfs_log('ALTA', 'Cliente', $id, 'Cliente reactivado');
 
         session()->setFlashdata('success', 'Cliente activado correctamente');
         return redirect()->to('/clientes');

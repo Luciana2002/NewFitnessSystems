@@ -70,6 +70,8 @@ class SistemaController extends BaseController
 
         $db->transCommit();
 
+        nfs_log('ALTA', 'Sistema', $idSistema, "Sistema \"{$nombre}\" creado (precio $" . number_format((float) $precio, 0, ',', '.') . ")");
+
         session()->setFlashdata('success', 'Sistema agregado correctamente');
         return redirect()->to('/sistemas');
     }
@@ -90,6 +92,18 @@ class SistemaController extends BaseController
 
         $sistemaModel = new SistemaModel();
 
+        $db = \Config\Database::connect();
+
+        $precioAnterior = $db->query(
+            "SELECT TOP 1 precio
+             FROM Mensualidad
+             WHERE id_sistema = ?
+             ORDER BY fecha_vigencia DESC",
+            [$id]
+        )->getRowArray();
+
+        $precioAnterior = $precioAnterior ? (float) $precioAnterior['precio'] : null;
+
         $datos = [
             'nombre_sistema' => $nombre
         ];
@@ -99,8 +113,6 @@ class SistemaController extends BaseController
         }
 
         $sistemaModel->update($id, $datos);
-
-        $db = \Config\Database::connect();
 
         $mensualidad = $db->query(
             "SELECT TOP 1 id_mensualidad
@@ -116,6 +128,12 @@ class SistemaController extends BaseController
                 ->update(['precio' => (float) $precio]);
         }
 
+        if ($precioAnterior !== null && $precioAnterior !== (float) $precio) {
+            nfs_log('PRECIO', 'Sistema', $id, "Cambio de precio en \"{$nombre}\": $" . number_format($precioAnterior, 0, ',', '.') . " -> $" . number_format((float) $precio, 0, ',', '.'));
+        } else {
+            nfs_log('EDICION', 'Sistema', $id, "Sistema \"{$nombre}\" modificado");
+        }
+
         session()->setFlashdata('success', 'Sistema actualizado correctamente');
         return redirect()->to('/sistemas');
     }
@@ -128,6 +146,8 @@ class SistemaController extends BaseController
         $sistemaModel = new SistemaModel();
         $sistemaModel->update($id, ['baja' => 'S']);
 
+        nfs_log('BAJA', 'Sistema', $id, 'Sistema dado de baja');
+
         session()->setFlashdata('success', 'Sistema dado de baja');
         return redirect()->to('/sistemas');
     }
@@ -139,6 +159,8 @@ class SistemaController extends BaseController
 
         $sistemaModel = new SistemaModel();
         $sistemaModel->update($id, ['baja' => 'N']);
+
+        nfs_log('ALTA', 'Sistema', $id, 'Sistema reactivado');
 
         session()->setFlashdata('success', 'Sistema activado');
         return redirect()->to('/sistemas');

@@ -1,3 +1,5 @@
+<?= view('reportes/_print_estilos') ?>
+
 <main class="dashboard-page">
 
     <button type="button" id="sidebarOpen" class="sidebar-handle">
@@ -20,6 +22,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
             <h1 style="margin:0;">Reporte de Cuotas</h1>
+            <?= view('reportes/_acciones', ['exportUrl' => base_url('suscripciones/exportar/cuotas')]) ?>
         </div>
 
         <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:30px;">
@@ -56,13 +59,29 @@
 
             <div class="col-lg-5">
                 <div class="dashboard-card" style="padding:25px; height:100%; max-width:none;">
-                    <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
-                        Estado de las cuotas
-                    </h4>
-
-                    <div style="position:relative; height:340px;">
-                        <canvas id="graficoCuotas"></canvas>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:10px; flex-wrap:wrap;">
+                        <h4 style="margin:0; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
+                            Ganancia por sistema
+                        </h4>
+                        <a href="<?= base_url('suscripciones/ingresos') ?>" style="background:#0b8f70; color:#fff; border-radius:8px; padding:6px 12px; text-decoration:none; text-transform:uppercase; letter-spacing:1px; font-size:11px;">Ver por mes</a>
                     </div>
+
+                    <?php $maxSistema = !empty($ingresosPorSistema) ? max(array_column($ingresosPorSistema, 'total')) : 0; ?>
+                    <?php if (!empty($ingresosPorSistema)): ?>
+                        <?php foreach ($ingresosPorSistema as $s): ?>
+                            <div style="margin-bottom:18px;">
+                                <div style="display:flex; justify-content:space-between; gap:10px; color:#ddd; font-size:14px;">
+                                    <span><?= esc($s['nombre_sistema']) ?></span>
+                                    <strong style="color:#0b8f70;">$<?= number_format((float) $s['total'], 0, ',', '.') ?></strong>
+                                </div>
+                                <div style="background:#262626; border-radius:6px; height:14px; overflow:hidden; margin-top:6px;">
+                                    <div style="width:<?= $maxSistema > 0 ? round(((float) $s['total'] / $maxSistema) * 100) : 0 ?>%; background:#0b8f70; height:100%;"></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p style="color:#aaa;">Aún no hay pagos registrados.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -96,26 +115,6 @@
             scales: {
                 x: { ticks: { color: '#cfcfcf' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
                 y: { beginAtZero: true, ticks: { color: '#cfcfcf', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
-            }
-        }
-    });
-
-    new Chart(document.getElementById('graficoCuotas'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Al día', 'Vencidas'],
-            datasets: [{
-                data: [<?= $alDia ?>, <?= $vencido ?>],
-                backgroundColor: ['#28a745', '#dc3545'],
-                borderColor: '#1b1b1b',
-                borderWidth: 3
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { color: '#cfcfcf', padding: 18, boxWidth: 14 } }
             }
         }
     });

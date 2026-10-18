@@ -1,3 +1,5 @@
+<?= view('reportes/_print_estilos') ?>
+
 <main class="dashboard-page">
 
     <button type="button" id="sidebarOpen" class="sidebar-handle">
@@ -24,6 +26,7 @@
                 <h6 style="margin:0; text-transform:uppercase; letter-spacing:1px; color:#aaa; font-size:12px;" id="periodoLabel">Ganado en 1 mes</h6>
                 <h2 style="margin:2px 0 0; color:#ffc107;" id="periodoTotal">$0</h2>
             </div>
+            <?= view('reportes/_acciones', ['exportUrl' => base_url('suscripciones/exportar/ingresos')]) ?>
         </div>
 
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap; margin-bottom:30px;">

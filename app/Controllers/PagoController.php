@@ -143,6 +143,10 @@ class PagoController extends BaseController
             'id_suscripcion' => $idSuscripcion
         ]);
 
+        $idPago = $db->insertID();
+
+        nfs_log('ALTA', 'Pago', $idPago, 'Pago de $' . number_format((float) $monto, 0, ',', '.') . ' registrado (medio #' . (int) $idMedioPago . ')');
+
         session()->setFlashdata('success', 'Pago registrado correctamente');
         return redirect()->to('/pagos');
     }
