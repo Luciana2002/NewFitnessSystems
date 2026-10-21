@@ -23,19 +23,19 @@
 
                 <div id="reader" style="width:100%; border-radius:14px; overflow:hidden; background:#000;"></div>
 
-                <button type="button" id="btnIniciarCamara" class="btn btn-success w-100" style="margin-top:16px;">
+                <button type="button" id="btnIniciarCamara" class="nfs-btn nfs-btn-primary nfs-btn-block" style="margin-top:16px;">
                     <i class="bi bi-camera-video"></i> Iniciar cámara
                 </button>
-                <button type="button" id="btnDetenerCamara" class="btn btn-outline-light w-100" style="margin-top:10px; display:none;">
+                <button type="button" id="btnDetenerCamara" class="nfs-btn nfs-btn-light nfs-btn-block" style="margin-top:10px; display:none;">
                     Detener cámara
                 </button>
 
                 <hr style="border-color:#333; margin:22px 0;">
 
                 <label class="form-label">Ingreso manual de código</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="codigoManual" class="form-control" placeholder="NFS-000-00000000">
-                    <button type="button" id="btnManual" class="btn btn-primary">Verificar</button>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="codigoManual" class="form-control" placeholder="NFS-000-00000000" style="flex:1; min-width:200px;">
+                    <button type="button" id="btnManual" class="nfs-btn nfs-btn-primary">Verificar</button>
                 </div>
             </div>
 

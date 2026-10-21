@@ -51,7 +51,7 @@ class SistemaController extends BaseController
         $idSistema = $db->table('Sistema')->insert([
             'nombre_sistema' => $nombre,
             'baja'           => 'N',
-            'color'          => preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : '#0b8f70'
+            'color'          => preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : '#0b8f70',
         ]);
 
         if (!$idSistema) {
@@ -105,7 +105,7 @@ class SistemaController extends BaseController
         $precioAnterior = $precioAnterior ? (float) $precioAnterior['precio'] : null;
 
         $datos = [
-            'nombre_sistema' => $nombre
+            'nombre_sistema' => $nombre,
         ];
 
         if (preg_match('/^#[0-9a-fA-F]{6}$/', $color)) {

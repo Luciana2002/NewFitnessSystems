@@ -1,5 +1,13 @@
+<?php
+$nfsPref = session()->get('logged_in') ? nfs_preferencias() : [];
+$nfsClases = [];
+
+if (!empty($nfsPref)) {
+    $nfsClases[] = 'tema-' . ($nfsPref['tema'] ?? 'dark');
+}
+?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="<?= esc(implode(' ', $nfsClases)) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,4 +29,4 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/style.css?v=' . time()) ?>">
 </head>
 
-<body>
+<body class="<?= esc(implode(' ', $nfsClases)) ?>">

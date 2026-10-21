@@ -7,6 +7,8 @@
 
         $ocultarLogo =
             $uri === 'usuario_logueado' ||
+            $uri === 'perfil' ||
+            $uri === 'configuracion' ||
             $uri === 'personas' ||
             str_starts_with($uri, 'editar_persona') ||
             $uri === 'clientes' ||
@@ -21,9 +23,22 @@
             $uri === 'checkin' ||
             $uri === 'rutinas' ||
             str_starts_with($uri, 'rutinas/') ||
-            $uri === 'comunicaciones' ||
-            str_starts_with($uri, 'comunicaciones') ||
+            $uri === 'avisos' ||
+            str_starts_with($uri, 'avisos') ||
             $uri === 'admin_horarios';
+
+        $nombreCompleto = trim((string) session()->get('nombre') . ' ' . (string) session()->get('apellido'));
+
+        $iniciales = strtoupper(
+            mb_substr((string) session()->get('nombre'), 0, 1) .
+            mb_substr((string) session()->get('apellido'), 0, 1)
+        );
+
+        if ($iniciales === '') {
+            $iniciales = '?';
+        }
+
+        $rolUsuario = (string) (session()->get('rol') ?: 'Usuario');
         ?>
 
         <?php if (!$ocultarLogo): ?>
@@ -44,23 +59,62 @@
             <?php if (session()->get('logged_in')): ?>
                 <a href="<?= base_url('usuario_logueado') ?>" class="user-nav mobile-btn">
                     <i class="bi bi-person-circle"></i>
-                    <?= session()->get('nombre_usuario') ?>
+                    Mi panel
                 </a>
 
-                <a href="<?= base_url('logout') ?>" class="btn-nav mobile-btn">Salir</a>
+                <a href="<?= base_url('perfil') ?>" class="mobile-btn">Mi perfil</a>
+                <a href="<?= base_url('configuracion') ?>" class="mobile-btn">Configuración</a>
+                <a href="<?= base_url('logout') ?>" class="btn-nav mobile-btn">Cerrar sesión</a>
             <?php else: ?>
                 <a href="<?= base_url('login') ?>" class="btn-nav mobile-btn">Iniciar sesión</a>
             <?php endif; ?>
         </nav>
 
         <?php if (session()->get('logged_in')): ?>
-            <div class="desktop-user-area" style="margin-left:auto; display:flex; gap:15px;">
-                <a href="<?= base_url('usuario_logueado') ?>" class="user-nav">
-                    <i class="bi bi-person-circle"></i>
-                    <?= strtoupper(session()->get('nombre_usuario')) ?>
-                </a>
+            <div class="desktop-user-area">
+                <div class="dropdown profile-dropdown">
+                    <button class="profile-trigger" type="button" id="profileToggle"
+                            data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú de usuario">
+                        <span class="profile-avatar"><?= esc($iniciales) ?></span>
+                        <span class="profile-meta">
+                            <span class="profile-name"><?= esc($nombreCompleto) ?></span>
+                            <span class="profile-role"><?= esc($rolUsuario) ?></span>
+                        </span>
+                        <i class="bi bi-chevron-down profile-caret"></i>
+                    </button>
 
-                <a href="<?= base_url('logout') ?>" class="btn-nav desktop-btn">Salir</a>
+                    <ul class="dropdown-menu dropdown-menu-end profile-menu" aria-labelledby="profileToggle">
+                        <li class="profile-menu-header">
+                            <span class="profile-avatar profile-avatar-lg"><?= esc($iniciales) ?></span>
+                            <div class="profile-menu-info">
+                                <strong><?= esc($nombreCompleto) ?></strong>
+                                <span><?= esc(session()->get('email')) ?></span>
+                                <span class="profile-chip"><?= esc($rolUsuario) ?></span>
+                            </div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('usuario_logueado') ?>">
+                                <i class="bi bi-grid-1x2"></i> Mi panel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('perfil') ?>">
+                                <i class="bi bi-person"></i> Mi perfil
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('configuracion') ?>">
+                                <i class="bi bi-gear"></i> Configuración
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item profile-logout" href="<?= base_url('logout') ?>">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         <?php else: ?>
             <a href="<?= base_url('login') ?>" class="btn-nav desktop-btn">Iniciar sesión</a>

@@ -17,7 +17,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:15px;">
             <h1 style="margin:0;">Sistemas</h1>
 
-            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarSistema">
+            <button type="button" class="nfs-btn nfs-btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarSistema">
                 <i class="bi bi-plus-lg"></i> Agregar sistema
             </button>
         </div>
@@ -78,7 +78,7 @@
                                 </td>
                                 <td>
                                     <button type="button"
-                                            class="btn btn-primary btn-sm btnEditarSistema"
+                                            class="nfs-btn nfs-btn-primary nfs-btn-sm btnEditarSistema"
                                             data-id="<?= $sistema['id_sistema'] ?>"
                                             data-nombre="<?= esc($sistema['nombre_sistema']) ?>"
                                             data-precio="<?= esc($sistema['precio']) ?>"
@@ -92,7 +92,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center">No hay sistemas registrados.</td>
+                                <td colspan="5" class="text-center">No hay sistemas registrados.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -128,8 +128,8 @@
                     </div>
 
                     <div class="modal-footer" style="border-top:1px solid #333;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Agregar sistema</button>
+                        <button type="button" class="nfs-btn nfs-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="nfs-btn nfs-btn-primary">Agregar sistema</button>
                     </div>
                 </form>
             </div>
@@ -164,8 +164,8 @@
                     </div>
 
                     <div class="modal-footer" style="border-top:1px solid #333;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Guardar cambios</button>
+                        <button type="button" class="nfs-btn nfs-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="nfs-btn nfs-btn-primary">Guardar cambios</button>
                     </div>
                 </form>
             </div>

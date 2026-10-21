@@ -17,7 +17,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:15px;">
             <h1 style="margin:0;">Horarios</h1>
 
-            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarHorario">
+            <button type="button" class="nfs-btn nfs-btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarHorario">
                 <i class="bi bi-plus-lg"></i> Agregar horario
             </button>
         </div>
@@ -75,7 +75,7 @@
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Sistema</th>
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Inicio</th>
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Fin</th>
-                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Cupo</th>
+                                <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;">Inscriptos / cupo</th>
                                 <th style="background:#3a3f47; color:#fff; font-size:15px; letter-spacing:.5px; text-transform:uppercase;"></th>
                             </tr>
 
@@ -88,26 +88,26 @@
                                                     data-id="<?= $horario['id_sistema'] ?>"
                                                     data-color="<?= esc($horario['color'] ?? '#0b8f70') ?>"
                                                     title="Cambiar color del sistema"
-                                                    style="width:26px; height:26px; border-radius:50%; border:2px solid #fff; background:<?= esc($horario['color'] ?? '#0b8f70') ?>; cursor:pointer; padding:0; flex-shrink:0;"></button>
+                                                    style="background:<?= esc($horario['color'] ?? '#0b8f70') ?>;"></button>
                                             <span style="font-weight:600;"><?= esc($horario['nombre_sistema']) ?></span>
                                         </div>
                                     </td>
                                     <td><?= formatear_hora($horario['hora_inicio']) ?></td>
                                     <td><?= formatear_hora($horario['hora_fin']) ?></td>
-                                    <td><?= (int) ($horario['cupo_max'] ?? 20) ?></td>
+                                    <td><?= esc(nfs_horario_etiqueta_cupo($horario)) ?></td>
                                     <td style="white-space: nowrap;">
-                                        <button type="button"
-                                                class="btn btn-primary btn-sm btnEditarHorario"
-                                                data-id="<?= $horario['id_horario'] ?>"
-                                                data-sistema="<?= $horario['id_sistema'] ?>"
-                                                data-dia="<?= esc($horario['dia_semana']) ?>"
-                                                data-inicio="<?= esc(formatear_hora($horario['hora_inicio'])) ?>"
-                                                data-fin="<?= esc(formatear_hora($horario['hora_fin'])) ?>"
-                                                data-cupo="<?= (int) ($horario['cupo_max'] ?? 20) ?>"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modalEditarHorario">
-                                            Editar
-                                        </button>
+                        <button type="button"
+                                class="nfs-btn nfs-btn-primary nfs-btn-sm btnEditarHorario"
+                                data-id="<?= $horario['id_horario'] ?>"
+                                data-sistema="<?= $horario['id_sistema'] ?>"
+                                data-dia="<?= $horario['dia_semana'] ?>"
+                                data-inicio="<?= $horario['hora_inicio'] ?>"
+                                data-fin="<?= $horario['hora_fin'] ?>"
+                                data-cupo="<?= $horario['cupo_max'] ?>"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEditarHorario">
+                            Editar
+                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -170,14 +170,15 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Cupo máximo</label>
-                            <input type="number" name="cupo_max" class="form-control" value="20" min="1" step="1">
+                            <label class="form-label">Cupo máximo de inscriptos</label>
+                            <input type="number" name="cupo_max" class="form-control" min="0" step="1" placeholder="Sin límite">
+                            <small style="color:#8d9492;">Dejalo vacío para no poner límite. Ej: 20 por turno.</small>
                         </div>
                     </div>
 
                     <div class="modal-footer" style="border-top:1px solid #333;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Agregar horario</button>
+                        <button type="button" class="nfs-btn nfs-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="nfs-btn nfs-btn-primary">Guardar cambios</button>
                     </div>
                 </form>
             </div>
@@ -233,8 +234,9 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Cupo máximo</label>
-                            <input type="number" name="cupo_max" id="cupoHorario" class="form-control" value="20" min="1" step="1">
+                            <label class="form-label">Cupo máximo de inscriptos</label>
+                            <input type="number" name="cupo_max" id="cupoHorario" class="form-control" min="0" step="1" placeholder="Sin límite">
+                            <small style="color:#8d9492;">Dejalo vacío para no poner límite. Ej: 20 por turno.</small>
                         </div>
                     </div>
 

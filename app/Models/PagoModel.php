@@ -126,7 +126,7 @@ class PagoModel extends Model
      */
     public function getPagosPorFecha(string $fecha): array
     {
-        return $this->select('
+        $builder = $this->select('
                 Pago.id_pago,
                 Pago.fecha_pago,
                 Pago.monto,
@@ -143,9 +143,13 @@ class PagoModel extends Model
             ->join('Suscripcion', 'Suscripcion.id_suscripcion = Pago.id_suscripcion', 'left')
             ->join('Inscripcion', 'Inscripcion.id_inscripcion = Suscripcion.id_inscripcion', 'left')
             ->join('Persona cli', 'cli.id_persona = Inscripcion.id_persona', 'left')
-            ->where('Pago.fecha_pago', $fecha)
-            ->orderBy('Pago.id_pago', 'ASC')
-            ->findAll();
+            ->groupStart()
+                ->where("CAST(Pago.fecha_pago AS DATE)", $fecha)
+            ->groupEnd()
+            ->orderBy('Pago.fecha_pago', 'ASC')
+            ->orderBy('Pago.id_pago', 'ASC');
+
+        return $builder->findAll();
     }
 
     /**
@@ -156,8 +160,8 @@ class PagoModel extends Model
      */
     public function getTotalPorFecha(string $fecha): float
     {
-        $row = $this->selectSum('monto', 'total')
-            ->where('fecha_pago', $fecha)
+        $row = $this->selectSum('Pago.monto', 'total')
+            ->where("CAST(Pago.fecha_pago AS DATE)", $fecha)
             ->first();
 
         return (float) ($row['total'] ?? 0);

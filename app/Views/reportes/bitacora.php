@@ -40,8 +40,8 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:25px;">
             <div>
-                <h1 style="margin:0;">Bitácora / Auditoría</h1>
-                <p style="margin:5px 0 0; color:#aaa;">Quién modificó qué y cuándo: altas, bajas, ediciones y cambios de precio.</p>
+                <h1 style="margin:0;">Historial de movimientos</h1>
+                <p style="margin:5px 0 0; color:#aaa;">Registro de acciones realizadas en el sistema.</p>
             </div>
             <?= view('reportes/_acciones', ['exportUrl' => base_url('suscripciones/exportar/bitacora') . '?' . http_build_query($queryFiltros)]) ?>
         </div>

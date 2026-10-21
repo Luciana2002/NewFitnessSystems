@@ -35,6 +35,12 @@ $routes->post('/enviar-registro', 'UsuarioController::guardarRegistro');
 
 $routes->get('/usuario_logueado', 'UsuarioController::usuarioLogueado');
 
+$routes->get('/perfil', 'UsuarioController::perfil');
+$routes->post('/perfil/actualizar', 'UsuarioController::actualizarPerfil');
+$routes->post('/perfil/password', 'UsuarioController::cambiarPassword');
+$routes->get('/configuracion', 'UsuarioController::configuracion');
+$routes->post('/configuracion/actualizar', 'UsuarioController::actualizarPreferencias');
+
 /* =========================
    USUARIOS
 ========================= */
@@ -124,31 +130,34 @@ $routes->post('/registrar_pago', 'PagoController::nuevo');
 $routes->get('/pagos_cliente/(:num)', 'ClienteController::detalle/$1');
 
 /* =========================
-   COMUNICACIONES
+   AVISOS
 ========================= */
 
-$routes->get('/comunicaciones', 'ComunicacionController::index');
-$routes->get('/comunicaciones/vencimientos', 'ComunicacionController::vencimientos');
-$routes->get('/comunicaciones/abandono', 'ComunicacionController::abandono');
-$routes->get('/comunicaciones/mensajes', 'ComunicacionController::mensajes');
-$routes->post('/comunicaciones/enviar', 'ComunicacionController::enviar');
-$routes->post('/comunicaciones/enviar-masivo', 'ComunicacionController::enviarMasivo');
-$routes->post('/comunicaciones/plantilla/guardar', 'ComunicacionController::guardarPlantilla');
-$routes->get('/comunicaciones/plantilla/eliminar/(:num)', 'ComunicacionController::eliminarPlantilla/$1');
+$routes->get('/avisos', 'ComunicacionController::index');
+$routes->get('/avisos/vencimientos', 'ComunicacionController::vencimientos');
+$routes->get('/avisos/abandono', 'ComunicacionController::abandono');
+$routes->get('/avisos/mensajes', 'ComunicacionController::mensajes');
+$routes->post('/avisos/enviar', 'ComunicacionController::enviar');
+$routes->post('/avisos/enviar-masivo', 'ComunicacionController::enviarMasivo');
+$routes->post('/avisos/plantilla/guardar', 'ComunicacionController::guardarPlantilla');
+$routes->get('/avisos/plantilla/eliminar/(:num)', 'ComunicacionController::eliminarPlantilla/$1');
+
+
+/* Redirecciones desde las rutas antiguas de /comunicaciones */
+$routes->get('/comunicaciones', static fn () => redirect()->to('/avisos'));
+$routes->get('/comunicaciones/vencimientos', static fn () => redirect()->to('/avisos/vencimientos'));
+$routes->get('/comunicaciones/abandono', static fn () => redirect()->to('/avisos/abandono'));
+$routes->get('/comunicaciones/mensajes', static fn () => redirect()->to('/avisos/mensajes'));
 
 /* =========================
    PANEL DEL CLIENTE
 ========================= */
 
-$routes->get('/cliente/suscripcion', 'ClientePanelController::suscripcion');
-$routes->get('/cliente/comprobante/(:num)', 'ClientePanelController::comprobante/$1');
-$routes->get('/cliente/reservas', 'ClientePanelController::reservas');
-$routes->post('/cliente/reservar', 'ClientePanelController::reservar');
-$routes->get('/cliente/cancelar_reserva/(:num)', 'ClientePanelController::cancelarReserva/$1');
-$routes->get('/cliente/qr', 'ClientePanelController::qr');
+    $routes->get('/cliente/suscripcion', 'ClientePanelController::suscripcion');
+    $routes->get('/cliente/comprobante/(:num)', 'ClientePanelController::comprobante/$1');
+    $routes->get('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSistema/$1');
+    $routes->post('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSistema/$1');
 $routes->get('/cliente/rutinas', 'ClientePanelController::rutinas');
-$routes->get('/cliente/seguimiento', 'ClientePanelController::seguimiento');
-$routes->post('/cliente/guardar_seguimiento', 'ClientePanelController::guardarSeguimiento');
 
 /* =========================
    CHECK-IN / ASISTENCIA

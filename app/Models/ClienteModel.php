@@ -198,6 +198,9 @@ class ClienteModel extends Model
                 i.fecha_inscripcion,
                 s.id_sistema,
                 s.nombre_sistema,
+                s.acceso_libre,
+                h.hora_inicio,
+                h.hora_fin,
                 su.id_suscripcion,
                 su.fecha_inicio,
                 su.fecha_vencimiento,
@@ -216,6 +219,7 @@ class ClienteModel extends Model
                 ) AS ultimo_pago_sistema
             FROM Inscripcion i
             LEFT JOIN Sistema s ON s.id_sistema = i.id_sistema
+            LEFT JOIN Horario h ON h.id_horario = i.id_horario
             LEFT JOIN Suscripcion su ON su.id_inscripcion = i.id_inscripcion
             LEFT JOIN Estado_suscripcion es ON es.id_estado = su.id_estado
             WHERE i.id_persona = ?

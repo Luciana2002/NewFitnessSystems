@@ -43,7 +43,7 @@ class ComunicacionController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('comunicaciones/vencimientos', $data)
+             . view('avisos/vencimientos', $data)
              . view('front/footer');
     }
 
@@ -133,7 +133,7 @@ class ComunicacionController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('comunicaciones/abandono', $data)
+             . view('avisos/abandono', $data)
              . view('front/footer');
     }
 
@@ -228,7 +228,7 @@ class ComunicacionController extends BaseController
 
         return view('front/header')
              . view('front/navbar')
-             . view('comunicaciones/mensajes', $data)
+             . view('avisos/mensajes', $data)
              . view('front/footer');
     }
 
@@ -316,8 +316,8 @@ class ComunicacionController extends BaseController
         $volver    = (string) $this->request->getPost('volver');
 
         $destino = $volver === 'abandono'
-            ? 'comunicaciones/abandono'
-            : 'comunicaciones/vencimientos';
+            ? 'avisos/abandono'
+            : 'avisos/vencimientos';
 
         if ($asunto === '' || $mensaje === '') {
             return redirect()->to($destino)->with('error', 'El asunto y el mensaje son obligatorios.');
@@ -356,7 +356,7 @@ class ComunicacionController extends BaseController
         $asunto    = trim((string) $this->request->getPost('asunto'));
         $mensaje   = trim((string) $this->request->getPost('mensaje'));
 
-        $volver = 'comunicaciones/mensajes?grupo=' . ($grupo !== '' ? $grupo : 'todos');
+        $volver = 'avisos/mensajes?grupo=' . ($grupo !== '' ? $grupo : 'todos');
 
         if ($asunto === '' || $mensaje === '') {
             return redirect()->to($volver)->with('error', 'El asunto y el mensaje son obligatorios.');
@@ -427,7 +427,7 @@ class ComunicacionController extends BaseController
         $categoria = trim((string) $this->request->getPost('categoria'));
 
         if ($titulo === '' || $mensaje === '') {
-            return redirect()->to('/comunicaciones/mensajes')
+            return redirect()->to('/avisos/mensajes')
                 ->with('error', 'El titulo y el mensaje son obligatorios.');
         }
 
@@ -441,7 +441,7 @@ class ComunicacionController extends BaseController
 
         nfs_log('ALTA', 'Plantilla', $plantillaModel->getInsertID(), "Plantilla \"{$titulo}\" creada");
 
-        return redirect()->to('/comunicaciones/mensajes')
+        return redirect()->to('/avisos/mensajes')
             ->with('success', 'Plantilla guardada correctamente.');
     }
 
@@ -459,7 +459,7 @@ class ComunicacionController extends BaseController
             nfs_log('BAJA', 'Plantilla', $id, 'Plantilla eliminada');
         }
 
-        return redirect()->to('/comunicaciones/mensajes')
+        return redirect()->to('/avisos/mensajes')
             ->with('success', 'Plantilla eliminada.');
     }
 

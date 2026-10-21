@@ -6,6 +6,7 @@ use App\Models\UsuarioModel;
 use App\Models\ClienteModel;
 use App\Models\PagoModel;
 use App\Models\SistemaModel;
+use App\Models\HorarioModel;
 use App\Models\DatosPersonalesModel;
 
 class ClienteController extends BaseController
@@ -41,12 +42,46 @@ class ClienteController extends BaseController
         $telefono = trim($this->request->getPost('telefono') ?? '');
         $dni = trim($this->request->getPost('dni') ?? '');
         $idSistema = (int) $this->request->getPost('id_sistema');
+        $idHorario = (int) $this->request->getPost('id_horario');
         $idMedioPago = (int) $this->request->getPost('id_medio_pago');
         $monto = $this->request->getPost('monto');
 
         if ($nombre === '' || $apellido === '' || $telefono === '' || $dni === '' || !$idSistema || !$idMedioPago) {
             session()->setFlashdata('error', 'Completá todos los campos obligatorios');
             return redirect()->to('/clientes');
+        }
+
+        $sistemaModel = new SistemaModel();
+        $horarioModel = new HorarioModel();
+
+        $sistema = $sistemaModel->find($idSistema);
+
+        if (!$sistema) {
+            session()->setFlashdata('error', 'El sistema seleccionado no existe');
+            return redirect()->to('/clientes');
+        }
+
+        $accesoLibre = !empty($sistema['acceso_libre']);
+
+        if ($accesoLibre) {
+            $idHorario = null;
+        } else {
+            if (!$idHorario) {
+                session()->setFlashdata('error', 'Elegí un turno para el sistema seleccionado');
+                return redirect()->to('/clientes');
+            }
+
+            $horario = $horarioModel->find($idHorario);
+
+            if (!$horario || (int) $horario['id_sistema'] !== $idSistema) {
+                session()->setFlashdata('error', 'El turno seleccionado no pertenece al sistema elegido');
+                return redirect()->to('/clientes');
+            }
+
+            if ($horarioModel->estaLlenoTurno($idSistema, $horario['hora_inicio'], $horario['hora_fin'])) {
+                session()->setFlashdata('error', 'El turno seleccionado alcanzó su cupo máximo de inscriptos');
+                return redirect()->to('/clientes');
+            }
         }
 
         $personaModel = new DatosPersonalesModel();
@@ -79,7 +114,8 @@ class ClienteController extends BaseController
         $db->table('Inscripcion')->insert([
             'fecha_inscripcion' => $hoy,
             'id_persona'        => $idPersona,
-            'id_sistema'        => $idSistema
+            'id_sistema'        => $idSistema,
+            'id_horario'        => $idHorario
         ]);
 
         $idInscripcion = $db->insertID();
@@ -153,11 +189,68 @@ class ClienteController extends BaseController
         $data['clientes'] = $clientes;
         $data['sistemasRegistro'] = $sistemaModel->getSistemasConPrecio();
         $data['mediosPago'] = $pagoModel->getMediosPago();
+        $data['horariosPorSistema'] = $this->horariosPorSistema();
+        $data['sistemasAccesoLibre'] = $this->sistemasAccesoLibre();
 
         return view('front/header')
              . view('front/navbar')
              . view('clientes/lista_clientes', $data)
              . view('front/footer');
+    }
+
+    /**
+     * Ids de sistemas de acceso libre (no requieren turno).
+     */
+    private function sistemasAccesoLibre(): array
+    {
+        $sistemaModel = new SistemaModel();
+
+        $ids = [];
+
+        foreach ($sistemaModel->getSistemasConPrecio(true) as $sistema) {
+            if (!empty($sistema['acceso_libre'])) {
+                $ids[] = (int) $sistema['id_sistema'];
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Turnos activos agrupados por sistema, con cupo e inscriptos.
+     * Un turno es una hora (inicio/fin) dentro de un sistema y abarca todos sus días.
+     * Estructura: [id_sistema => [ ['id_horario', 'label', 'cupo_max', 'inscriptos', 'lleno'], ... ]]
+     */
+    private function horariosPorSistema(): array
+    {
+        $horarioModel = new HorarioModel();
+        $sistemaModel = new SistemaModel();
+
+        $agrupados = [];
+
+        foreach ($sistemaModel->getSistemasConPrecio(true) as $sistema) {
+            $idSistema = (int) $sistema['id_sistema'];
+            $agrupados[$idSistema] = [];
+
+            if (!empty($sistema['acceso_libre'])) {
+                continue;
+            }
+
+            foreach ($horarioModel->getTurnosPorSistema($idSistema) as $turno) {
+                $cupo = $turno['cupo_max'];
+                $inscriptos = (int) $turno['inscriptos'];
+
+                $agrupados[$idSistema][] = [
+                    'id_horario' => (int) $turno['id_horario'],
+                    'label'      => nfs_turno_label($turno),
+                    'cupo_max'   => $cupo,
+                    'inscriptos' => $inscriptos,
+                    'lleno'      => $cupo !== null && (int) $cupo > 0 && $inscriptos >= (int) $cupo,
+                ];
+            }
+        }
+
+        return $agrupados;
     }
 
     public function detalle($id)
@@ -212,6 +305,8 @@ class ClienteController extends BaseController
         $data['usuario'] = $usuarioModel->getUsuarioPorPersona($id);
         $data['sistemas'] = $clienteModel->getSuscripcionesCliente($id);
         $data['sistemasDisponibles'] = $sistemaModel->getSistemasConPrecio();
+        $data['horariosPorSistema'] = $this->horariosPorSistema();
+        $data['sistemasAccesoLibre'] = $this->sistemasAccesoLibre();
 
         return view('front/header')
              . view('front/navbar')
@@ -300,26 +395,58 @@ class ClienteController extends BaseController
         }
 
         $agregarSistema = (int) $this->request->getPost('agregar_sistema');
+        $agregarHorario = (int) $this->request->getPost('agregar_horario');
 
         if ($agregarSistema) {
             $sistemaModel = new SistemaModel();
+            $horarioModel = new HorarioModel();
+
             $sistemaValido = $sistemaModel->where('id_sistema', $agregarSistema)
                 ->where('baja', 'N')
                 ->first();
+
+            if (!$sistemaValido) {
+                session()->setFlashdata('error', 'El sistema seleccionado no existe');
+                return redirect()->to('/clientes');
+            }
+
+            $accesoLibre = !empty($sistemaValido['acceso_libre']);
+
+            if ($accesoLibre) {
+                $agregarHorario = null;
+            } else {
+                if (!$agregarHorario) {
+                    session()->setFlashdata('error', 'Elegí un turno para el sistema seleccionado');
+                    return redirect()->to('/clientes');
+                }
+
+                $horario = $horarioModel->find($agregarHorario);
+
+                if (!$horario || (int) $horario['id_sistema'] !== $agregarSistema) {
+                    session()->setFlashdata('error', 'El turno seleccionado no pertenece al sistema elegido');
+                    return redirect()->to('/clientes');
+                }
+            }
 
             $yaInscripto = $db->table('Inscripcion')
                 ->where('id_persona', $id)
                 ->where('id_sistema', $agregarSistema)
                 ->get()->getRow();
 
-            if ($sistemaValido && !$yaInscripto) {
+            if (!$yaInscripto) {
+                if (!$accesoLibre && $horarioModel->estaLlenoTurno($agregarSistema, $horario['hora_inicio'], $horario['hora_fin'])) {
+                    session()->setFlashdata('error', 'El turno seleccionado alcanzó su cupo máximo de inscriptos');
+                    return redirect()->to('/clientes');
+                }
+
                 $hoy = date('Y-m-d');
                 $vencimiento = date('Y-m-d', strtotime('+1 month', strtotime($hoy)));
 
                 $db->table('Inscripcion')->insert([
                     'fecha_inscripcion' => $hoy,
                     'id_persona'        => $id,
-                    'id_sistema'        => $agregarSistema
+                    'id_sistema'        => $agregarSistema,
+                    'id_horario'        => $agregarHorario
                 ]);
 
                 $idInscripcion = $db->insertID();

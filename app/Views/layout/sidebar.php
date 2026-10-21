@@ -8,12 +8,17 @@
         <h3>Panel Admin</h3>
         <a href="<?= base_url('clientes') ?>">Clientes</a>
         <a href="<?= base_url('profesores') ?>">Profesores</a>
+        <a href="<?= base_url('pagos') ?>">Pagos</a>
+
+        <hr class="sidebar-divider">
+
         <a href="<?= base_url('sistemas') ?>">Sistemas</a>
         <a href="<?= base_url('admin_horarios') ?>">Horarios</a>
-        <a href="<?= base_url('pagos') ?>">Pagos</a>
         <a href="<?= base_url('rutinas') ?>">Rutinas</a>
-        <a href="<?= base_url('checkin') ?>">Check-in</a>
-        <a href="<?= base_url('comunicaciones') ?>">Comunicaciones</a>
+
+        <hr class="sidebar-divider">
+
+        <a href="<?= base_url('avisos') ?>">Avisos</a>
         <a href="<?= base_url('suscripciones') ?>">Reportes</a>
         <a href="<?= base_url('backup') ?>">Backup</a>
 
@@ -22,15 +27,12 @@
         <a href="<?= base_url('pagos') ?>">Pagos</a>
         <a href="<?= base_url('clientes') ?>">Clientes</a>
         <a href="<?= base_url('rutinas') ?>">Rutinas</a>
-        <a href="<?= base_url('checkin') ?>">Check-in</a>
 
     <?php else: ?>
         <h3>Mi cuenta</h3>
         <a href="<?= base_url('cliente/suscripcion') ?>">Mi suscripción</a>
-        <a href="<?= base_url('cliente/reservas') ?>">Reservar clases</a>
         <a href="<?= base_url('cliente/qr') ?>">Mi código QR</a>
         <a href="<?= base_url('cliente/rutinas') ?>">Mis rutinas</a>
-        <a href="<?= base_url('cliente/seguimiento') ?>">Seguimiento físico</a>
     <?php endif; ?>
 
 </aside>

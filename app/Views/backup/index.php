@@ -43,19 +43,20 @@
                         Descargar backup
                     </h4>
                     <p style="color:#aaa; font-size:14px; margin-bottom:20px;">
-                        Genera un archivo <strong>.sql</strong> con todos los datos de la base
-                        (<?= esc($hoy) ?>). Se puede importar en esta misma sección.
+                        Genera un archivo <strong>.sql</strong> con la <strong>estructura</strong> (base, tablas,
+                        claves y relaciones) y <strong>todos los datos</strong> (<?= esc($hoy) ?>). Ejecutándolo en otro
+                        servidor recrea la base completa. También se puede importar en esta sección.
                     </p>
 
                     <a href="<?= base_url('backup/descargar') ?>"
-                       style="display:inline-block; background:#0b8f70; color:#fff; border-radius:8px; padding:12px 26px; text-decoration:none; text-transform:uppercase; letter-spacing:1px; font-size:13px; font-weight:600;">
+                       class="nfs-btn nfs-btn-primary">
                         Descargar .sql
                     </a>
                 </div>
             </div>
 
             <div class="col-lg-6">
-                <div class="dashboard-card" style="padding:25px; height:100%; max-width:none;">
+                <div class="dashboard-card" style="padding:25px; height:100%; max-width:none; border-left:4px solid #ffc107;">
                     <h4 style="margin-bottom:10px; text-transform:uppercase; letter-spacing:1px; color:#ffc107; font-size:18px;">
                         Importar backup
                     </h4>
@@ -69,7 +70,7 @@
                         <input type="file" name="archivo" accept=".sql" required
                                style="color:#ddd; font-size:13px;">
                         <button type="submit"
-                                style="background:#ffc107; color:#111; border:none; border-radius:8px; padding:12px 26px; text-transform:uppercase; letter-spacing:1px; font-size:13px; font-weight:700; cursor:pointer;">
+                                class="nfs-btn nfs-btn-warning">
                             Importar
                         </button>
                     </form>

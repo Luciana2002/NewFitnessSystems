@@ -173,24 +173,32 @@
                 <p style="color:#cfcfcf;">Este cliente no tiene sistemas inscriptos.</p>
             <?php endif; ?>
 
-            <div style="max-width:400px;">
-                <label style="color:white;">Agregar sistema</label>
-                <select name="agregar_sistema" class="form-control">
-                    <option value="">— Seleccionar sistema —</option>
-                    <?php foreach($sistemasDisponibles as $sistema): ?>
-                        <?php if(!in_array((int) $sistema['id_sistema'], $idsActuales, true)): ?>
-                            <option value="<?= $sistema['id_sistema'] ?>">
-                                <?= esc($sistema['nombre_sistema']) ?> — <?= formatear_monto($sistema['precio']) ?>
-                            </option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </select>
+            <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; max-width:700px;">
+                <div style="flex:1; min-width:220px;">
+                    <label style="color:white;">Agregar sistema</label>
+                    <select name="agregar_sistema" id="agregarSistema" class="form-control">
+                        <option value="">— Seleccionar sistema —</option>
+                        <?php foreach($sistemasDisponibles as $sistema): ?>
+                            <?php if(!in_array((int) $sistema['id_sistema'], $idsActuales, true)): ?>
+                                <option value="<?= $sistema['id_sistema'] ?>">
+                                    <?= esc($sistema['nombre_sistema']) ?> — <?= formatear_monto($sistema['precio']) ?>
+                                </option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:220px; display:none;" id="agregarHorarioWrap">
+                    <label style="color:white;">Turno</label>
+                    <select name="agregar_horario" id="agregarHorario" class="form-control" disabled>
+                        <option value="">Elegí un sistema primero...</option>
+                    </select>
+                </div>
             </div>
 
             <div style="margin-top:30px;">
-                <div style="display:flex; gap:30px; flex-wrap:wrap; align-items:center;">
-                    <button type="submit" class="btn-main">Guardar cambios</button>
-                    <a href="<?= base_url('clientes') ?>" class="btn-main" style="background:#555;">Cancelar</a>
+                <div style="display:flex; gap:15px; flex-wrap:wrap; align-items:center;">
+                    <button type="submit" class="nfs-btn nfs-btn-primary">Guardar cambios</button>
+                    <a href="<?= base_url('clientes') ?>" class="nfs-btn nfs-btn-secondary">Cancelar</a>
                 </div>
 
                 <div style="margin-top:22px; padding-top:20px; border-top:1px solid #333;">
@@ -315,6 +323,59 @@
     if (personaActiva && estadoPersona) {
         personaActiva.addEventListener('change', function () {
             estadoPersona.textContent = this.checked ? 'Activo' : 'Dado de baja';
+        });
+    }
+
+    const agregarSistema = document.getElementById('agregarSistema');
+    const agregarHorario = document.getElementById('agregarHorario');
+    const agregarHorarioWrap = document.getElementById('agregarHorarioWrap');
+    const horariosPorSistema = <?= json_encode($horariosPorSistema ?? [], JSON_UNESCAPED_UNICODE) ?>;
+    const accesosLibres = <?= json_encode($sistemasAccesoLibre ?? [], JSON_UNESCAPED_UNICODE) ?>;
+
+    if (agregarSistema && agregarHorario) {
+        agregarSistema.addEventListener('change', function () {
+            const idSistema = this.value;
+            agregarHorario.innerHTML = '';
+
+            const esLibre = accesosLibres.indexOf(parseInt(idSistema, 10)) !== -1;
+
+            if (agregarHorarioWrap) {
+                agregarHorarioWrap.style.display = esLibre ? 'none' : '';
+            }
+
+            if (esLibre) {
+                agregarHorario.disabled = true;
+                agregarHorario.innerHTML = '<option value="">Acceso libre (cualquier horario)</option>';
+                return;
+            }
+
+            const horarios = horariosPorSistema[idSistema] || [];
+
+            if (!idSistema) {
+                agregarHorario.disabled = true;
+                agregarHorario.innerHTML = '<option value="">Elegí un sistema primero...</option>';
+                return;
+            }
+
+            if (horarios.length === 0) {
+                agregarHorario.disabled = true;
+                agregarHorario.innerHTML = '<option value="">Sin turnos disponibles</option>';
+                return;
+            }
+
+            agregarHorario.disabled = false;
+            agregarHorario.innerHTML = '<option value="">Seleccionar turno...</option>';
+
+            horarios.forEach(function (h) {
+                const opt = document.createElement('option');
+                opt.value = h.id_horario;
+                const cupo = h.cupo_max === null ? 'sin límite' : (h.inscriptos + '/' + h.cupo_max);
+                opt.textContent = h.label + ' (' + cupo + ')' + (h.lleno ? ' — lleno' : '');
+                if (h.lleno) {
+                    opt.disabled = true;
+                }
+                agregarHorario.appendChild(opt);
+            });
         });
     }
 </script>

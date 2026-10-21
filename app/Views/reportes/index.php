@@ -290,15 +290,15 @@
 
             <div class="row g-4">
                 <div class="col-lg-6">
-                    <a href="<?= base_url('suscripciones/balance') ?>" class="btn-acceso" style="border-left-color:#20c997;">
-                        <h5 style="color:#20c997;">Gastos y Balance</h5>
+                    <a href="<?= base_url('suscripciones/balance') ?>" class="btn-acceso" style="border-left-color:#0b8f70;">
+                        <h5 style="color:#10c796;">Gastos y Balance</h5>
                         <p>Registrá egresos y calculá la ganancia neta del mes.</p>
                     </a>
                 </div>
 
                 <div class="col-lg-6">
-                    <a href="<?= base_url('suscripciones/bitacora') ?>" class="btn-acceso" style="border-left-color:#6f42c1;">
-                        <h5 style="color:#a98ede;">Bitácora / Auditoría</h5>
+                    <a href="<?= base_url('suscripciones/bitacora') ?>" class="btn-acceso" style="border-left-color:#0b8f70;">
+                        <h5 style="color:#10c796;">Historial de movimientos</h5>
                         <p>Quién hizo qué y cuándo: altas, bajas y cambios.</p>
                     </a>
                 </div>

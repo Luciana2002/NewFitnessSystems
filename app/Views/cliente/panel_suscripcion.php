@@ -1,11 +1,11 @@
-<main class="dashboard-page">
+<!-- DEBUG-CLIENTE-PANEL-SUSCRIPCION-20251021 --><main class="dashboard-page">
 
     <button type="button" id="sidebarOpen" class="sidebar-handle">
-        <span>›</span>
+        <span>Ã¢â¬Âº</span>
     </button>
 
     <button type="button" id="sidebarClose" class="sidebar-close">
-        ✕
+        Ã¢Åâ¢
     </button>
 
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
@@ -33,7 +33,7 @@
         if ($estado === 'sin_suscripcion') {
             $badgeClass = 'badge bg-secondary';
             $badgeTxt   = 'Sin suscripción';
-            $resumen    = 'Todavía no tenés ningún sistema activo. Consultá en recepción.';
+            $resumen    = 'Todavía no tenés ningún sistema activo. ConsultÃ¡ en recepción.';
         } elseif ($activo) {
             $badgeClass = $dias <= 5 ? 'badge bg-warning text-dark' : 'badge bg-success';
             $badgeTxt   = $dias <= 5 ? 'Por vencer' : 'Al día';
@@ -82,7 +82,16 @@
                         </p>
                         <p style="margin-bottom:6px;"><strong>Inicio:</strong> <?= formatear_fecha($sus['fecha_inicio']) ?></p>
                         <p style="margin-bottom:6px;"><strong>Vencimiento:</strong> <?= formatear_fecha($sus['fecha_vencimiento']) ?></p>
-                        <p style="margin-bottom:0;"><strong>Precio:</strong> <?= formatear_monto($sus['precio_mensualidad']) ?></p>
+                        <p style="margin-bottom:10px;"><strong>Precio:</strong> <?= formatear_monto($sus['precio_mensualidad']) ?></p>
+                        <?php if(!$esCancelada): ?>
+                            <button type="button" class="nfs-btn nfs-btn-outline-danger nfs-btn-sm btn-baja"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalBaja"
+                                    data-id-inscripcion="<?= (int) $sus['id_inscripcion'] ?>"
+                                    data-sistema="<?= esc($sus['nombre_sistema']) ?>">
+                                <i class="bi bi-x-circle"></i> Darse de baja
+                            </button>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -197,4 +206,100 @@
             setTimeout(() => toast.remove(), 400);
         }, 2800 + (index * 200));
     });
+
+    var modalBaja = document.getElementById('modalBaja');
+    if (modalBaja) {
+        modalBaja.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var idInscripcion = button.getAttribute('data-id-inscripcion');
+            var sistema = button.getAttribute('data-sistema') || '';
+            document.getElementById('modalBajaSistema').textContent = sistema;
+            var form = document.getElementById('formBaja');
+            form.action = '<?= base_url('cliente/baja_sistema/') ?>' + idInscripcion;
+            document.getElementById('motivoBaja').value = '';
+        });
+    }
 </script>
+
+<div class="modal fade" id="modalBaja" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#1b1b1b; color:#fff; border:1px solid #262626;">
+      <div class="modal-header" style="border-bottom:1px solid #262626;">
+        <h5 class="modal-title">Dar de baja suscripción</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="formBaja" method="post" action="#">
+        <div class="modal-body">
+          <p style="margin-bottom:12px;">¿Estás seguro de darte de baja?</p>
+          <p style="margin-bottom:10px; color:#b0b0b0; font-size:14px;">Por favor, contanos el motivo de esta decisión para mejorar nuestro servicio.</p>
+          <label for="motivoBaja" class="form-label">Motivo (opcional)</label>
+          <textarea class="form-control" id="motivoBaja" name="motivo" rows="4" style="background:#111; color:#fff; border:1px solid #262626;" placeholder="Ej.: Horarios, precio, mudanza, etc."></textarea>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid #262626;">
+          <button type="button" class="nfs-btn nfs-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="nfs-btn nfs-btn-danger">Sí, dar de baja</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<h2 style="font-size:26px; font-weight:800; margin-bottom:18px;">Preguntas frecuentes</h2>
+<div class="dashboard-card" style="max-width:none; padding:30px 35px; margin-bottom:60px;">
+  <div class="accordion" id="faqAccordion" style="--bs-accordion-bg:#1b1b1b; --bs-accordion-color:#fff; --bs-accordion-border-color:#262626;">
+    <div class="accordion-item" style="background:#1b1b1b; color:#fff; border:1px solid #262626;">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" style="background:#1b1b1b; color:#fff;">
+          ¿Cómo puedo darme de baja de un sistema?
+        </button>
+      </h2>
+      <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+        <div class="accordion-body" style="background:#161616;">
+          Desde "Mi suscripci?nos a mejorar.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item" style="background:#1b1b1b; color:#fff; border:1px solid #262626;">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" style="background:#1b1b1b; color:#fff;">
+          ¿Cuándo vence mi cuota?
+        </button>
+      </h2>
+      <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body" style="background:#161616;">
+          Podés ver el estado y la fecha de vencimiento en el resumen de "Mi suscripción".
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item" style="background:#1b1b1b; color:#fff; border:1px solid #262626;">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" style="background:#1b1b1b; color:#fff;">
+          ¿Dónde veo mi QR para ingresar?
+        </button>
+      </h2>
+      <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body" style="background:#161616;">
+          En el menú lateral tenés "Mi QR", ahí aparece tu código para el check-in.
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item" style="background:#1b1b1b; color:#fff; border:1px solid #262626;">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" style="background:#1b1b1b; color:#fff;">
+          ¿Puedo ver mis rutinas?
+        </button>
+      </h2>
+      <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body" style="background:#161616;">
+          Sí, desde "Mis rutinas" podés ver los ejercicios asignados por día.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

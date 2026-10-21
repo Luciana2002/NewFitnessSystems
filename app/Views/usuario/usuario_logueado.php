@@ -1,58 +1,70 @@
-<main class="dashboard-page">
+<?php
+$idRol  = (int) session()->get('id_rol');
+$nombre = (string) session()->get('nombre');
 
-    <button type="button" id="sidebarOpen" class="sidebar-handle">
-        <span>›</span>
-    </button>
+$horaActual = (int) date('G');
 
-    <button type="button" id="sidebarClose" class="sidebar-close">
-        ✕
-    </button>
+if ($horaActual < 12) {
+    $saludo = 'Buenos días';
+} elseif ($horaActual < 20) {
+    $saludo = 'Buenas tardes';
+} else {
+    $saludo = 'Buenas noches';
+}
 
-    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+$diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+$meses = [
+    1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+    5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+    9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
+];
 
-    <?= view('layout/sidebar') ?>
+$fechaLarga = $diasSemana[(int) date('w')] . ' ' . (int) date('j') . ' de ' . $meses[(int) date('n')] . ' de ' . date('Y');
 
-    <section class="dashboard-content" style="padding: 50px 70px;">
-        <h1>Bienvenido/a <?= session()->get('nombre') ?> <?= session()->get('apellido') ?></h1>
+$panelNombre = match ($idRol) {
+    1 => 'Panel de administración',
+    2 => 'Panel del profesor',
+    default => 'Mi panel',
+};
 
-        <div class="dashboard-card" style="max-width: 1500px; width:100%; padding:35px 40px;">
-            <p><strong>Usuario:</strong> <?= session()->get('nombre_usuario') ?></p>
-            <p><strong>Email:</strong> <?= session()->get('email') ?></p>
-            <p><strong>Rol:</strong> <?= session()->get('rol') ?></p>
-        </div>
-    </section>
+$ctaUrl = match ($idRol) {
+    1 => base_url('pagos'),
+    2 => base_url('rutinas/nueva'),
+    default => base_url('cliente/suscripcion'),
+};
+
+$ctaTexto = match ($idRol) {
+    1 => 'Registrar pago',
+    2 => 'Nueva rutina',
+    default => 'Ver suscripción',
+};
+
+$ctaIcono = match ($idRol) {
+    1 => 'bi-cash-coin',
+    2 => 'bi-plus-circle',
+    default => 'bi-card-list',
+};
+?>
+
+<main class="dashboard-page home-page">
+
+    
 
 </main>
 
 <script>
-    const sidebarOpen = document.getElementById('sidebarOpen');
-    const sidebarClose = document.getElementById('sidebarClose');
-    const sidebar = document.getElementById('dashboardSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
+    const toasts = document.querySelectorAll('.toast-custom');
 
-    function abrirSidebar() {
-        sidebar.classList.add('show-sidebar');
-        overlay.classList.add('active');
-        sidebarOpen.style.display = 'none';
-        sidebarClose.style.display = 'flex';
-    }
+    toasts.forEach((toast, index) => {
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        }, 100);
 
-    function cerrarSidebar() {
-        sidebar.classList.remove('show-sidebar');
-        overlay.classList.remove('active');
-        sidebarOpen.style.display = '';
-        sidebarClose.style.display = '';
-    }
-
-    if (sidebarOpen && sidebarClose && sidebar && overlay) {
-        sidebarOpen.addEventListener('click', abrirSidebar);
-        sidebarClose.addEventListener('click', cerrarSidebar);
-        overlay.addEventListener('click', cerrarSidebar);
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === "Escape") {
-                cerrarSidebar();
-            }
-        });
-    }
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            setTimeout(() => toast.remove(), 400);
+        }, 2800 + (index * 200));
+    });
 </script>

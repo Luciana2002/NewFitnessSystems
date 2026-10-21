@@ -5,6 +5,9 @@ namespace App\Controllers;
 use App\Models\UsuarioModel;
 use App\Models\PersonaModel;
 use App\Models\DatosPersonalesModel;
+use App\Models\ClienteModel;
+use App\Models\PanelModel;
+use App\Models\PreferenciaUsuarioModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
 class UsuarioController extends BaseController
@@ -268,10 +271,226 @@ class UsuarioController extends BaseController
             return redirect()->to('/login');
         }
 
+        $panelModel = new PanelModel();
+        $idRol      = (int) session()->get('id_rol');
+        $idPersona  = (int) session()->get('id_persona');
+
+        if ($idRol === 1) {
+            $resumen = $panelModel->resumenAdmin();
+        } elseif ($idRol === 2) {
+            $resumen = $panelModel->resumenProfesor($idPersona);
+        } else {
+            $resumen = $panelModel->resumenCliente($idPersona);
+        }
+
         return view('front/header')
              . view('front/navbar')
-             . view('usuario/usuario_logueado')
+             . view('usuario/usuario_logueado', ['resumen' => $resumen])
              . view('front/footer');
+    }
+
+    public function perfil(): string|RedirectResponse
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        helper('form');
+
+        $idPersona = (int) session()->get('id_persona');
+
+        $persona = (new DatosPersonalesModel())->find($idPersona);
+
+        if (!$persona) {
+            return redirect()->to('/usuario_logueado');
+        }
+
+        $data = [
+            'persona'  => $persona,
+            'usuario'  => (new UsuarioModel())->getUsuarioPorPersona($idPersona),
+            'sistemas' => [],
+        ];
+
+        if ((int) session()->get('id_rol') === 3) {
+            helper('membresia');
+            $data['membresia'] = nfs_membresia_cliente($idPersona);
+            $data['sistemas']  = (new ClienteModel())->getSuscripcionesCliente($idPersona);
+        }
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('usuario/perfil', $data)
+             . view('front/footer');
+    }
+
+    public function configuracion(): string|RedirectResponse
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        helper('form');
+
+        $idUsuario = (int) session()->get('id_usuario');
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('usuario/configuracion', [
+                 'preferencias' => (new PreferenciaUsuarioModel())->obtener($idUsuario),
+             ])
+             . view('front/footer');
+    }
+
+    public function actualizarPerfil()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $idPersona = (int) session()->get('id_persona');
+        $idUsuario = (int) session()->get('id_usuario');
+
+        $rules = [
+            'nombre'   => 'required|min_length[3]|max_length[50]',
+            'apellido' => 'required|min_length[3]|max_length[50]',
+            'email'    => "required|valid_email|max_length[100]|is_unique[Persona.email,id_persona,{$idPersona}]",
+            'telefono' => 'required|max_length[20]',
+            'dni'      => "required|max_length[20]|is_unique[Persona.dni,id_persona,{$idPersona}]",
+        ];
+
+        $mensajes = [
+            'nombre' => [
+                'required'   => 'El nombre es obligatorio.',
+                'min_length' => 'El nombre debe tener al menos 3 caracteres.',
+                'max_length' => 'El nombre no puede superar los 50 caracteres.',
+            ],
+            'apellido' => [
+                'required'   => 'El apellido es obligatorio.',
+                'min_length' => 'El apellido debe tener al menos 3 caracteres.',
+                'max_length' => 'El apellido no puede superar los 50 caracteres.',
+            ],
+            'email' => [
+                'required'    => 'El correo electrónico es obligatorio.',
+                'valid_email' => 'Ingresá un correo electrónico válido.',
+                'max_length'  => 'El correo no puede superar los 100 caracteres.',
+                'is_unique'   => 'Ese correo electrónico ya está en uso.',
+            ],
+            'telefono' => [
+                'required'   => 'El teléfono es obligatorio.',
+                'max_length' => 'El teléfono no puede superar los 20 caracteres.',
+            ],
+            'dni' => [
+                'required'   => 'El DNI es obligatorio.',
+                'max_length' => 'El DNI no puede superar los 20 caracteres.',
+                'is_unique'  => 'Ese DNI ya está registrado.',
+            ],
+        ];
+
+        if (!$this->validate($rules, $mensajes)) {
+            return redirect()->to('/perfil')
+                ->withInput()
+                ->with('error', implode(' ', $this->validator->getErrors()));
+        }
+
+        $datos = [
+            'nombre'   => trim((string) $this->request->getPost('nombre')),
+            'apellido' => trim((string) $this->request->getPost('apellido')),
+            'email'    => trim((string) $this->request->getPost('email')),
+            'telefono' => trim((string) $this->request->getPost('telefono')),
+            'dni'      => trim((string) $this->request->getPost('dni')),
+        ];
+
+        (new DatosPersonalesModel())->update($idPersona, $datos);
+
+        session()->set([
+            'nombre'   => $datos['nombre'],
+            'apellido' => $datos['apellido'],
+            'email'    => $datos['email'],
+            'telefono' => $datos['telefono'],
+            'dni'      => $datos['dni'],
+        ]);
+
+        nfs_log('EDICION', 'Usuario', $idUsuario, 'Actualizó sus datos personales');
+
+        return redirect()->to('/perfil')
+            ->with('success', 'Tus datos se actualizaron correctamente.');
+    }
+
+    public function actualizarPreferencias()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $idUsuario = (int) session()->get('id_usuario');
+
+        $modelo = new PreferenciaUsuarioModel();
+
+        $tema = (string) $this->request->getPost('tema');
+
+        $datos = [
+            'tema'        => in_array($tema, PreferenciaUsuarioModel::TEMAS, true) ? $tema : 'dark',
+            'notif_email' => $this->request->getPost('notif_email') ? 1 : 0,
+            'notif_dias'  => max(1, min(30, (int) $this->request->getPost('notif_dias'))),
+        ];
+
+        $modelo->guardar($idUsuario, $datos);
+
+        nfs_log('EDICION', 'Usuario', $idUsuario, 'Actualizó sus preferencias');
+
+        return redirect()->to('/configuracion')
+            ->with('success', 'Tus preferencias se guardaron correctamente.');
+    }
+
+    public function cambiarPassword()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $idUsuario = (int) session()->get('id_usuario');
+
+        $actual  = (string) $this->request->getPost('actual');
+        $nueva   = (string) $this->request->getPost('nueva');
+        $repetir = (string) $this->request->getPost('repetir');
+
+        $usuario = (new UsuarioModel())->find($idUsuario);
+
+        if (!$usuario) {
+            return redirect()->to('/perfil')
+                ->with('error', 'No se encontró el usuario.');
+        }
+
+        $hash = (string) $usuario['contraseña'];
+        $algo = password_get_info($hash)['algo'];
+
+        $correcta = $algo !== null
+            ? password_verify($actual, $hash)
+            : ($actual === $hash);
+
+        if (!$correcta) {
+            return redirect()->to('/perfil')
+                ->with('error', 'La contraseña actual no es correcta.');
+        }
+
+        if (strlen($nueva) < 6) {
+            return redirect()->to('/perfil')
+                ->with('error', 'La nueva contraseña debe tener al menos 6 caracteres.');
+        }
+
+        if ($nueva !== $repetir) {
+            return redirect()->to('/perfil')
+                ->with('error', 'Las contraseñas nuevas no coinciden.');
+        }
+
+        (new UsuarioModel())->update($idUsuario, [
+            'contraseña' => password_hash($nueva, PASSWORD_DEFAULT),
+        ]);
+
+        nfs_log('EDICION', 'Usuario', $idUsuario, 'Cambió su contraseña');
+
+        return redirect()->to('/perfil')
+            ->with('success', 'Tu contraseña se actualizó correctamente.');
     }
 
     public function logout()

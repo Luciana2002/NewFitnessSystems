@@ -12,7 +12,8 @@ class SistemaModel extends Model
     protected $allowedFields = [
         'nombre_sistema',
         'baja',
-        'color'
+        'color',
+        'acceso_libre',
     ];
 
     /**
@@ -31,6 +32,7 @@ class SistemaModel extends Model
                 s.nombre_sistema,
                 s.baja,
                 s.color,
+                s.acceso_libre,
                 (
                     SELECT TOP 1 me.precio
                     FROM Mensualidad me

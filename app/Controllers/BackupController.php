@@ -38,7 +38,7 @@ class BackupController extends \App\Controllers\BaseController
             return $redir;
         }
 
-        $sql = $this->generarScript();
+        $sql = "\xEF\xBB\xBF" . $this->generarScript();
 
         $nombre = 'backup_newfitnesssystems_' . date('Y-m-d') . '.sql';
         $this->registrar('DESCARGA', 'Backup', null, 'Backup de la base descargado (' . $nombre . ')');
@@ -152,28 +152,61 @@ class BackupController extends \App\Controllers\BaseController
     }
 
     /**
-     * Genera el script .sql con esquema de datos (DELETE + INSERTs).
+     * Genera el script .sql completo: estructura (base, tablas, PK/UQ, FKs)
+     * y datos (DELETE + INSERTs).
      */
     private function generarScript(): string
     {
-        $db = config('Database')->default;
-
-        $out  = "-- Backup NewFitnessSystems\n";
-        $out .= "-- Generado: " . date('Y-m-d H:i:s') . "\n";
-        $out .= "-- Base: " . ($db['database'] ?? '') . "\n\n";
-        $out .= "SET NOCOUNT ON;\nSET DATEFORMAT ymd;\nGO\n\n";
-        $out .= "BEGIN TRANSACTION;\nBEGIN TRY\n";
+        $cfg     = config('Database');
+        $dbName  = $cfg->default['database'] ?? 'NewFitnessSystems';
+        $dbNameL = str_replace("'", "''", $dbName);
 
         $tablas = $this->listarTablas();
+        $fks    = $this->listarFks();
 
-        // Orden alfabético al insertar; deshabilitamos FKs para no depender del orden.
-        $out .= "    EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL';\n\n";
+        $out  = "-- Backup NewFitnessSystems (estructura + datos)\n";
+        $out .= "-- Generado: " . date('Y-m-d H:i:s') . "\n";
+        $out .= "-- Base: " . $dbName . "\n\n";
 
+        $out .= "IF DB_ID(N'" . $dbNameL . "') IS NULL\n";
+        $out .= "BEGIN\n    CREATE DATABASE [" . $dbName . "];\nEND\nGO\n\n";
+        $out .= "USE [" . $dbName . "];\nGO\n\n";
+        $out .= "SET NOCOUNT ON;\nSET DATEFORMAT ymd;\nGO\n\n";
+
+        $out .= "-- ============ ESTRUCTURA ============\n\n";
         foreach ($tablas as $tabla) {
-            $out .= $this->scriptTabla($tabla);
+            $out .= $this->ddlTabla($tabla) . "\nGO\n\n";
         }
 
-        $out .= "    EXEC sp_MSforeachtable 'ALTER TABLE ? WITH CHECK CHECK CONSTRAINT ALL';\n";
+        if (!empty($fks)) {
+            $out .= "-- ============ CLAVES FORANEAS ============\n\n";
+            foreach ($fks as $fk) {
+                $out .= "IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'"
+                      . str_replace("'", "''", $fk['nombre']) . "')\n";
+                $out .= "ALTER TABLE [dbo].[" . $fk['parent'] . "] WITH CHECK ADD CONSTRAINT ["
+                      . $fk['nombre'] . "] FOREIGN KEY ([" . implode('], [', $fk['pcols'])
+                      . "]) REFERENCES [dbo].[" . $fk['ref'] . "] ([" . implode('], [', $fk['rcols']) . "]);\n";
+                $out .= "GO\n\n";
+            }
+        }
+
+        $out .= "-- ============ DATOS ============\n\n";
+        $out .= "BEGIN TRANSACTION;\nBEGIN TRY\n\n";
+
+        $out .= "    DECLARE @sql_desactivar NVARCHAR(MAX) = N'';\n";
+        $out .= "    SELECT @sql_desactivar += N'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + N'.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + N' NOCHECK CONSTRAINT ' + QUOTENAME(name) + N';' + CHAR(13)\n";
+        $out .= "    FROM sys.foreign_keys;\n";
+        $out .= "    EXEC sp_executesql @sql_desactivar;\n\n";
+
+        foreach ($tablas as $tabla) {
+            $out .= $this->datosTabla($tabla);
+        }
+
+        $out .= "    DECLARE @sql_activar NVARCHAR(MAX) = N'';\n";
+        $out .= "    SELECT @sql_activar += N'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + N'.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + N' WITH CHECK CHECK CONSTRAINT ' + QUOTENAME(name) + N';' + CHAR(13)\n";
+        $out .= "    FROM sys.foreign_keys;\n";
+        $out .= "    EXEC sp_executesql @sql_activar;\n\n";
+
         $out .= "    COMMIT TRANSACTION;\n";
         $out .= "END TRY\nBEGIN CATCH\n";
         $out .= "    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n";
@@ -183,65 +216,216 @@ class BackupController extends \App\Controllers\BaseController
         return $out;
     }
 
-    private function scriptTabla(string $tabla): string
+    /**
+     * Genera el CREATE TABLE de una tabla (columnas, identidad, defaults, PK y UQ).
+     */
+    private function ddlTabla(string $tabla): string
     {
-        $db = \Config\Database::connect();
+        $db  = \Config\Database::connect();
+        $oid = "OBJECT_ID(N'dbo." . str_replace("'", "''", $tabla) . "', N'U')";
 
-        $registros = $db->query(
-            "SELECT COLUMN_NAME, DATA_TYPE, COLUMNPROPERTY(OBJECT_ID('" . str_replace("'", "''", $tabla) . "'), COLUMN_NAME, 'IsIdentity') AS es_ident"
-            . ' FROM INFORMATION_SCHEMA.COLUMNS'
-            . " WHERE TABLE_NAME = '" . str_replace("'", "''", $tabla) . "' ORDER BY ORDINAL_POSITION"
+        $cols = $db->query(
+            "SELECT c.name AS col, ty.name AS tipo, c.max_length AS maxlen, c.precision AS prec,"
+            . " c.scale AS scale, c.is_nullable AS nullable, c.is_identity AS ident"
+            . ' FROM sys.columns c JOIN sys.types ty ON ty.user_type_id = c.user_type_id'
+            . ' WHERE c.object_id = ' . $oid . ' ORDER BY c.column_id'
         )->getResultArray();
-
-        $cols = [];
-        $numericos = [];
-        $tieneIdentidad = false;
-        foreach ($registros as $r) {
-            $cols[] = $r['COLUMN_NAME'];
-            $numericos[] = in_array(strtolower($r['DATA_TYPE']), [
-                'int', 'bigint', 'smallint', 'tinyint', 'decimal', 'numeric',
-                'float', 'real', 'money', 'smallmoney', 'bit',
-            ], true);
-            if ((int) ($r['es_ident'] ?? 0) === 1) {
-                $tieneIdentidad = true;
-            }
-        }
 
         if (empty($cols)) {
             return '';
         }
 
-        $filas = $this->obtenerFilas($tabla, $cols);
+        $defs = [];
+        foreach ($db->query(
+            'SELECT c.name AS col, dc.name AS cname, dc.definition AS def'
+            . ' FROM sys.default_constraints dc'
+            . ' JOIN sys.columns c ON c.object_id = dc.parent_object_id AND c.column_id = dc.parent_column_id'
+            . ' WHERE dc.parent_object_id = ' . $oid
+        )->getResultArray() as $d) {
+            $defs[$d['col']] = $d;
+        }
 
-        $out = "DELETE FROM [" . $tabla . "];\n";
+        $ident = [];
+        foreach ($db->query(
+            'SELECT c.name AS col, ic.seed_value AS seed, ic.increment_value AS inc'
+            . ' FROM sys.identity_columns ic'
+            . ' JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id'
+            . ' WHERE ic.object_id = ' . $oid
+        )->getResultArray() as $i) {
+            $ident[$i['col']] = $i;
+        }
+
+        $lineas = [];
+        foreach ($cols as $c) {
+            $linea = '    [' . $c['col'] . '] ' . $this->tipoSql($c);
+
+            if (isset($ident[$c['col']])) {
+                $linea .= ' IDENTITY(' . (int) $ident[$c['col']]['seed'] . ',' . (int) $ident[$c['col']]['inc'] . ')';
+            }
+
+            $linea .= ((int) $c['nullable'] === 1) ? ' NULL' : ' NOT NULL';
+
+            if (!isset($ident[$c['col']]) && isset($defs[$c['col']])) {
+                $linea .= ' CONSTRAINT [' . $defs[$c['col']]['cname'] . '] DEFAULT ' . $defs[$c['col']]['def'];
+            }
+
+            $lineas[] = $linea;
+        }
+
+        $cons = [];
+        foreach ($db->query(
+            'SELECT kc.name AS cname, kc.type AS ctype, i.type_desc AS idxtype, c.name AS col, ic.is_descending_key AS dsc'
+            . ' FROM sys.key_constraints kc'
+            . ' JOIN sys.indexes i ON i.object_id = kc.parent_object_id AND i.index_id = kc.unique_index_id'
+            . ' JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.key_ordinal > 0'
+            . ' JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id'
+            . ' WHERE kc.parent_object_id = ' . $oid . ' ORDER BY kc.name, ic.key_ordinal'
+        )->getResultArray() as $k) {
+            $cons[$k['cname']]['type']    = $k['ctype'];
+            $cons[$k['cname']]['idxtype'] = $k['idxtype'];
+            $cons[$k['cname']]['cols'][]  = '[' . $k['col'] . ']' . ((int) $k['dsc'] === 1 ? ' DESC' : ' ASC');
+        }
+        foreach ($cons as $cname => $c) {
+            $tipo = ($c['type'] === 'PK') ? 'PRIMARY KEY' : 'UNIQUE';
+            $lineas[] = '    CONSTRAINT [' . $cname . '] ' . $tipo . ' ' . $c['idxtype']
+                      . ' (' . implode(', ', $c['cols']) . ')';
+        }
+
+        return "IF OBJECT_ID(N'dbo." . $tabla . "', N'U') IS NULL\n"
+             . "BEGIN\n"
+             . "CREATE TABLE [dbo].[" . $tabla . "] (\n"
+             . implode(",\n", $lineas) . "\n);\n"
+             . "END";
+    }
+
+    /**
+     * Genera DELETE + INSERTs de los datos de una tabla.
+     */
+    private function datosTabla(string $tabla): string
+    {
+        $db  = \Config\Database::connect();
+        $oid = "OBJECT_ID(N'dbo." . str_replace("'", "''", $tabla) . "', N'U')";
+
+        $cols = $db->query(
+            'SELECT c.name AS col, ty.name AS tipo, c.is_identity AS ident'
+            . ' FROM sys.columns c JOIN sys.types ty ON ty.user_type_id = c.user_type_id'
+            . ' WHERE c.object_id = ' . $oid . ' ORDER BY c.column_id'
+        )->getResultArray();
+
+        if (empty($cols)) {
+            return '';
+        }
+
+        $filas = $db->query('SELECT * FROM [dbo].[' . $tabla . ']')->getResultArray();
+
+        $tieneIdentidad = false;
+        $tipos = [];
+        foreach ($cols as $c) {
+            $tipos[$c['col']] = strtolower($c['tipo']);
+            if ((int) $c['ident'] === 1) {
+                $tieneIdentidad = true;
+            }
+        }
+
+        $nombres = array_map(fn($c) => '[' . $c['col'] . ']', $cols);
+
+        $out = "    DELETE FROM [dbo].[" . $tabla . "];\n";
         if ($tieneIdentidad) {
-            $out .= "SET IDENTITY_INSERT [" . $tabla . "] ON;\n";
+            $out .= "    SET IDENTITY_INSERT [dbo].[" . $tabla . "] ON;\n";
         }
         foreach ($filas as $r) {
             $vals = [];
-            foreach ($cols as $i => $c) {
-                $v = $r[$c] ?? null;
+            foreach ($cols as $c) {
+                $col = $c['col'];
+                $v   = $r[$col] ?? null;
+                $tipo = $tipos[$col];
+
                 if ($v === null) {
                     $vals[] = 'NULL';
-                } elseif ($numericos[$i]) {
+                } elseif ($tipo === 'bit') {
+                    $vals[] = ((int) $v) ? '1' : '0';
+                } elseif ($this->esNumerico($tipo)) {
                     $vals[] = (string) $v;
                 } else {
-                    $vals[] = "'" . str_replace("'", "''", (string) $v) . "'";
+                    $vals[] = "N'" . str_replace("'", "''", (string) $v) . "'";
                 }
             }
-            $out .= "INSERT INTO [" . $tabla . "] ("
-                  . implode(', ', array_map(fn($c) => '[' . $c . ']', $cols))
+            $out .= "    INSERT INTO [dbo].[" . $tabla . "] (" . implode(', ', $nombres)
                   . ") VALUES (" . implode(', ', $vals) . ");\n";
         }
         if ($tieneIdentidad) {
-            $out .= "SET IDENTITY_INSERT [" . $tabla . "] OFF;\n";
+            $out .= "    SET IDENTITY_INSERT [dbo].[" . $tabla . "] OFF;\n";
         }
+
         return $out . "\n";
     }
 
-    private function obtenerFilas(string $tabla, array $cols): array
+    /**
+     * Devuelve las claves foráneas agrupadas por nombre.
+     */
+    private function listarFks(): array
     {
-        return \Config\Database::connect()->query('SELECT * FROM [' . $tabla . ']')->getResultArray();
+        $filas = \Config\Database::connect()->query(
+            'SELECT fk.name AS nombre, tp.name AS parent, tr.name AS ref,'
+            . ' fkc.constraint_column_id AS ord, cp.name AS pcol, cr.name AS rcol'
+            . ' FROM sys.foreign_keys fk'
+            . ' JOIN sys.tables tp ON tp.object_id = fk.parent_object_id'
+            . ' JOIN sys.tables tr ON tr.object_id = fk.referenced_object_id'
+            . ' JOIN sys.foreign_key_columns fkc ON fkc.constraint_object_id = fk.object_id'
+            . ' JOIN sys.columns cp ON cp.object_id = fkc.parent_object_id AND cp.column_id = fkc.parent_column_id'
+            . ' JOIN sys.columns cr ON cr.object_id = fkc.referenced_object_id AND cr.column_id = fkc.referenced_column_id'
+            . " WHERE tp.name <> 'sysdiagrams'"
+            . ' ORDER BY fk.name, fkc.constraint_column_id'
+        )->getResultArray();
+
+        $fks = [];
+        foreach ($filas as $f) {
+            $n = $f['nombre'];
+            if (!isset($fks[$n])) {
+                $fks[$n] = ['nombre' => $n, 'parent' => $f['parent'], 'ref' => $f['ref'], 'pcols' => [], 'rcols' => []];
+            }
+            $fks[$n]['pcols'][] = $f['pcol'];
+            $fks[$n]['rcols'][] = $f['rcol'];
+        }
+
+        return array_values($fks);
+    }
+
+    /**
+     * Devuelve el tipo SQL con su longitud/precisión cuando corresponde.
+     */
+    private function tipoSql(array $c): string
+    {
+        $t  = strtolower($c['tipo']);
+        $ml = (int) $c['maxlen'];
+
+        switch ($t) {
+            case 'varchar':
+            case 'char':
+            case 'varbinary':
+            case 'binary':
+                return $t . '(' . ($ml === -1 ? 'max' : $ml) . ')';
+            case 'nvarchar':
+            case 'nchar':
+                return $t . '(' . ($ml === -1 ? 'max' : intdiv($ml, 2)) . ')';
+            case 'decimal':
+            case 'numeric':
+                return $t . '(' . (int) $c['prec'] . ',' . (int) $c['scale'] . ')';
+            case 'time':
+            case 'datetime2':
+            case 'datetimeoffset':
+                return $t . '(' . (int) $c['scale'] . ')';
+            default:
+                return $t;
+        }
+    }
+
+    private function esNumerico(string $tipo): bool
+    {
+        return in_array($tipo, [
+            'int', 'bigint', 'smallint', 'tinyint', 'decimal', 'numeric',
+            'float', 'real', 'money', 'smallmoney',
+        ], true);
     }
 
     /**

@@ -17,8 +17,8 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
             <div style="display:flex; align-items:center; gap:15px;">
-                <a href="<?= base_url(empty($esProfesor) ? 'clientes' : 'profesores') ?>"
-                   class="btn btn-outline-success btn-sm">← Volver</a>
+            <a href="<?= base_url(empty($esProfesor) ? 'clientes' : 'profesores') ?>"
+               class="nfs-btn nfs-btn-outline nfs-btn-sm">← Volver</a>
                 <h1 style="margin:0;">
                     <?= esc($cliente['nombre']) ?> <?= esc($cliente['apellido']) ?>
                 </h1>
@@ -104,6 +104,7 @@
                 <thead>
                     <tr>
                         <th>Sistema</th>
+                        <th>Turno</th>
                         <th>Último pago</th>
                         <th>Inicio suscripción</th>
                         <th>Vencimiento</th>
@@ -137,6 +138,15 @@
                             <tr>
                                 <td><?= esc($suscripcion['nombre_sistema']) ?></td>
                                 <td>
+                                    <?php if (!empty($suscripcion['acceso_libre'])): ?>
+                                        <span class="badge bg-info">Acceso libre</span>
+                                    <?php elseif (!empty($suscripcion['hora_inicio']) && !empty($suscripcion['hora_fin'])): ?>
+                                        <?= esc(substr((string) $suscripcion['hora_inicio'], 0, 5)) ?> - <?= esc(substr((string) $suscripcion['hora_fin'], 0, 5)) ?>
+                                    <?php else: ?>
+                                        <span style="color:#d98b45;">Sin turno</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <?= !empty($suscripcion['ultimo_pago_sistema'])
                                         ? formatear_fecha($suscripcion['ultimo_pago_sistema'])
                                         : '<span style="color:#d98b45;">Sin pagos</span>' ?>
@@ -153,7 +163,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" class="text-center">El cliente no tiene suscripciones registradas.</td>
+                            <td colspan="7" class="text-center">El cliente no tiene suscripciones registradas.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

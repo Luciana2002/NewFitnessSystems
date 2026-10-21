@@ -93,5 +93,7 @@ class Autoload extends AutoloadConfig
         'membresia',
         'auditoria',
         'export',
+        'preferencias',
+        'cupo',
     ];
 }

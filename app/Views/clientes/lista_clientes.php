@@ -20,7 +20,7 @@
             <h1 style="margin:0;">Lista de Clientes</h1>
 
             <button type="button"
-                    class="btn btn-success"
+                    class="nfs-btn nfs-btn-primary"
                     data-bs-toggle="modal"
                     data-bs-target="#modalRegistrarCliente">
                 <i class="bi bi-person-plus"></i> Registrar cliente
@@ -37,25 +37,6 @@
             }
             #buscarCliente:focus { box-shadow:none; border-color:#0b8f70; }
             #buscarCliente::placeholder { color:#777; }
-
-            .btn-filter-icon {
-                background-color:#0b8f70; color:#ffffff; border:none; border-radius:14px;
-                width:44px; height:44px; display:flex; align-items:center; justify-content:center;
-                font-size:20px; cursor:pointer; transition:background-color 0.2s;
-            }
-            .btn-filter-icon:hover { background-color:#097a61; }
-
-            .btn-sort-pill {
-                background-color:#e9e8e2; color:#111; border:none; border-radius:14px;
-                padding:0 18px; height:44px; font-weight:600; font-size:14px;
-                display:flex; align-items:center; gap:8px; cursor:pointer; transition:background-color 0.2s;
-            }
-            .btn-sort-pill:hover { background-color:#dcdbd5; }
-            .btn-sort-pill:disabled {
-                background-color:#3a3a3a; color:#7a7a7a;
-                cursor:not-allowed; opacity:1;
-            }
-            .btn-sort-pill:disabled:hover { background-color:#3a3a3a; }
 
             .dropdown-wrapper { position:relative; }
 
@@ -85,16 +66,6 @@
                 box-shadow:none; border-color:#0b8f70;
             }
             .filter-dropdown-card .form-control::placeholder { color:#777; }
-
-            .btn-apply { background-color:#0b8f70; color:white; border-radius:20px; font-weight:bold; }
-            .btn-apply:hover { background-color:#097a61; color:white; }
-            .btn-clear {
-                background:transparent; color:#eee; border:1px solid #555;
-                border-radius:20px; font-weight:bold;
-            }
-            .btn-clear:hover { background:#333; color:#fff; }
-
-            th { white-space:nowrap; }
         </style>
 
         <div class="toolbar-container">
@@ -377,10 +348,10 @@
                                                 </a>
                                             <?php endif; ?>
 
-                                            <a href="<?= base_url('cliente_info/'.$cliente['id_persona']) ?>"
-                                               class="btn btn-outline-success btn-sm" style="margin-left:6px;">
-                                                Ver más
-                                            </a>
+                                    <a href="<?= base_url('cliente_info/'.$cliente['id_persona']) ?>"
+                                       class="nfs-btn nfs-btn-outline nfs-btn-sm" style="margin-left:6px;">
+                                        Ver más
+                                    </a>
                                         </div>
                                     </div>
                                 </td>
@@ -461,6 +432,13 @@
                                 </select>
                             </div>
 
+                            <div class="col-md-4 mb-3" id="horarioRegistroWrap" style="display:none;">
+                                <label class="form-label">Turno *</label>
+                                <select name="id_horario" id="horarioRegistro" class="form-control" disabled>
+                                    <option value="">Elegí un sistema primero...</option>
+                                </select>
+                            </div>
+
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Medio de pago *</label>
                                 <select name="id_medio_pago" class="form-control" required>
@@ -483,8 +461,8 @@
                     </div>
 
                     <div class="modal-footer" style="border-top:1px solid #333;">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">Registrar cliente y primer pago</button>
+                        <button type="button" class="nfs-btn nfs-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="nfs-btn nfs-btn-primary">Registrar cliente y primer pago</button>
                     </div>
                 </form>
             </div>
@@ -786,14 +764,69 @@
         sincronizarScrollSuperior();
     }
 
-    // MONTO AUTOMÁTICO SEGÚN SISTEMA
+    // MONTO AUTOMÁTICO Y TURNOS SEGÚN SISTEMA
     const selectSistema = document.getElementById('sistemaRegistro');
     const inputMonto = document.getElementById('montoRegistro');
+    const selectHorario = document.getElementById('horarioRegistro');
+    const horarioWrap = document.getElementById('horarioRegistroWrap');
+    const horariosPorSistema = <?= json_encode($horariosPorSistema ?? [], JSON_UNESCAPED_UNICODE) ?>;
+    const accesosLibres = <?= json_encode($sistemasAccesoLibre ?? [], JSON_UNESCAPED_UNICODE) ?>;
+
+    function poblarHorarios(idSistema) {
+        if (!selectHorario) return;
+
+        selectHorario.innerHTML = '';
+
+        const esLibre = accesosLibres.indexOf(parseInt(idSistema, 10)) !== -1;
+
+        if (horarioWrap) {
+            horarioWrap.style.display = esLibre ? 'none' : '';
+        }
+
+        if (esLibre) {
+            selectHorario.disabled = true;
+            selectHorario.required = false;
+            selectHorario.innerHTML = '<option value="">Acceso libre (cualquier horario)</option>';
+            return;
+        }
+
+        const horarios = horariosPorSistema[idSistema] || [];
+
+        if (!idSistema) {
+            selectHorario.disabled = true;
+            selectHorario.required = false;
+            selectHorario.innerHTML = '<option value="">Elegí un sistema primero...</option>';
+            return;
+        }
+
+        if (horarios.length === 0) {
+            selectHorario.disabled = true;
+            selectHorario.required = false;
+            selectHorario.innerHTML = '<option value="">Sin turnos disponibles</option>';
+            return;
+        }
+
+        selectHorario.disabled = false;
+        selectHorario.required = true;
+        selectHorario.innerHTML = '<option value="">Seleccionar turno...</option>';
+
+        horarios.forEach(function(h) {
+            const opt = document.createElement('option');
+            opt.value = h.id_horario;
+            const cupo = h.cupo_max === null ? 'sin límite' : (h.inscriptos + '/' + h.cupo_max);
+            opt.textContent = h.label + ' (' + cupo + ')' + (h.lleno ? ' — lleno' : '');
+            if (h.lleno) {
+                opt.disabled = true;
+            }
+            selectHorario.appendChild(opt);
+        });
+    }
 
     if (selectSistema && inputMonto) {
         selectSistema.addEventListener('change', function() {
             const opcion = this.options[this.selectedIndex];
             inputMonto.value = opcion && opcion.dataset.precio ? opcion.dataset.precio : '';
+            poblarHorarios(this.value);
         });
     }
 

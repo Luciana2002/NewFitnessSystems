@@ -43,11 +43,8 @@ class HorarioController extends BaseController
         $horaFin    = $this->request->getPost('hora_fin');
         $diaSemana  = trim($this->request->getPost('dia_semana') ?? '');
         $idSistema  = (int) $this->request->getPost('id_sistema');
-        $cupoMax    = (int) $this->request->getPost('cupo_max');
-
-        if ($cupoMax < 1) {
-            $cupoMax = 20;
-        }
+        $cupoMax    = $this->request->getPost('cupo_max');
+        $cupoMax    = ($cupoMax === null || $cupoMax === '') ? null : max(0, (int) $cupoMax);
 
         $diasValidos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
@@ -87,11 +84,8 @@ class HorarioController extends BaseController
         $horaFin = $this->request->getPost('hora_fin');
         $diaSemana = $this->request->getPost('dia_semana');
         $idSistema = (int) $this->request->getPost('id_sistema');
-        $cupoMax = (int) $this->request->getPost('cupo_max');
-
-        if ($cupoMax < 1) {
-            $cupoMax = 20;
-        }
+        $cupoMax   = $this->request->getPost('cupo_max');
+        $cupoMax   = ($cupoMax === null || $cupoMax === '') ? null : max(0, (int) $cupoMax);
 
         if ($horaInicio === null || $horaFin === null || $diaSemana === '' || !$idSistema) {
             session()->setFlashdata('error', 'Datos inválidos para el horario');
