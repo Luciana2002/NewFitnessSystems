@@ -31,8 +31,10 @@
     <?php else: ?>
         <h3>Mi cuenta</h3>
         <a href="<?= base_url('cliente/suscripcion') ?>">Mi suscripción</a>
+        <a href="<?= base_url('cliente/reservas') ?>">Reservar clases</a>
         <a href="<?= base_url('cliente/qr') ?>">Mi código QR</a>
         <a href="<?= base_url('cliente/rutinas') ?>">Mis rutinas</a>
+        <a href="<?= base_url('cliente/seguimiento') ?>">Seguimiento físico</a>
     <?php endif; ?>
 
 </aside>

@@ -26,7 +26,7 @@ class Database extends Config
      */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => 'localhost\SQLEXPRESS',
+        'hostname'     => 'localhost\SQLEXPRESS01',
         'username'     => '',
         'password'     => '',
         'database'     => 'NewFitnessSystems',

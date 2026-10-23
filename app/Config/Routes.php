@@ -153,11 +153,16 @@ $routes->get('/comunicaciones/mensajes', static fn () => redirect()->to('/avisos
    PANEL DEL CLIENTE
 ========================= */
 
-    $routes->get('/cliente/suscripcion', 'ClientePanelController::suscripcion');
-    $routes->get('/cliente/comprobante/(:num)', 'ClientePanelController::comprobante/$1');
-    $routes->get('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSistema/$1');
-    $routes->post('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSistema/$1');
+$routes->get('/cliente/suscripcion', 'ClientePanelController::suscripcion');
+$routes->get('/cliente/comprobante/(:num)', 'ClientePanelController::comprobante/$1');
+$routes->post('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSistema/$1');
 $routes->get('/cliente/rutinas', 'ClientePanelController::rutinas');
+$routes->get('/cliente/qr', 'ClientePanelController::qr');
+$routes->get('/cliente/reservas', 'ClientePanelController::reservas');
+$routes->post('/cliente/reservar', 'ClientePanelController::reservar');
+$routes->get('/cliente/cancelar_reserva/(:num)', 'ClientePanelController::cancelarReserva/$1');
+$routes->get('/cliente/seguimiento', 'ClientePanelController::seguimiento');
+$routes->post('/cliente/guardar_seguimiento', 'ClientePanelController::guardarSeguimiento');
 
 /* =========================
    CHECK-IN / ASISTENCIA
