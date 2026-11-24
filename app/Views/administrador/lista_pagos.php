@@ -36,6 +36,35 @@
             #buscarPago:focus { box-shadow:none; border-color:#0b8f70; }
             #buscarPago::placeholder { color:#777; }
 
+            .periodo-wrapper { position:relative; }
+
+            #btnPeriodoPagos {
+                min-width:180px;
+                justify-content:space-between;
+            }
+            #btnPeriodoPagos .periodo-chevron {
+                display:inline-flex; align-items:center; line-height:1;
+                transition:transform 0.2s;
+            }
+            #btnPeriodoPagos[aria-expanded="true"] .periodo-chevron { transform:rotate(180deg); }
+
+            .periodo-dropdown {
+                display:none; position:absolute; top:calc(100% + 8px); left:0;
+                min-width:220px; max-height:300px; overflow-y:auto;
+                background-color:#1f1f1f; border:1px solid #333; border-radius:14px;
+                box-shadow:0 8px 24px rgba(0,0,0,0.45);
+                padding:6px; z-index:1005;
+                animation:fadeInFiltros 0.2s ease-out;
+            }
+            .periodo-opcion {
+                display:block; width:100%; text-align:left;
+                background:transparent; border:none; border-radius:10px;
+                color:#eee; font-size:13px; font-weight:600;
+                padding:9px 12px; cursor:pointer; transition:background 0.15s;
+            }
+            .periodo-opcion:hover { background:#2a2a2a; }
+            .periodo-opcion.activa { background:#0b8f70; color:#fff; }
+
             .btn-filter-icon {
                 background-color:#0b8f70; color:#ffffff; border:none; border-radius:14px;
                 width:44px; height:44px; display:flex; align-items:center; justify-content:center;
@@ -237,6 +266,65 @@
                 </span>
                 <span id="sortFechaText">Fecha: Más reciente</span>
             </button>
+
+            <?php
+            $mesesPagos = [
+                1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+                5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+                9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre',
+            ];
+
+            $periodos = array_values(array_unique(array_merge(
+                [date('Y-m'), (string) $periodo],
+                array_column($periodosPagos, 'periodo')
+            )));
+            $periodos = array_values(array_filter($periodos, function ($p) {
+                return $p !== 'todos' && preg_match('/^\d{4}-\d{2}$/', $p);
+            }));
+            rsort($periodos);
+            ?>
+
+            <?php
+            $periodoActual = (string) $periodo;
+            $etiquetaPeriodo = $periodoActual === 'todos'
+                ? 'Todos los meses'
+                : ($mesesPagos[(int) substr($periodoActual, 5, 2)] ?? $periodoActual) . ' ' . substr($periodoActual, 0, 4);
+            ?>
+
+            <div class="periodo-wrapper">
+                <button type="button"
+                        id="btnPeriodoPagos"
+                        class="btn-sort-pill"
+                        title="Filtrar pagos por mes"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-controls="periodoMenu">
+                    <i class="bi bi-calendar3" aria-hidden="true"></i>
+                    <span id="periodoPagosText"><?= esc($etiquetaPeriodo) ?></span>
+                    <i class="bi bi-chevron-down periodo-chevron" aria-hidden="true"></i>
+                </button>
+
+                <div id="periodoMenu" class="periodo-dropdown" role="menu">
+                    <?php foreach ($periodos as $periodoOp): ?>
+                        <?php
+                        $anioOp = (int) substr($periodoOp, 0, 4);
+                        $mesOp  = (int) substr($periodoOp, 5, 2);
+                        ?>
+                        <button type="button"
+                                class="periodo-opcion <?= $periodoOp === $periodo ? 'activa' : '' ?>"
+                                role="menuitem"
+                                data-periodo="<?= esc($periodoOp) ?>">
+                            <?= esc(($mesesPagos[$mesOp] ?? $periodoOp) . ' ' . $anioOp) ?>
+                        </button>
+                    <?php endforeach; ?>
+                    <button type="button"
+                            class="periodo-opcion <?= $periodo === 'todos' ? 'activa' : '' ?>"
+                            role="menuitem"
+                            data-periodo="todos">
+                        Todos los meses
+                    </button>
+                </div>
+            </div>
         </div>
 
         <?php if(session()->getFlashdata('success')): ?>
@@ -453,12 +541,43 @@
     let calAnio = null;
     let calMes = null;
 
+    const btnPeriodoPagos = document.getElementById('btnPeriodoPagos');
+    const periodoMenu = document.getElementById('periodoMenu');
+    const periodoSeleccionado = <?= json_encode((string) $periodo, JSON_UNESCAPED_SLASHES) ?>;
+
+    function cerrarPeriodoMenu() {
+        if (!periodoMenu) return;
+        periodoMenu.style.display = 'none';
+        if (btnPeriodoPagos) btnPeriodoPagos.setAttribute('aria-expanded', 'false');
+    }
+
+    btnPeriodoPagos?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (periodoMenu && periodoMenu.style.display === 'block') {
+            cerrarPeriodoMenu();
+            return;
+        }
+
+        // No dejar ambos desplegables abiertos a la vez
+        if (filtroMenu) filtroMenu.style.display = 'none';
+        if (periodoMenu) periodoMenu.style.display = 'block';
+        btnPeriodoPagos.setAttribute('aria-expanded', 'true');
+    });
+
+    periodoMenu?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const opcion = e.target.closest('.periodo-opcion');
+        if (!opcion || !opcion.dataset.periodo) return;
+        window.location.href = '<?= base_url('pagos') ?>?periodo=' + encodeURIComponent(opcion.dataset.periodo);
+    });
+
     const tablaPagos = document.getElementById('tablaPagos');
 
     // Abrir / cerrar tarjeta
     function toggleDropdown(e) {
         e.stopPropagation();
         if (!filtroMenu) return;
+        cerrarPeriodoMenu();
         filtroMenu.style.display = filtroMenu.style.display === 'block' ? 'none' : 'block';
     }
 
@@ -470,10 +589,20 @@
             && e.target !== btnToggleFilters && !btnToggleFilters.contains(e.target)) {
             filtroMenu.style.display = 'none';
         }
+
+        if (periodoMenu && periodoMenu.style.display === 'block'
+            && !periodoMenu.contains(e.target)
+            && e.target !== btnPeriodoPagos
+            && !(btnPeriodoPagos && btnPeriodoPagos.contains(e.target))) {
+            cerrarPeriodoMenu();
+        }
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && filtroMenu) filtroMenu.style.display = 'none';
+        if (e.key === 'Escape') {
+            if (filtroMenu) filtroMenu.style.display = 'none';
+            cerrarPeriodoMenu();
+        }
     });
 
     function aplicarFiltros() {
@@ -645,7 +774,15 @@
             const abrir = fechaCalendario.style.display !== 'block';
             fechaCalendario.style.display = abrir ? 'block' : 'none';
             if (abrir) {
-                const base = calDesde !== null ? new Date(calDesde * 1000) : new Date();
+                let base;
+                if (calDesde !== null) {
+                    base = new Date(calDesde * 1000);
+                } else if (periodoSeleccionado !== 'todos' && /^\d{4}-\d{2}$/.test(periodoSeleccionado)) {
+                    const partesPeriodo = periodoSeleccionado.split('-');
+                    base = new Date(Number(partesPeriodo[0]), Number(partesPeriodo[1]) - 1, 1);
+                } else {
+                    base = new Date();
+                }
                 calAnio = base.getFullYear();
                 calMes = base.getMonth();
                 pintarCalendario();

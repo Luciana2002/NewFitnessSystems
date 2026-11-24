@@ -1,65 +1,5 @@
 <?= view('reportes/_print_estilos') ?>
 
-<style>
-    .reporte-seccion {
-        margin-bottom: 45px;
-    }
-
-    .reporte-titulo {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin: 0 0 20px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid #262626;
-    }
-
-    .reporte-titulo h2 {
-        margin: 0;
-        font-size: 22px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #0b8f70;
-    }
-
-    .btn-acceso {
-        display: block;
-        padding: 22px 26px;
-        border-radius: 12px;
-        background: #1b1b1b;
-        border: 1px solid #262626;
-        border-left: 5px solid #20c997;
-        color: #fff;
-        text-decoration: none;
-        transition: transform .15s ease, border-color .15s ease;
-    }
-
-    .btn-acceso:hover {
-        transform: translateY(-3px);
-        color: #fff;
-    }
-
-    .btn-acceso h5 {
-        margin: 0 0 6px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 16px;
-    }
-
-    .btn-acceso p {
-        margin: 0;
-        color: #aaa;
-        font-size: 14px;
-    }
-
-    input[type="date"],
-    input[type="month"] {
-        color-scheme: dark;
-    }
-</style>
-
 <main class="dashboard-page">
 
     <button type="button" id="sidebarOpen" class="sidebar-handle">
@@ -74,108 +14,150 @@
 
     <?= view('layout/sidebar') ?>
 
-    <section class="dashboard-content" style="padding:50px 70px;">
+    <section class="dashboard-content">
 
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:35px;">
+        <div class="reporte-titulo">
             <div>
-                <h1 style="margin:0;">Reportes del Negocio</h1>
+                <h1>Reportes del Negocio</h1>
+                <p class="reporte-metrica-help">Elegí la sección que querés consultar.</p>
             </div>
-            <button type="button" class="no-print" onclick="window.print()"
-                    style="background:#0b8f70; border:none; color:#fff; border-radius:8px; padding:10px 18px; text-transform:uppercase; letter-spacing:1px; font-size:13px;">
-                Imprimir / PDF
+        </div>
+
+        <div class="reporte-tabs no-print" role="tablist" aria-label="Secciones de reportes">
+            <button type="button" class="reporte-tab activa" id="tab-caja" data-tab="caja"
+                    role="tab" aria-selected="true" aria-controls="panel-caja">
+                <i class="bi bi-cash-coin"></i> Cierre de Caja
+            </button>
+            <button type="button" class="reporte-tab" id="tab-cuotas" data-tab="cuotas"
+                    role="tab" aria-selected="false" aria-controls="panel-cuotas">
+                <i class="bi bi-pie-chart-fill"></i> Cuotas y Disciplinas
+            </button>
+            <button type="button" class="reporte-tab" id="tab-balance" data-tab="balance"
+                    role="tab" aria-selected="false" aria-controls="panel-balance">
+                <i class="bi bi-graph-up"></i> Balance y Movimientos
+            </button>
+            <button type="button" class="reporte-tab" id="tab-asistencia" data-tab="asistencia"
+                    role="tab" aria-selected="false" aria-controls="panel-asistencia">
+                <i class="bi bi-person-check-fill"></i> Asistencia
             </button>
         </div>
 
         <!-- ===================== CIERRE DE CAJA DIARIO ===================== -->
-        <div class="reporte-seccion">
-            <div class="reporte-titulo">
-                <h2>Cierre de Caja Diario</h2>
-                <a class="no-print" href="<?= base_url('suscripciones/exportar/caja?fecha=' . $fecha) ?>"
-                   style="background:#262626; border:1px solid #333; color:#fff; border-radius:8px; padding:8px 16px; text-decoration:none; text-transform:uppercase; letter-spacing:1px; font-size:12px;">
-                    Exportar Excel
-                </a>
-            </div>
-
-            <form method="get" action="<?= base_url('suscripciones') ?>" class="no-print"
-                  style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:25px;">
-                <label for="fecha" style="color:#cfcfcf; text-transform:uppercase; letter-spacing:1px; font-size:13px;">Fecha</label>
-                <input type="date" id="fecha" name="fecha" value="<?= esc($fecha) ?>"
-                       onchange="this.form.submit()"
-                       style="background:#111; border:1px solid #262626; color:#fff; border-radius:8px; padding:8px 12px;">
-            </form>
-
-            <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:30px;">
-                <div class="dashboard-card" style="flex:1; min-width:200px; padding:22px;">
-                    <h6 style="text-transform:uppercase; letter-spacing:1px; color:#17a2b8;">Total recaudado</h6>
-                    <h2 style="margin:6px 0 0; color:#17a2b8;">$<?= number_format($totalCaja, 0, ',', '.') ?></h2>
-                </div>
-
-                <div class="dashboard-card" style="flex:1; min-width:200px; padding:22px;">
-                    <h6 style="text-transform:uppercase; letter-spacing:1px; color:#0b8f70;">Movimientos</h6>
-                    <h2 style="margin:6px 0 0;"><?= count($pagos) ?></h2>
-                </div>
-
-                <div class="dashboard-card" style="flex:1; min-width:200px; padding:22px;">
-                    <h6 style="text-transform:uppercase; letter-spacing:1px; color:#ffc107;">Fecha</h6>
-                    <h2 style="margin:6px 0 0; font-size:22px;"><?= esc(date('d/m/Y', strtotime($fecha))) ?></h2>
-                </div>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-lg-6">
-                    <div class="dashboard-card" style="padding:25px; height:100%; max-width:none;">
-                        <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
-                            Totales por medio de pago
-                        </h4>
-
-                        <?php if (!empty($porMedio)): ?>
-                            <?php foreach ($porMedio as $medio => $monto): ?>
-                                <div style="display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid #262626; color:#ddd; overflow-wrap:anywhere;">
-                                    <span><?= esc($medio) ?></span>
-                                    <strong style="color:#17a2b8;">$<?= number_format($monto, 0, ',', '.') ?></strong>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p style="color:#aaa;">Sin movimientos este día.</p>
-                        <?php endif; ?>
+        <div class="reporte-panel activo" id="panel-caja" data-panel="caja"
+             role="tabpanel" aria-labelledby="tab-caja">
+            <div class="reporte-seccion">
+                <div class="reporte-titulo">
+                    <div>
+                        <h2>Cierre de Caja</h2>
+                        <p class="reporte-metrica-help">Resumen de los pagos registrados en la fecha elegida.</p>
+                    </div>
+                    <div class="reporte-acciones">
+                        <a class="nfs-btn nfs-btn-secondary nfs-btn-sm no-print"
+                           href="<?= base_url('suscripciones/exportar/caja?fecha=' . $fecha) ?>">
+                            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                        </a>
+                        <button type="button" class="nfs-btn nfs-btn-primary nfs-btn-sm no-print" data-imprimir>
+                            <i class="bi bi-printer"></i> Imprimir
+                        </button>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="dashboard-card" style="padding:25px; height:100%; max-width:none;">
-                        <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
-                            Totales por quién cobró
-                        </h4>
+                <form method="get" action="<?= base_url('suscripciones') ?>" class="reporte-fechas no-print" id="formFechaCaja">
+                    <label for="fecha">Fecha a consultar</label>
+                    <input type="date" id="fecha" name="fecha" value="<?= esc($fecha) ?>" class="reporte-fecha-input">
+                    <button type="button" class="nfs-btn nfs-btn-secondary nfs-btn-sm" data-fecha="hoy">Hoy</button>
+                    <button type="button" class="nfs-btn nfs-btn-secondary nfs-btn-sm" data-fecha="ayer">Ayer</button>
+                </form>
+                <p class="reporte-fecha-ayuda">
+                    Estás viendo los pagos registrados el <strong><?= esc(date('d/m/Y', strtotime($fecha))) ?></strong>.
+                </p>
 
-                        <?php if (!empty($porCobrador)): ?>
-                            <?php foreach ($porCobrador as $cobrador => $monto): ?>
-                                <div style="display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid #262626; color:#ddd; overflow-wrap:anywhere;">
-                                    <span><?= esc($cobrador) ?></span>
-                                    <strong style="color:#20c997;">$<?= number_format($monto, 0, ',', '.') ?></strong>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p style="color:#aaa;">Sin movimientos este día.</p>
-                        <?php endif; ?>
+                <div class="reporte-metricas">
+                    <div class="dashboard-card reporte-metrica es-info">
+                        <h6 class="reporte-metrica-label">Total recaudado</h6>
+                        <div class="reporte-metrica-valor">$<?= number_format($totalCaja, 0, ',', '.') ?></div>
+                        <div class="reporte-metrica-help">Recaudado en la fecha consultada</div>
+                    </div>
+
+                    <div class="dashboard-card reporte-metrica es-ok">
+                        <h6 class="reporte-metrica-label">Movimientos</h6>
+                        <div class="reporte-metrica-valor"><?= count($pagos) ?></div>
+                        <div class="reporte-metrica-help">Pagos registrados ese día</div>
+                    </div>
+
+                    <div class="dashboard-card reporte-metrica">
+                        <h6 class="reporte-metrica-label">Fecha</h6>
+                        <div class="reporte-metrica-valor pequeno"><?= esc(date('d/m/Y', strtotime($fecha))) ?></div>
+                        <div class="reporte-metrica-help">Día seleccionado en el filtro</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="dashboard-card" style="padding:25px; max-width:none;">
-                <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
-                    Detalle de pagos
-                </h4>
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="dashboard-card reporte-card h-100">
+                            <div class="panel-card-head">
+                                <h2><i class="bi bi-credit-card"></i> Totales por medio de pago</h2>
+                            </div>
 
-                <?php if (!empty($pagos)): ?>
-                    <div style="overflow-x:auto;">
-                        <div style="max-height:520px; overflow-y:auto; border:1px solid #262626; border-radius:8px;">
-                            <table class="table table-dark table-hover" style="background:#111; border-radius:8px; overflow:hidden; min-width:640px; margin:0;">
-                                <thead style="position:sticky; top:0; z-index:1;">
-                                    <tr style="background:#262626; color:#fff; text-transform:uppercase; letter-spacing:1px; font-size:13px;">
-                                        <th style="padding:12px;">Cliente</th>
-                                        <th style="padding:12px;">Medio de pago</th>
-                                        <th style="padding:12px;">Cobrado por</th>
-                                        <th style="padding:12px; text-align:right;">Monto</th>
+                            <?php if (!empty($porMedio)): ?>
+                                <ul class="panel-list">
+                                    <?php foreach ($porMedio as $medio => $monto): ?>
+                                        <li class="list-row">
+                                            <div class="list-main">
+                                                <strong><?= esc($medio) ?></strong>
+                                            </div>
+                                            <div class="list-side">
+                                                <span class="reporte-importe">$<?= number_format($monto, 0, ',', '.') ?></span>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php else: ?>
+                                <div class="reporte-metrica-help">Sin movimientos este día.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="dashboard-card reporte-card h-100">
+                            <div class="panel-card-head">
+                                <h2><i class="bi bi-person-check"></i> Totales por quién cobró</h2>
+                            </div>
+
+                            <?php if (!empty($porCobrador)): ?>
+                                <ul class="panel-list">
+                                    <?php foreach ($porCobrador as $cobrador => $monto): ?>
+                                        <li class="list-row">
+                                            <div class="list-main">
+                                                <strong><?= esc($cobrador) ?></strong>
+                                            </div>
+                                            <div class="list-side">
+                                                <span class="reporte-importe verde">$<?= number_format($monto, 0, ',', '.') ?></span>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php else: ?>
+                                <div class="reporte-metrica-help">Sin movimientos este día.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card reporte-card">
+                    <div class="panel-card-head">
+                        <h2><i class="bi bi-list-check"></i> Detalle de pagos</h2>
+                    </div>
+
+                    <?php if (!empty($pagos)): ?>
+                        <div class="table-responsive reporte-tabla-wrap">
+                            <table class="table table-dark table-hover reporte-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Medio de pago</th>
+                                        <th>Cobrado por</th>
+                                        <th class="texto-derecha">Monto</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -190,120 +172,305 @@
                                                 $cliente = '—';
                                             }
                                         ?>
-                                        <tr style="color:#ddd; border-bottom:1px solid #262626;">
-                                            <td style="padding:12px; overflow-wrap:anywhere;"><?= esc($cliente) ?></td>
-                                            <td style="padding:12px; overflow-wrap:anywhere;"><?= esc($pago['medio_pago'] ?: 'Sin especificar') ?></td>
-                                            <td style="padding:12px; overflow-wrap:anywhere;"><?= esc($cobrador) ?></td>
-                                            <td style="padding:12px; text-align:right; color:#17a2b8; font-weight:700;">$<?= number_format((float) $pago['monto'], 0, ',', '.') ?></td>
+                                        <tr>
+                                            <td><?= esc($cliente) ?></td>
+                                            <td><?= esc($pago['medio_pago'] ?: 'Sin especificar') ?></td>
+                                            <td><?= esc($cobrador) ?></td>
+                                            <td class="texto-derecha reporte-importe">$<?= number_format((float) $pago['monto'], 0, ',', '.') ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                <?php else: ?>
-                    <p style="color:#aaa;">No hay pagos registrados en esta fecha.</p>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <div class="reporte-metrica-help">No hay pagos registrados en esta fecha.</div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 
-        <!-- ===================== REPORTE DE CUOTAS ===================== -->
-        <div class="reporte-seccion">
-            <div class="reporte-titulo">
-                <h2>Reporte de Cuotas</h2>
-                <div class="no-print" style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <a href="<?= base_url('suscripciones/exportar/cuotas') ?>"
-                       style="background:#262626; border:1px solid #333; color:#fff; border-radius:8px; padding:8px 16px; text-decoration:none; text-transform:uppercase; letter-spacing:1px; font-size:12px;">
-                        Exportar Excel
-                    </a>
-                    <a href="<?= base_url('suscripciones/cuotas') ?>"
-                       style="background:#0b8f70; color:#fff; border-radius:8px; padding:8px 16px; text-decoration:none; text-transform:uppercase; letter-spacing:1px; font-size:12px;">
-                        Ver reporte completo
-                    </a>
-                </div>
-            </div>
-
-            <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:30px;">
-                <div class="dashboard-card" style="flex:1; min-width:170px; padding:20px;">
-                    <h6 style="text-transform:uppercase; letter-spacing:1px; color:#0b8f70;">Total de clientes</h6>
-                    <h2 style="margin:5px 0 0;"><?= $total ?></h2>
-                </div>
-
-                <div class="dashboard-card" style="flex:1; min-width:170px; padding:20px;">
-                    <h6 style="text-transform:uppercase; letter-spacing:1px; color:#0b8f70;">Cuotas al día</h6>
-                    <h2 style="margin:5px 0 0; color:#28a745;"><?= $alDia ?></h2>
-                </div>
-
-                <div class="dashboard-card" style="flex:1; min-width:170px; padding:20px;">
-                    <h6 style="text-transform:uppercase; letter-spacing:1px; color:#0b8f70;">Cuotas vencidas</h6>
-                    <h2 style="margin:5px 0 0; color:#dc3545;"><?= $vencido ?></h2>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="dashboard-card" style="padding:25px; height:100%; max-width:none;">
-                        <h4 style="margin-bottom:20px; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
-                            Clientes por sistema
-                        </h4>
-                        <div style="height:280px;">
-                            <canvas id="graficoSistemas"></canvas>
-                        </div>
+        <!-- ===================== CUOTAS Y DISCIPLINAS ===================== -->
+        <div class="reporte-panel" id="panel-cuotas" data-panel="cuotas"
+             role="tabpanel" aria-labelledby="tab-cuotas">
+            <div class="reporte-seccion">
+                <div class="reporte-titulo">
+                    <div>
+                        <h2>Cuotas y Disciplinas</h2>
+                        <p class="reporte-metrica-help">Estado de las cuotas e ingresos de cada disciplina.</p>
+                    </div>
+                    <div class="reporte-acciones">
+                        <a class="nfs-btn nfs-btn-secondary nfs-btn-sm no-print"
+                           href="<?= base_url('suscripciones/exportar/cuotas') ?>">
+                            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                        </a>
+                        <a class="nfs-btn nfs-btn-primary nfs-btn-sm no-print"
+                           href="<?= base_url('suscripciones/cuotas') ?>">
+                            <i class="bi bi-arrows-angle-expand"></i> Ver reporte completo
+                        </a>
+                        <button type="button" class="nfs-btn nfs-btn-outline nfs-btn-sm no-print" data-imprimir>
+                            <i class="bi bi-printer"></i> Imprimir
+                        </button>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="dashboard-card" style="padding:25px; height:100%; max-width:none;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:10px; flex-wrap:wrap;">
-                            <h4 style="margin:0; text-transform:uppercase; letter-spacing:1px; color:#0b8f70; font-size:18px;">
-                                Ganancia por sistema
-                            </h4>
-                            <a href="<?= base_url('suscripciones/ingresos') ?>" style="background:#0b8f70; color:#fff; border-radius:8px; padding:6px 12px; text-decoration:none; text-transform:uppercase; letter-spacing:1px; font-size:11px;">Ver por mes</a>
-                        </div>
+                <div class="reporte-metricas">
+                    <div class="dashboard-card reporte-metrica">
+                        <h6 class="reporte-metrica-label">Total de clientes</h6>
+                        <div class="reporte-metrica-valor"><?= $total ?></div>
+                        <div class="reporte-metrica-help">Socios registrados en el sistema</div>
+                    </div>
 
-                        <?php $maxSistema = !empty($ingresosPorSistema) ? max(array_column($ingresosPorSistema, 'total')) : 0; ?>
-                        <?php if (!empty($ingresosPorSistema)): ?>
-                            <?php foreach ($ingresosPorSistema as $s): ?>
-                                <div style="margin-bottom:18px;">
-                                    <div style="display:flex; justify-content:space-between; gap:10px; color:#ddd; font-size:14px;">
-                                        <span><?= esc($s['nombre_sistema']) ?></span>
-                                        <strong style="color:#0b8f70;">$<?= number_format((float) $s['total'], 0, ',', '.') ?></strong>
-                                    </div>
-                                    <div style="background:#262626; border-radius:6px; height:14px; overflow:hidden; margin-top:6px;">
-                                        <div style="width:<?= $maxSistema > 0 ? round(((float) $s['total'] / $maxSistema) * 100) : 0 ?>%; background:#0b8f70; height:100%;"></div>
-                                    </div>
+                    <div class="dashboard-card reporte-metrica es-ok">
+                        <h6 class="reporte-metrica-label">Cuotas al día</h6>
+                        <div class="reporte-metrica-valor"><?= $alDia ?></div>
+                        <div class="reporte-metrica-help">Socios con cuota vigente</div>
+                    </div>
+
+                    <div class="dashboard-card reporte-metrica es-alerta">
+                        <h6 class="reporte-metrica-label">Cuotas vencidas</h6>
+                        <div class="reporte-metrica-valor"><?= $vencido ?></div>
+                        <div class="reporte-metrica-help">Socios con pago pendiente</div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="dashboard-card reporte-card h-100">
+                            <div class="panel-card-head">
+                                <h2><i class="bi bi-bar-chart"></i> Clientes por disciplina</h2>
+                            </div>
+                            <div class="reporte-chart">
+                                <canvas id="graficoSistemas" class="reporte-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="dashboard-card reporte-card h-100">
+                            <div class="panel-card-head">
+                                <h2><i class="bi bi-cash-stack"></i> Ingresos por disciplina</h2>
+                                <a href="<?= base_url('suscripciones/ingresos') ?>">Ver por mes</a>
+                            </div>
+
+                            <?php $maxSistema = !empty($ingresosPorSistema) ? max(array_column($ingresosPorSistema, 'total')) : 0; ?>
+                            <?php if (!empty($ingresosPorSistema)): ?>
+                                <div class="reporte-barras">
+                                    <?php foreach ($ingresosPorSistema as $s): ?>
+                                        <?php
+                                            $porcentaje = $maxSistema > 0
+                                                ? (int) round(((float) $s['total'] / $maxSistema) * 100)
+                                                : 0;
+                                            $porcentaje = max(0, min(100, $porcentaje));
+                                            $porcentaje = (int) (round($porcentaje / 5) * 5);
+                                        ?>
+                                        <div class="reporte-barra-item">
+                                            <div class="reporte-barra-info">
+                                                <span><?= esc($s['nombre_sistema']) ?></span>
+                                                <strong class="reporte-importe">$<?= number_format((float) $s['total'], 0, ',', '.') ?></strong>
+                                            </div>
+                                            <div class="reporte-barra">
+                                                <div class="reporte-barra-relleno reporte-barra-<?= $porcentaje ?>"></div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p style="color:#aaa;">Aún no hay pagos registrados.</p>
-                        <?php endif; ?>
+                            <?php else: ?>
+                                <div class="reporte-metrica-help">Aún no hay pagos registrados.</div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ===================== ACCESOS ===================== -->
-        <div class="reporte-seccion" style="margin-bottom:0;">
-            <div class="reporte-titulo">
-                <h2>Más reportes</h2>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <a href="<?= base_url('suscripciones/balance') ?>" class="btn-acceso" style="border-left-color:#0b8f70;">
-                        <h5 style="color:#10c796;">Gastos y Balance</h5>
-                        <p>Registrá egresos y calculá la ganancia neta del mes.</p>
-                    </a>
+        <!-- ===================== BALANCE Y MOVIMIENTOS ===================== -->
+        <div class="reporte-panel" id="panel-balance" data-panel="balance"
+             role="tabpanel" aria-labelledby="tab-balance">
+            <div class="reporte-seccion">
+                <div class="reporte-titulo">
+                    <div>
+                        <h2>Balance y Movimientos</h2>
+                        <p class="reporte-metrica-help">Accesos directos a gastos, balance e historial de cambios.</p>
+                    </div>
+                    <div class="reporte-acciones">
+                        <button type="button" class="nfs-btn nfs-btn-secondary nfs-btn-sm no-print" data-imprimir>
+                            <i class="bi bi-printer"></i> Imprimir
+                        </button>
+                    </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <a href="<?= base_url('suscripciones/bitacora') ?>" class="btn-acceso" style="border-left-color:#0b8f70;">
-                        <h5 style="color:#10c796;">Historial de movimientos</h5>
-                        <p>Quién hizo qué y cuándo: altas, bajas y cambios.</p>
-                    </a>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <a href="<?= base_url('suscripciones/balance') ?>" class="btn-acceso">
+                            <h5>Gastos y Balance</h5>
+                            <p>Registrá egresos y calculá la ganancia neta del mes.</p>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <a href="<?= base_url('suscripciones/bitacora') ?>" class="btn-acceso">
+                            <h5>Historial de movimientos</h5>
+                            <p>Quién hizo qué y cuándo: altas, bajas y cambios.</p>
+                        </a>
+                    </div>
                 </div>
             </div>
+        </div>
 
+        <!-- ===================== ASISTENCIA / CONCURRENCIA ===================== -->
+        <div class="reporte-panel" id="panel-asistencia" data-panel="asistencia"
+             role="tabpanel" aria-labelledby="tab-asistencia">
+            <?php
+                $diasSemana = [
+                    1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves',
+                    5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo',
+                ];
+                $porDia    = $asistencia['porDia'] ?? array_fill_keys(range(1, 7), 0);
+                $porMes    = $asistencia['porMes'] ?? [];
+                $porHora   = $asistencia['porHora'] ?? array_fill_keys(range(0, 23), 0);
+                $inactivos = $asistencia['inactivos'] ?? [];
+                $diaPico   = $asistencia['diaPico'] ?? null;
+                $horaPico  = $asistencia['horaPico'] ?? null;
+            ?>
+            <div class="reporte-seccion">
+                <div class="reporte-titulo">
+                    <div>
+                        <h2>Asistencia</h2>
+                        <p class="reporte-metrica-help">Concurrencia del gimnasio y socios que necesitan un aviso.</p>
+                    </div>
+                    <div class="reporte-acciones">
+                        <button type="button" class="nfs-btn nfs-btn-secondary nfs-btn-sm no-print" data-imprimir>
+                            <i class="bi bi-printer"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+
+                <div class="reporte-metricas">
+                    <div class="dashboard-card reporte-metrica es-info">
+                        <h6 class="reporte-metrica-label">Asistencias de hoy</h6>
+                        <div class="reporte-metrica-valor"><?= (int) ($asistencia['hoy'] ?? 0) ?></div>
+                        <div class="reporte-metrica-help">Ingresos registrados en el día</div>
+                    </div>
+
+                    <div class="dashboard-card reporte-metrica es-ok">
+                        <h6 class="reporte-metrica-label">Asistencias del mes</h6>
+                        <div class="reporte-metrica-valor"><?= (int) ($asistencia['mes'] ?? 0) ?></div>
+                        <div class="reporte-metrica-help">Ingresos de este mes</div>
+                    </div>
+
+                    <div class="dashboard-card reporte-metrica">
+                        <h6 class="reporte-metrica-label">Día más concurrido</h6>
+                        <div class="reporte-metrica-valor pequeno">
+                            <?= $diaPico !== null && isset($diasSemana[$diaPico]) ? esc($diasSemana[$diaPico]) : '—' ?>
+                        </div>
+                        <div class="reporte-metrica-help">
+                            <?= (int) ($asistencia['cantidadDiaPico'] ?? 0) > 0
+                                ? (int) $asistencia['cantidadDiaPico'] . ' ingresos este mes'
+                                : 'Sin ingresos este mes' ?>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card reporte-metrica">
+                        <h6 class="reporte-metrica-label">Horario pico</h6>
+                        <div class="reporte-metrica-valor pequeno">
+                            <?= $horaPico !== null ? esc(sprintf('%02d:00', $horaPico)) : '—' ?>
+                        </div>
+                        <div class="reporte-metrica-help">
+                            <?= (int) ($asistencia['cantidadHoraPico'] ?? 0) > 0
+                                ? (int) $asistencia['cantidadHoraPico'] . ' ingresos en ese horario'
+                                : 'Sin ingresos este mes' ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="dashboard-card reporte-card h-100">
+                            <div class="panel-card-head">
+                                <h2><i class="bi bi-bar-chart"></i> Concurrencia por día de la semana</h2>
+                            </div>
+                            <div class="reporte-chart">
+                                <canvas id="graficoAsistenciaSemana" class="reporte-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="dashboard-card reporte-card h-100">
+                            <div class="panel-card-head">
+                                <h2><i class="bi bi-graph-up"></i> Evolución mensual de asistencias</h2>
+                            </div>
+                            <div class="reporte-chart">
+                                <canvas id="graficoAsistenciaMeses" class="reporte-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card reporte-card">
+                    <div class="panel-card-head">
+                        <h2><i class="bi bi-person-exclamation"></i> Socios con cuota al día sin asistir hace +15 días</h2>
+                    </div>
+
+                    <?php if (! empty($inactivos)): ?>
+                        <div class="table-responsive reporte-tabla-wrap">
+                            <table class="table table-dark table-hover reporte-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Socio</th>
+                                        <th>Teléfono</th>
+                                        <th>Disciplina</th>
+                                        <th>Vencimiento</th>
+                                        <th>Días sin venir</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($inactivos as $socio): ?>
+                                        <?php
+                                            $telefono = (string) ($socio['telefono'] ?? '');
+                                            $numero   = preg_replace('/\D/', '', $telefono);
+                                            if ($numero !== '' && strpos($numero, '54') !== 0) {
+                                                $numero = '54' . ltrim($numero, '0');
+                                            }
+                                        ?>
+                                        <tr>
+                                            <td><?= esc($socio['nombre']) ?></td>
+                                            <td><?= esc($telefono !== '' ? $telefono : '—') ?></td>
+                                            <td><?= esc($socio['disciplinas'] !== '' ? $socio['disciplinas'] : '—') ?></td>
+                                            <td><?= ! empty($socio['vencimiento']) ? esc(date('d/m/Y', strtotime($socio['vencimiento']))) : '—' ?></td>
+                                            <td>
+                                                <span class="status-pill is-warn">
+                                                    <?= $socio['dias_sin_asistir'] === null
+                                                        ? 'Nunca asistió'
+                                                        : (int) $socio['dias_sin_asistir'] . ' días' ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="reporte-acciones">
+                                                    <a class="nfs-btn nfs-btn-secondary nfs-btn-sm"
+                                                       href="<?= base_url('cliente_info/' . (int) $socio['id_persona']) ?>">
+                                                        Ver ficha
+                                                    </a>
+                                                    <?php if ($numero !== ''): ?>
+                                                        <a class="nfs-btn nfs-btn-outline nfs-btn-sm"
+                                                           target="_blank" rel="noopener"
+                                                           href="https://wa.me/<?= esc($numero) ?>">
+                                                            WhatsApp
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="reporte-metrica-help">No hay socios en esta situación.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
 
     </section>
@@ -315,31 +482,188 @@
 <script>
     const etiquetasSistemas = <?= json_encode(array_keys($sistemas)) ?>;
     const datosSistemas = <?= json_encode(array_values($sistemas)) ?>;
+    let graficoSistemas = null;
 
-    new Chart(document.getElementById('graficoSistemas'), {
-        type: 'bar',
-        data: {
-            labels: etiquetasSistemas,
-            datasets: [{
-                label: 'Clientes inscritos',
-                data: datosSistemas,
-                backgroundColor: 'rgba(11, 143, 112, 0.8)',
-                borderColor: '#0b8f70',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { color: '#cfcfcf' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
-                y: { beginAtZero: true, ticks: { color: '#cfcfcf', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
-            }
+    const etiquetasDiasAsistencia = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const datosDiasAsistencia = [
+        <?= (int) ($porDia[1] ?? 0) ?>, <?= (int) ($porDia[2] ?? 0) ?>,
+        <?= (int) ($porDia[3] ?? 0) ?>, <?= (int) ($porDia[4] ?? 0) ?>,
+        <?= (int) ($porDia[5] ?? 0) ?>, <?= (int) ($porDia[6] ?? 0) ?>,
+        <?= (int) ($porDia[7] ?? 0) ?>
+    ];
+    const etiquetasMesesAsistencia = <?= json_encode(array_column($porMes, 'etiqueta')) ?>;
+    const datosMesesAsistencia = <?= json_encode(array_map('intval', array_column($porMes, 'total'))) ?>;
+    let graficoAsistenciaSemana = null;
+    let graficoAsistenciaMeses = null;
+
+    function crearGraficoSistemas() {
+        const lienzo = document.getElementById('graficoSistemas');
+        if (!lienzo || graficoSistemas) {
+            return;
         }
+
+        graficoSistemas = new Chart(lienzo, {
+            type: 'bar',
+            data: {
+                labels: etiquetasSistemas,
+                datasets: [{
+                    label: 'Clientes inscritos',
+                    data: datosSistemas,
+                    backgroundColor: 'rgba(11, 143, 112, 0.8)',
+                    borderColor: '#0b8f70',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#cfcfcf' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
+                    y: { beginAtZero: true, ticks: { color: '#cfcfcf', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
+                }
+            }
+        });
+    }
+
+    function crearGraficosAsistencia() {
+        const lienzoSemana = document.getElementById('graficoAsistenciaSemana');
+
+        if (lienzoSemana && !graficoAsistenciaSemana) {
+            graficoAsistenciaSemana = new Chart(lienzoSemana, {
+                type: 'bar',
+                data: {
+                    labels: etiquetasDiasAsistencia,
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: datosDiasAsistencia,
+                        backgroundColor: 'rgba(11, 143, 112, 0.8)',
+                        borderColor: '#0b8f70',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#cfcfcf' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
+                        y: { beginAtZero: true, ticks: { color: '#cfcfcf', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
+                    }
+                }
+            });
+        }
+
+        const lienzoMeses = document.getElementById('graficoAsistenciaMeses');
+
+        if (lienzoMeses && !graficoAsistenciaMeses) {
+            graficoAsistenciaMeses = new Chart(lienzoMeses, {
+                type: 'line',
+                data: {
+                    labels: etiquetasMesesAsistencia,
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: datosMesesAsistencia,
+                        borderColor: '#10c796',
+                        backgroundColor: 'rgba(16, 199, 150, 0.18)',
+                        pointBackgroundColor: '#10c796',
+                        pointRadius: 3,
+                        tension: 0.35,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#cfcfcf' }, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
+                        y: { beginAtZero: true, ticks: { color: '#cfcfcf', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.08)' } }
+                    }
+                }
+            });
+        }
+    }
+
+    function activarPestana(nombre) {
+        document.querySelectorAll('.reporte-tab').forEach(function (tab) {
+            const activa = tab.dataset.tab === nombre;
+            tab.classList.toggle('activa', activa);
+            tab.setAttribute('aria-selected', activa ? 'true' : 'false');
+        });
+
+        document.querySelectorAll('.reporte-panel').forEach(function (panel) {
+            panel.classList.toggle('activo', panel.dataset.panel === nombre);
+        });
+
+        if (nombre === 'cuotas') {
+            requestAnimationFrame(function () {
+                if (!graficoSistemas) {
+                    crearGraficoSistemas();
+                } else {
+                    graficoSistemas.resize();
+                }
+            });
+        }
+
+        if (nombre === 'asistencia') {
+            requestAnimationFrame(function () {
+                crearGraficosAsistencia();
+
+                if (graficoAsistenciaSemana) {
+                    graficoAsistenciaSemana.resize();
+                }
+                if (graficoAsistenciaMeses) {
+                    graficoAsistenciaMeses.resize();
+                }
+            });
+        }
+    }
+
+    document.querySelectorAll('.reporte-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            activarPestana(tab.dataset.tab);
+        });
     });
 
+    function fechaLocalISO(fecha) {
+        const anio = fecha.getFullYear();
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        return anio + '-' + mes + '-' + dia;
+    }
+
+    document.querySelectorAll('[data-fecha]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            const fecha = new Date();
+            if (boton.dataset.fecha === 'ayer') {
+                fecha.setDate(fecha.getDate() - 1);
+            }
+            const input = document.getElementById('fecha');
+            const formulario = document.getElementById('formFechaCaja');
+            if (input) {
+                input.value = fechaLocalISO(fecha);
+            }
+            if (formulario) {
+                formulario.submit();
+            }
+        });
+    });
+
+    const inputFecha = document.getElementById('fecha');
+    if (inputFecha) {
+        inputFecha.addEventListener('change', function () {
+            this.form.submit();
+        });
+    }
+
+    document.querySelectorAll('[data-imprimir]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            window.print();
+        });
+    });
 </script>
 
 <script>

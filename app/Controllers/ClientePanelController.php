@@ -294,6 +294,58 @@ class ClientePanelController extends BaseController
     }
 
     /**
+     * Historial de asistencias del socio con filtro por mes.
+     */
+    public function asistencias()
+    {
+        $validacion = $this->validarCliente();
+        if ($validacion) return $validacion;
+
+        $periodoActual = date('Y-m');
+        $periodo       = trim((string) $this->request->getGet('periodo'));
+
+        if ($periodo === '' || strtolower($periodo) === 'todos') {
+            $filtro = null;
+            $periodo = 'todos';
+        } elseif (preg_match('/^\d{4}-\d{2}$/', $periodo)) {
+            $filtro = $periodo;
+        } else {
+            $filtro  = $periodoActual;
+            $periodo = $periodoActual;
+        }
+
+        $datos = (new AsistenciaModel())->getAsistenciasPorPersona($this->idPersona(), $filtro);
+
+        $cortos = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        $meses  = [];
+        $cursor = new \DateTime($periodoActual . '-01');
+
+        for ($i = 0; $i < 12; $i++) {
+            $mes = (int) $cursor->format('m');
+
+            $meses[] = [
+                'valor'    => $cursor->format('Y-m'),
+                'etiqueta' => $cortos[$mes - 1] . ' ' . $cursor->format('Y'),
+            ];
+
+            $cursor->modify('-1 month');
+        }
+
+        $data = [
+            'asistencias'   => $datos['registros'],
+            'resumen'       => $datos['resumen'],
+            'periodo'       => $periodo,
+            'periodoActual' => $periodoActual,
+            'meses'         => $meses,
+        ];
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('cliente/asistencias', $data)
+             . view('front/footer');
+    }
+
+    /**
      * Plan semanal de entrenamiento asignado por el profesor.
      */
     public function rutinas()

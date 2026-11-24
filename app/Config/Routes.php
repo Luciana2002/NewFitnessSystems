@@ -158,6 +158,7 @@ $routes->get('/cliente/comprobante/(:num)', 'ClientePanelController::comprobante
 $routes->post('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSistema/$1');
 $routes->get('/cliente/rutinas', 'ClientePanelController::rutinas');
 $routes->get('/cliente/qr', 'ClientePanelController::qr');
+$routes->get('/cliente/asistencias', 'ClientePanelController::asistencias');
 $routes->get('/cliente/reservas', 'ClientePanelController::reservas');
 $routes->post('/cliente/reservar', 'ClientePanelController::reservar');
 $routes->get('/cliente/cancelar_reserva/(:num)', 'ClientePanelController::cancelarReserva/$1');
@@ -170,6 +171,9 @@ $routes->post('/cliente/guardar_seguimiento', 'ClientePanelController::guardarSe
 
 $routes->get('/checkin', 'CheckinController::index');
 $routes->post('/checkin/procesar', 'CheckinController::procesar');
+$routes->get('/asistencia/marcar', 'CheckinController::marcar');
+$routes->get('/checkin/marcar', 'CheckinController::marcar');
+$routes->post('/checkin/token/regenerar', 'CheckinController::regenerarToken');
 
 /* =========================
    RUTINAS

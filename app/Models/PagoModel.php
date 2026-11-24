@@ -18,9 +18,14 @@ class PagoModel extends Model
         'id_suscripcion'
     ];
 
-    public function getPagosAll()
+    /**
+     * Pagos con datos del cliente, sistema y cobrador.
+     *
+     * @param string|null $periodo YYYY-MM. Null devuelve todo el historial.
+     */
+    public function getPagosAll(?string $periodo = null)
     {
-        return $this->select('
+        $builder = $this->select('
                 Pago.id_pago,
                 Pago.fecha_pago,
                 Pago.monto,
@@ -39,8 +44,64 @@ class PagoModel extends Model
             ->join('Sistema', 'Sistema.id_sistema = Inscripcion.id_sistema')
             ->join('Persona', 'Persona.id_persona = Inscripcion.id_persona')
             ->join('Usuario', 'Usuario.id_usuario = Pago.cobrado_por')
-            ->orderBy('Pago.fecha_pago', 'DESC')
-            ->findAll();
+            ->orderBy('Pago.fecha_pago', 'DESC');
+
+        if ($periodo !== null && $periodo !== '') {
+            $inicio = $periodo . '-01';
+            $fin    = date('Y-m-01', strtotime('+1 month', strtotime($inicio)));
+
+            $builder->where('Pago.fecha_pago >=', $inicio)
+                ->where('Pago.fecha_pago <', $fin);
+        }
+
+        return $builder->findAll();
+    }
+
+    /**
+     * Meses con pagos registrados (YYYY-MM), de más reciente a más antiguo.
+     */
+    public function getPeriodosPagos(): array
+    {
+        return $this->db->table('Pago')
+            ->select("CONVERT(VARCHAR(7), Pago.fecha_pago, 120) AS periodo")
+            ->distinct()
+            ->orderBy('periodo', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Sistemas presentes en pagos, sin depender del período filtrado.
+     */
+    public function getSistemasPagos(): array
+    {
+        $filas = $this->db->table('Pago')
+            ->select('Sistema.nombre_sistema')
+            ->join('Suscripcion', 'Suscripcion.id_suscripcion = Pago.id_suscripcion')
+            ->join('Inscripcion', 'Inscripcion.id_inscripcion = Suscripcion.id_inscripcion')
+            ->join('Sistema', 'Sistema.id_sistema = Inscripcion.id_sistema')
+            ->distinct()
+            ->orderBy('Sistema.nombre_sistema', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return array_values(array_unique(array_column($filas, 'nombre_sistema')));
+    }
+
+    /**
+     * Cobradores presentes en pagos, sin depender del período filtrado.
+     */
+    public function getCobradoresPagos(): array
+    {
+        $filas = $this->db->table('Pago')
+            ->select('Usuario.nombre_usuario AS cobrado_por')
+            ->join('Usuario', 'Usuario.id_usuario = Pago.cobrado_por')
+            ->distinct()
+            ->orderBy('Usuario.nombre_usuario', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return array_values(array_unique(array_column($filas, 'cobrado_por')));
     }
 
     public function getPagosCliente($idPersona)

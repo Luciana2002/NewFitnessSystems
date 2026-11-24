@@ -48,11 +48,19 @@ class PagoController extends BaseController
             return !empty($c['sistemas']);
         }));
 
-        $data['pagos'] = $pagoModel->getPagosAll();
+        $periodo = (string) ($this->request->getGet('periodo') ?? date('Y-m'));
+
+        if ($periodo !== 'todos' && ! preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $periodo)) {
+            $periodo = date('Y-m');
+        }
+
+        $data['pagos'] = $pagoModel->getPagosAll($periodo === 'todos' ? null : $periodo);
+        $data['periodo'] = $periodo;
+        $data['periodosPagos'] = $pagoModel->getPeriodosPagos();
         $data['clientes'] = $clientes;
         $data['mediosPago'] = $pagoModel->getMediosPago();
-        $data['sistemasPagos'] = array_values(array_unique(array_column($data['pagos'], 'nombre_sistema')));
-        $data['cobradoresPagos'] = array_values(array_unique(array_column($data['pagos'], 'cobrado_por')));
+        $data['sistemasPagos'] = $pagoModel->getSistemasPagos();
+        $data['cobradoresPagos'] = $pagoModel->getCobradoresPagos();
 
         return view('front/header')
              . view('front/navbar')

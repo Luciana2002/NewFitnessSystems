@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\AsistenciaModel;
 use App\Models\ClienteModel;
+use App\Models\ConfiguracionModel;
 
 class CheckinController extends BaseController
 {
@@ -16,19 +17,78 @@ class CheckinController extends BaseController
         return null;
     }
 
+    /**
+     * Token público del cartel QR. Se crea una sola vez en Configuracion.
+     */
+    private function tokenQR(): string
+    {
+        $configuracion = new ConfiguracionModel();
+        $token = trim((string) $configuracion->getValor('qr_asistencia_token', ''));
+
+        if ($token === '') {
+            $token = bin2hex(random_bytes(24));
+            $configuracion->setValor('qr_asistencia_token', $token);
+        }
+
+        return $token;
+    }
+
     public function index()
     {
         $validacion = $this->validarAcceso();
         if ($validacion) return $validacion;
 
         $asistenciaModel = new AsistenciaModel();
+        $token = $this->tokenQR();
 
         $data['asistenciasHoy'] = $asistenciaModel->getAsistenciasDelDia(date('Y-m-d'));
+        $data['qrToken']        = $token;
+        $data['qrUrl']          = base_url('asistencia/marcar?token=' . urlencode($token));
 
         return view('front/header')
              . view('front/navbar')
              . view('gimnasio/checkin', $data)
              . view('front/footer');
+    }
+
+    /**
+     * Check-in realizado por el propio socio al escanear el QR del gimnasio.
+     */
+    public function marcar()
+    {
+        if (! session()->get('logged_in') || (int) session()->get('id_rol') !== 3) {
+            session()->set('redirect_after_login', (string) current_url());
+
+            return redirect()->to('/login');
+        }
+
+        $tokenRecibido = trim((string) $this->request->getGet('token'));
+
+        if ($tokenRecibido === '' || ! hash_equals($this->tokenQR(), $tokenRecibido)) {
+            return view('cliente/asistencia_resultado', [
+                'estado'  => 'invalido',
+                'mensaje' => 'El código QR es inválido o quedó desactualizado. Pedí uno nuevo en recepción.',
+                'nombre'  => trim((string) session()->get('nombre') . ' ' . (string) session()->get('apellido')),
+            ]);
+        }
+
+        $resultado = (new AsistenciaModel())->registrarIngreso((int) session()->get('id_persona'));
+
+        return view('cliente/asistencia_resultado', $resultado);
+    }
+
+    /**
+     * Invalida los carteles impresos y genera un nuevo token. Solo admin.
+     */
+    public function regenerarToken()
+    {
+        if (! session()->get('logged_in') || (int) session()->get('id_rol') !== 1) {
+            return redirect()->to('/usuario_logueado');
+        }
+
+        (new ConfiguracionModel())->setValor('qr_asistencia_token', bin2hex(random_bytes(24)));
+
+        return redirect()->to('/checkin')->with('success', 'Código QR regenerado. Imprimí y colocá el nuevo cartel.');
     }
 
     public function procesar()

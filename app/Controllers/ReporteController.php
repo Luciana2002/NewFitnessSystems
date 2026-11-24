@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ClienteModel;
+use App\Models\AsistenciaModel;
 use App\Models\PagoModel;
 use App\Models\SistemaModel;
 use App\Models\GastoModel;
@@ -56,6 +57,8 @@ class ReporteController extends BaseController
         $data['vencido']  = $resumen['vencido'];
         $data['sistemas'] = $resumen['sistemas'];
         $data['ingresosPorSistema'] = (new PagoModel())->getIngresosPorSistema($mesActual);
+
+        $data['asistencia'] = $this->asistenciaData();
 
         return view('front/header')
              . view('front/navbar')
@@ -158,6 +161,33 @@ class ReporteController extends BaseController
              . view('front/navbar')
              . view('reportes/caja', $data)
              . view('front/footer');
+    }
+
+    /**
+     * Datos de la pestaña de concurrencia del reporte.
+     */
+    private function asistenciaData(): array
+    {
+        $model   = new AsistenciaModel();
+        $porDia  = $model->getAsistenciasPorDiaSemana('mes');
+        $porMes  = $model->getAsistenciasPorMes(12);
+        $porHora = $model->getAsistenciasPorFranjaHoraria('mes');
+
+        $maxDia  = max($porDia);
+        $maxHora = max($porHora);
+
+        return [
+            'hoy'               => array_sum($model->getAsistenciasPorFranjaHoraria('hoy')),
+            'mes'               => array_sum(array_column($porMes, 'total')),
+            'diaPico'           => $maxDia > 0 ? (int) array_search($maxDia, $porDia, true) : null,
+            'cantidadDiaPico'   => $maxDia > 0 ? (int) $maxDia : 0,
+            'horaPico'          => $maxHora > 0 ? (int) array_search($maxHora, $porHora, true) : null,
+            'cantidadHoraPico'  => $maxHora > 0 ? (int) $maxHora : 0,
+            'porDia'            => $porDia,
+            'porMes'            => $porMes,
+            'porHora'           => $porHora,
+            'inactivos'         => $model->getClientesInactivosConCuota(15),
+        ];
     }
 
     private function cajaData(string $fecha): array

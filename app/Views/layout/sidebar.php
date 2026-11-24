@@ -20,6 +20,7 @@
 
         <a href="<?= base_url('avisos') ?>">Avisos</a>
         <a href="<?= base_url('suscripciones') ?>">Reportes</a>
+        <a href="<?= base_url('checkin') ?>"><i class="bi bi-qr-code"></i> QR Asistencia</a>
         <a href="<?= base_url('backup') ?>">Backup</a>
 
     <?php elseif (session()->get('id_rol') == 2): ?>
@@ -27,12 +28,13 @@
         <a href="<?= base_url('pagos') ?>">Pagos</a>
         <a href="<?= base_url('clientes') ?>">Clientes</a>
         <a href="<?= base_url('rutinas') ?>">Rutinas</a>
+        <a href="<?= base_url('checkin') ?>"><i class="bi bi-qr-code"></i> QR Asistencia</a>
 
     <?php else: ?>
         <h3>Mi cuenta</h3>
         <a href="<?= base_url('cliente/suscripcion') ?>">Mi suscripción</a>
         <a href="<?= base_url('cliente/reservas') ?>">Reservar clases</a>
-        <a href="<?= base_url('cliente/qr') ?>">Mi código QR</a>
+        <a href="<?= base_url('cliente/asistencias') ?>"><i class="bi bi-clock-history"></i> Mis Asistencias</a>
         <a href="<?= base_url('cliente/rutinas') ?>">Mis rutinas</a>
         <a href="<?= base_url('cliente/seguimiento') ?>">Seguimiento físico</a>
     <?php endif; ?>

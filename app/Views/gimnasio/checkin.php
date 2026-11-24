@@ -84,11 +84,42 @@
 
         </div>
 
+        <!-- ===================== QR OFICIAL DEL GIMNASIO ===================== -->
+        <section class="checkin-qr">
+            <div class="reporte-titulo">
+                <div>
+                    <h2>QR oficial del gimnasio</h2>
+                    <p class="reporte-metrica-help">Imprimí el cartel y colocalo en recepción. Cada socio escanea con su celular y registra su ingreso.</p>
+                </div>
+                <div class="reporte-acciones">
+                    <button type="button" class="nfs-btn nfs-btn-primary nfs-btn-sm" id="btnImprimirCartel">
+                        <i class="bi bi-printer"></i> Imprimir cartel QR
+                    </button>
+                    <form method="post" action="<?= base_url('checkin/token/regenerar') ?>" data-confirmar="¿Regenerar el código? Los carteles impresos dejarán de funcionar.">
+                        <button type="submit" class="nfs-btn nfs-btn-outline nfs-btn-sm">
+                            <i class="bi bi-arrow-clockwise"></i> Regenerar código
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="qr-print-area">
+                <div class="qr-cartel">
+                    <div class="qr-cartel-marca"><i class="bi bi-house-heart-fill"></i> New Fitness Systems</div>
+                    <h3 class="qr-cartel-titulo">Escaneá para registrar tu ingreso</h3>
+                    <div id="qrGimnasio" class="qr-imagen"></div>
+                    <p class="qr-cartel-codigo">Ingresá con tu usuario de socio</p>
+                    <p class="qr-cartel-nota">El ingreso se registra automáticamente. Mostrá la pantalla verde en recepción.</p>
+                </div>
+            </div>
+        </section>
+
     </section>
 
 </main>
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     var html5QrCode = null;
     var escaneando = false;
@@ -238,6 +269,35 @@
             e.preventDefault();
             document.getElementById('btnManual').click();
         }
+    });
+
+    // QR OFICIAL DEL GIMNASIO
+    const qrUrlGimnasio = <?= json_encode($qrUrl ?? '') ?>;
+    const contenedorQrGimnasio = document.getElementById('qrGimnasio');
+
+    if (contenedorQrGimnasio && qrUrlGimnasio && typeof QRCode !== 'undefined') {
+        new QRCode(contenedorQrGimnasio, {
+            text: qrUrlGimnasio,
+            width: 300,
+            height: 300,
+            colorDark: '#111111',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    } else if (contenedorQrGimnasio) {
+        contenedorQrGimnasio.textContent = 'No se pudo generar el QR (sin conexión).';
+    }
+
+    document.getElementById('btnImprimirCartel')?.addEventListener('click', function () {
+        window.print();
+    });
+
+    document.querySelectorAll('[data-confirmar]').forEach(function (formulario) {
+        formulario.addEventListener('submit', function (evento) {
+            if (! window.confirm(formulario.dataset.confirmar)) {
+                evento.preventDefault();
+            }
+        });
     });
 
     // SIDEBAR
