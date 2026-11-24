@@ -3198,7 +3198,15 @@ body.tema-light .dashboard-page .btn-acceso p {
    CHECKIN - CARTEL QR OFICIAL
    ========================= */
 .checkin-qr {
-    margin-top: 34px;
+    margin-top: 0;
+}
+
+.checkin-ingresos {
+    border-left: 5px solid var(--accent);
+}
+
+.checkin-tabla-wrap {
+    max-height: 420px;
 }
 
 .qr-print-area {
@@ -3270,7 +3278,7 @@ body.tema-light .dashboard-page .btn-acceso p {
     }
 
     body:has(.checkin-qr) .qr-print-area {
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
