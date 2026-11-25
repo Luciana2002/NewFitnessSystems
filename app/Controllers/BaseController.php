@@ -6,6 +6,7 @@ use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Models\ComentarioModel;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -41,5 +42,12 @@ abstract class BaseController extends Controller
 
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
+
+        // Badge del buzón en el sidebar del administrador.
+        if ((int) session()->get('id_rol') === 1) {
+            service('renderer')->setData([
+                'comentariosNoLeidos' => (new ComentarioModel())->contarNoLeidos(),
+            ]);
+        }
     }
 }

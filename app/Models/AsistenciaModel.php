@@ -492,6 +492,32 @@ class AsistenciaModel extends Model
     }
 
     /**
+     * Ingresos OK registrados en un mes (YYYY-MM).
+     *
+     * @param string $mes
+     * @return int
+     */
+    public function getCantidadMes(string $mes): int
+    {
+        if (! preg_match('/^\d{4}-\d{2}$/', $mes)) {
+            return 0;
+        }
+
+        $inicio = $mes . '-01';
+        $fin    = date('Y-m-t', strtotime($inicio));
+
+        $row = $this->db->query(<<<'SQL'
+            SELECT COUNT(*) AS total
+              FROM Asistencia
+             WHERE resultado = 'OK'
+               AND fecha >= ?
+               AND fecha <= ?
+            SQL, [$inicio, $fin])->getRowArray();
+
+        return (int) ($row['total'] ?? 0);
+    }
+
+    /**
      * Ingresos OK agrupados por hora del día (0..23).
      *
      * @return array<int, int>

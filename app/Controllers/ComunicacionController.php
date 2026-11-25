@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\AsistenciaModel;
 use App\Models\ClienteModel;
 use App\Models\PlantillaMensajeModel;
+use App\Models\ComentarioModel;
 
 class ComunicacionController extends BaseController
 {
@@ -20,6 +21,61 @@ class ComunicacionController extends BaseController
     public function index()
     {
         return $this->vencimientos();
+    }
+
+    /* ==========================================================
+       BUZÓN DE SUGERENCIAS Y COMENTARIOS
+    ========================================================== */
+
+    /**
+     * Filtro del buzón permitido: todos, no_leidos o un tipo del modelo.
+     */
+    private function filtroComentarios(): string
+    {
+        $filtro = strtolower(trim((string) ($this->request->getGet('filtro')
+            ?? $this->request->getPost('filtro'))));
+
+        $permitidos = array_merge(['todos', 'no_leidos'], array_map('strtolower', ComentarioModel::TIPOS));
+
+        return in_array($filtro, $permitidos, true) ? $filtro : 'todos';
+    }
+
+    public function comentarios()
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $filtro = $this->filtroComentarios();
+        $modelo = new ComentarioModel();
+
+        $data['comentarios'] = $modelo->getTodosConCliente($filtro);
+        $data['filtro']      = $filtro;
+        $data['noLeidos']    = $modelo->contarNoLeidos();
+        $data['tipos']       = ComentarioModel::TIPOS;
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('administrador/comentarios', $data)
+             . view('front/footer');
+    }
+
+    public function marcarComentarioLeido($idComentario)
+    {
+        $validacion = $this->validarAdmin();
+        if ($validacion) return $validacion;
+
+        $id     = (int) $idComentario;
+        $filtro = $this->filtroComentarios();
+
+        if ($id > 0 && (new ComentarioModel())->marcarComoLeido($id)) {
+            session()->setFlashdata('success', 'Mensaje marcado como leído.');
+        } else {
+            session()->setFlashdata('error', 'No se pudo marcar el mensaje.');
+        }
+
+        $url = '/comentarios' . ($filtro !== 'todos' ? '?filtro=' . rawurlencode($filtro) : '');
+
+        return redirect()->to($url);
     }
 
     /* ==========================================================

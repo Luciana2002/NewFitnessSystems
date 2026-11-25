@@ -14,12 +14,95 @@
 
     <?= view('layout/sidebar') ?>
 
+    <?php
+        $comparativa = $comparativa ?? [];
+
+        $variacionIngresos = $comparativa['ingresos'] ?? [
+            'actual' => 0, 'anterior' => 0, 'estado' => 'neutra', 'texto' => 'Sin base previa',
+        ];
+        $variacionAsistencias = $comparativa['asistencias'] ?? [
+            'actual' => 0, 'anterior' => 0, 'estado' => 'neutra', 'texto' => 'Sin base previa',
+        ];
+        $variacionInscripciones = $comparativa['inscripciones'] ?? [
+            'actual' => 0, 'anterior' => 0, 'estado' => 'neutra', 'texto' => 'Sin base previa',
+        ];
+
+        $claseVariacion = static function (array $variacion): string {
+            return match ($variacion['estado'] ?? '') {
+                'subida' => 'es-subida',
+                'baja'   => 'es-baja',
+                default  => 'es-neutra',
+            };
+        };
+
+        $iconoVariacion = static function (array $variacion): string {
+            return match ($variacion['estado'] ?? '') {
+                'subida' => 'bi-arrow-up-short',
+                'baja'   => 'bi-arrow-down-short',
+                default  => 'bi-dash',
+            };
+        };
+    ?>
+
     <section class="dashboard-content">
 
         <div class="reporte-titulo">
             <div>
                 <h1>Reportes del Negocio</h1>
                 <p class="reporte-metrica-help">Elegí la sección que querés consultar.</p>
+            </div>
+        </div>
+
+        <!-- ===================== RESUMEN COMPARATIVO INTERMENSUAL ===================== -->
+        <div class="reporte-seccion">
+            <div class="reporte-titulo">
+                <div>
+                    <h2>Resumen comparativo del mes</h2>
+                    <p class="reporte-metrica-help">
+                        Mes actual <?= esc($comparativa['mesActual'] ?? date('Y-m')) ?>
+                        vs. mes anterior <?= esc($comparativa['mesAnterior'] ?? '') ?>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="reporte-metricas">
+                <div class="dashboard-card reporte-metrica es-info">
+                    <h6 class="reporte-metrica-label">Ingresos recaudados del mes</h6>
+                    <div class="reporte-metrica-valor">
+                        $<?= number_format((float) ($variacionIngresos['actual'] ?? 0), 0, ',', '.') ?>
+                    </div>
+                    <span class="reporte-variacion <?= esc($claseVariacion($variacionIngresos)) ?>">
+                        <i class="bi <?= esc($iconoVariacion($variacionIngresos)) ?>"></i>
+                        <?= esc($variacionIngresos['texto'] ?? 'Sin base previa') ?>
+                    </span>
+                    <div class="reporte-metrica-help">
+                        Mes anterior: $<?= number_format((float) ($variacionIngresos['anterior'] ?? 0), 0, ',', '.') ?>
+                    </div>
+                </div>
+
+                <div class="dashboard-card reporte-metrica es-ok">
+                    <h6 class="reporte-metrica-label">Asistencias del mes</h6>
+                    <div class="reporte-metrica-valor"><?= (int) ($variacionAsistencias['actual'] ?? 0) ?></div>
+                    <span class="reporte-variacion <?= esc($claseVariacion($variacionAsistencias)) ?>">
+                        <i class="bi <?= esc($iconoVariacion($variacionAsistencias)) ?>"></i>
+                        <?= esc($variacionAsistencias['texto'] ?? 'Sin base previa') ?>
+                    </span>
+                    <div class="reporte-metrica-help">
+                        Mes anterior: <?= (int) ($variacionAsistencias['anterior'] ?? 0) ?> ingresos
+                    </div>
+                </div>
+
+                <div class="dashboard-card reporte-metrica">
+                    <h6 class="reporte-metrica-label">Nuevas inscripciones del mes</h6>
+                    <div class="reporte-metrica-valor"><?= (int) ($variacionInscripciones['actual'] ?? 0) ?></div>
+                    <span class="reporte-variacion <?= esc($claseVariacion($variacionInscripciones)) ?>">
+                        <i class="bi <?= esc($iconoVariacion($variacionInscripciones)) ?>"></i>
+                        <?= esc($variacionInscripciones['texto'] ?? 'Sin base previa') ?>
+                    </span>
+                    <div class="reporte-metrica-help">
+                        Mes anterior: <?= (int) ($variacionInscripciones['anterior'] ?? 0) ?> inscripciones
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -355,6 +438,10 @@
                     <div class="dashboard-card reporte-metrica es-ok">
                         <h6 class="reporte-metrica-label">Asistencias del mes</h6>
                         <div class="reporte-metrica-valor"><?= (int) ($asistencia['mes'] ?? 0) ?></div>
+                        <span class="reporte-variacion <?= esc($claseVariacion($variacionAsistencias)) ?>">
+                            <i class="bi <?= esc($iconoVariacion($variacionAsistencias)) ?>"></i>
+                            <?= esc($variacionAsistencias['texto'] ?? 'Sin base previa') ?>
+                        </span>
                         <div class="reporte-metrica-help">Ingresos de este mes</div>
                     </div>
 

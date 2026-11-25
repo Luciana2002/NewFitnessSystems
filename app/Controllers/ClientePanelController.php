@@ -9,6 +9,7 @@ use App\Models\RutinaModel;
 use App\Models\HorarioModel;
 use App\Models\ReservaModel;
 use App\Models\SeguimientoFisicoModel;
+use App\Models\ComentarioModel;
 
 class ClientePanelController extends BaseController
 {
@@ -343,6 +344,55 @@ class ClientePanelController extends BaseController
              . view('front/navbar')
              . view('cliente/asistencias', $data)
              . view('front/footer');
+    }
+
+    /**
+     * Buzón de sugerencias, comentarios y reclamos del socio.
+     */
+    public function comentarios()
+    {
+        $validacion = $this->validarCliente();
+        if ($validacion) return $validacion;
+
+        $data['comentarios'] = (new ComentarioModel())->getComentariosPorPersona($this->idPersona());
+        $data['tipos']       = ComentarioModel::TIPOS;
+
+        return view('front/header')
+             . view('front/navbar')
+             . view('cliente/comentarios', $data)
+             . view('front/footer');
+    }
+
+    /**
+     * Envío de un nuevo mensaje al buzón.
+     */
+    public function enviarComentario()
+    {
+        $validacion = $this->validarCliente();
+        if ($validacion) return $validacion;
+
+        $tipo    = trim((string) $this->request->getPost('tipo'));
+        $mensaje = trim((string) $this->request->getPost('mensaje'));
+
+        $tipoValido = null;
+        foreach (ComentarioModel::TIPOS as $valido) {
+            if (strcasecmp($tipo, $valido) === 0) {
+                $tipoValido = $valido;
+                break;
+            }
+        }
+
+        $longitud = function_exists('mb_strlen') ? mb_strlen($mensaje) : strlen($mensaje);
+
+        if ($tipoValido === null || $mensaje === '' || $longitud > 1000) {
+            session()->setFlashdata('error', 'Elegí un tipo y escribí un mensaje de hasta 1000 caracteres.');
+            return redirect()->to('/cliente/comentarios');
+        }
+
+        (new ComentarioModel())->crearComentario($this->idPersona(), $tipoValido, $mensaje);
+
+        session()->setFlashdata('success', 'Tu mensaje fue enviado. Gracias por tu opinión.');
+        return redirect()->to('/cliente/comentarios');
     }
 
     /**

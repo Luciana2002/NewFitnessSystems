@@ -9,6 +9,7 @@ use App\Models\SistemaModel;
 use App\Models\GastoModel;
 use App\Models\BitacoraModel;
 use App\Models\ConfiguracionModel;
+use App\Models\InscripcionModel;
 
 class ReporteController extends BaseController
 {
@@ -58,7 +59,8 @@ class ReporteController extends BaseController
         $data['sistemas'] = $resumen['sistemas'];
         $data['ingresosPorSistema'] = (new PagoModel())->getIngresosPorSistema($mesActual);
 
-        $data['asistencia'] = $this->asistenciaData();
+        $data['asistencia']  = $this->asistenciaData();
+        $data['comparativa'] = $this->comparativaMensual();
 
         return view('front/header')
              . view('front/navbar')
@@ -188,6 +190,74 @@ class ReporteController extends BaseController
             'porHora'           => $porHora,
             'inactivos'         => $model->getClientesInactivosConCuota(15),
         ];
+    }
+
+    /* ==========================================================
+       COMPARATIVA INTERMENSUAL
+    ========================================================== */
+
+    /**
+     * Variación del mes actual contra el mes anterior para los KPIs principales.
+     */
+    private function comparativaMensual(): array
+    {
+        $mesActual   = date('Y-m');
+        $mesAnterior = date('Y-m', strtotime('first day of last month'));
+
+        $pagoModel        = new PagoModel();
+        $asistenciaModel  = new AsistenciaModel();
+        $inscripcionModel = new InscripcionModel();
+
+        return [
+            'mesActual'    => $mesActual,
+            'mesAnterior'  => $mesAnterior,
+            'ingresos'     => $this->calcularVariacion(
+                $pagoModel->getTotalMes($mesActual),
+                $pagoModel->getTotalMes($mesAnterior)
+            ),
+            'asistencias'  => $this->calcularVariacion(
+                $asistenciaModel->getCantidadMes($mesActual),
+                $asistenciaModel->getCantidadMes($mesAnterior)
+            ),
+            'inscripciones' => $this->calcularVariacion(
+                $inscripcionModel->getCantidadMes($mesActual),
+                $inscripcionModel->getCantidadMes($mesAnterior)
+            ),
+        ];
+    }
+
+    /**
+     * Devuelve estado/texto de la variación evitando división por cero.
+     */
+    private function calcularVariacion(float $actual, float $anterior): array
+    {
+        $resultado = [
+            'actual'     => $actual,
+            'anterior'   => $anterior,
+            'estado'     => 'neutra',
+            'porcentaje' => null,
+            'texto'      => 'Sin base previa',
+        ];
+
+        if ($anterior <= 0) {
+            $resultado['texto'] = $actual > 0 ? 'Primer mes con registros' : 'Sin base previa';
+            return $resultado;
+        }
+
+        $porcentaje = (int) round((($actual - $anterior) / $anterior) * 100);
+        $resultado['porcentaje'] = $porcentaje;
+
+        if ($porcentaje > 0) {
+            $resultado['estado'] = 'subida';
+            $resultado['texto']  = '+' . $porcentaje . '% vs. mes anterior';
+        } elseif ($porcentaje < 0) {
+            $resultado['estado'] = 'baja';
+            $resultado['texto']  = $porcentaje . '% vs. mes anterior';
+        } else {
+            $resultado['texto'] = '0% vs. mes anterior';
+        }
+
+        return $resultado;
     }
 
     private function cajaData(string $fecha): array

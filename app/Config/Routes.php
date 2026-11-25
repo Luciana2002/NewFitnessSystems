@@ -142,6 +142,12 @@ $routes->post('/avisos/enviar-masivo', 'ComunicacionController::enviarMasivo');
 $routes->post('/avisos/plantilla/guardar', 'ComunicacionController::guardarPlantilla');
 $routes->get('/avisos/plantilla/eliminar/(:num)', 'ComunicacionController::eliminarPlantilla/$1');
 
+/* =========================
+   BUZÓN DE SUGERENCIAS (ADMIN)
+========================= */
+
+$routes->get('/comentarios', 'ComunicacionController::comentarios');
+$routes->post('/comentarios/leido/(:num)', 'ComunicacionController::marcarComentarioLeido/$1');
 
 /* Redirecciones desde las rutas antiguas de /comunicaciones */
 $routes->get('/comunicaciones', static fn () => redirect()->to('/avisos'));
@@ -159,6 +165,8 @@ $routes->post('/cliente/baja_sistema/(:num)', 'ClientePanelController::bajaSiste
 $routes->get('/cliente/rutinas', 'ClientePanelController::rutinas');
 $routes->get('/cliente/qr', 'ClientePanelController::qr');
 $routes->get('/cliente/asistencias', 'ClientePanelController::asistencias');
+$routes->get('/cliente/comentarios', 'ClientePanelController::comentarios');
+$routes->post('/cliente/comentarios/enviar', 'ClientePanelController::enviarComentario');
 $routes->get('/cliente/reservas', 'ClientePanelController::reservas');
 $routes->post('/cliente/reservar', 'ClientePanelController::reservar');
 $routes->get('/cliente/cancelar_reserva/(:num)', 'ClientePanelController::cancelarReserva/$1');
