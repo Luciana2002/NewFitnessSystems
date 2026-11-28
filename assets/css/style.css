@@ -449,9 +449,14 @@ a {
     height: 26px;
     border-radius: 50%;
     border: 2px solid #fff;
+    background: #0b8f70;
     cursor: pointer;
     padding: 0;
     flex-shrink: 0;
+}
+
+.btnColorSistema.color-claro {
+    box-shadow: 0 0 0 1px #8a6d00;
 }
 
 .fecha-cal-nav {
@@ -917,6 +922,95 @@ a {
 
 .class-horario {
     font-weight: 900;
+}
+
+.schedule-filtros {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.schedule-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid #cfd6d3;
+    border-radius: 999px;
+    background: #fff;
+    color: #2f3a37;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.schedule-filtro:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.schedule-filtro.activa {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.schedule-filtro-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--schedule-color, var(--accent));
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.75);
+}
+
+.schedule-filtro.activa .schedule-filtro-dot {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+
+.schedule-table tbody td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.schedule-clase {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0;
+    padding: 7px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 6px;
+    background-color: var(--schedule-color, var(--accent));
+    text-align: left;
+}
+
+.schedule-clase-nombre {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.schedule-clase-rango {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.color-claro.schedule-clase .schedule-clase-nombre,
+.color-claro.schedule-clase .schedule-clase-rango {
+    color: #1a1a1a;
+}
+
+.schedule-filtro.color-claro .schedule-filtro-dot {
+    box-shadow: 0 0 0 2px rgba(138, 109, 0, 0.4);
+}
+
+.schedule-clase.oculto,
+.schedule-table tbody tr.oculto {
+    display: none;
 }
 
 .schedule-note {
@@ -1400,6 +1494,18 @@ body.tema-light .dashboard-page .dashboard-sidebar .sidebar-divider {
 
 .toast-custom.error {
     background: #c0392b;
+}
+
+.toast-custom.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast-custom.saliendo {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 /* =========================
@@ -3243,6 +3349,268 @@ body.tema-light .dashboard-page .btn-acceso h5 {
 }
 
 body.tema-light .dashboard-page .btn-acceso p {
+    color: #5c6864;
+}
+
+/* =========================
+   PANEL DE HORARIOS (ADMIN)
+   ========================= */
+.horarios-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.horarios-cabecera h1 {
+    margin-bottom: 0;
+}
+
+.horarios-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding-bottom: 6px;
+}
+
+.horarios-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e8efec;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.horarios-tab:hover {
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.horarios-tab.activa {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.horarios-tab-count {
+    min-width: 22px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 11px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.horarios-tab.activa .horarios-tab-count {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.horarios-tabla-wrap {
+    padding-bottom: 6px;
+}
+
+.horarios-dia-header {
+    background: rgba(11, 143, 112, 0.16);
+    color: var(--accent-bright);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.horarios-col-header {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.horarios-sistema {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.horarios-sistema-nombre {
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.horarios-acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.horarios-color-picker-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.horarios-modal-content {
+    background: #1b1b1b;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.horarios-modal-header,
+.horarios-modal-footer {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.horarios-modal-title {
+    color: var(--accent-bright);
+    font-weight: 900;
+}
+
+.horarios-btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+.horarios-input {
+    background: #262626;
+    color: #fff;
+    border-color: #3d3d3d;
+}
+
+.horarios-input:focus {
+    background: #2c2c2c;
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(11, 143, 112, 0.25);
+}
+
+.horarios-dias-checks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px 12px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.horarios-dia-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.horarios-dia-check-todos {
+    color: var(--accent-bright);
+    font-weight: 900;
+}
+
+.horarios-dia-check input {
+    accent-color: var(--accent);
+}
+
+.horarios-help {
+    display: block;
+    margin-top: 7px;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 11px;
+}
+
+.horarios-btn-eliminar {
+    margin-right: auto;
+}
+
+.oculto {
+    display: none !important;
+}
+
+body.tema-light .horarios-tab {
+    background: #fff;
+    border-color: #cfd6d3;
+    color: #2f3a37;
+}
+
+body.tema-light .horarios-tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+body.tema-light .horarios-tab.activa {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+body.tema-light .horarios-tab-count {
+    background: #e7ebe9;
+    color: #2f3a37;
+}
+
+body.tema-light .horarios-tab.activa .horarios-tab-count {
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
+}
+
+body.tema-light .horarios-dia-header {
+    background: #e7ebe9;
+    color: var(--accent);
+}
+
+body.tema-light .horarios-col-header {
+    color: #5c6864;
+}
+
+body.tema-light .horarios-modal-content {
+    background: #fff;
+    color: #2f3a37;
+    border-color: #cfd6d3;
+}
+
+body.tema-light .horarios-modal-header,
+body.tema-light .horarios-modal-footer {
+    border-color: #e1e6e4;
+}
+
+body.tema-light .horarios-modal-title {
+    color: var(--accent);
+}
+
+body.tema-light .horarios-btn-close {
+    filter: none;
+}
+
+body.tema-light .horarios-input {
+    background: #fff;
+    color: #2f3a37;
+    border-color: #cfd6d3;
+}
+
+body.tema-light .horarios-input:focus {
+    background: #fff;
+    color: #2f3a37;
+}
+
+body.tema-light .horarios-dias-checks {
+    background: #f7f9f8;
+    border-color: #cfd6d3;
+}
+
+body.tema-light .horarios-help {
     color: #5c6864;
 }
 

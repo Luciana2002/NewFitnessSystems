@@ -19,7 +19,9 @@ class Home extends BaseController
     {
         $horarioModel = new HorarioModel();
 
-        $data['horarios'] = $horarioModel->getHorariosActivos();
+        $sistemasCartel = ['BodyPump', 'Funcional', 'PowerJump', 'Zumba'];
+
+        $data['horarios'] = $horarioModel->getHorariosActivos($sistemasCartel);
 
         return view('front/header')
              . view('front/navbar')

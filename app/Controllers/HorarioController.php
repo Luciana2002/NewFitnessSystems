@@ -39,39 +39,97 @@ class HorarioController extends BaseController
         $validacion = $this->validarAdmin();
         if ($validacion) return $validacion;
 
-        $horaInicio = $this->request->getPost('hora_inicio');
-        $horaFin    = $this->request->getPost('hora_fin');
-        $diaSemana  = trim($this->request->getPost('dia_semana') ?? '');
+        $diasValidos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+        $diasPost = $this->request->getPost('dias');
+        $dias     = [];
+
+        if (is_array($diasPost)) {
+            foreach ($diasPost as $dia) {
+                $dia = trim((string) $dia);
+
+                if (in_array($dia, $diasValidos, true)) {
+                    $dias[$dia] = $dia;
+                }
+            }
+        } else {
+            $diaUnico = trim((string) $diasPost);
+
+            if (in_array($diaUnico, $diasValidos, true)) {
+                $dias[$diaUnico] = $diaUnico;
+            }
+        }
+
+        // Compatibilidad con el selector simple que usaba el modal anterior.
+        $diaLegacy = trim((string) $this->request->getPost('dia_semana'));
+
+        if (empty($dias) && in_array($diaLegacy, $diasValidos, true)) {
+            $dias[$diaLegacy] = $diaLegacy;
+        }
+
+        $dias = array_values(array_filter($diasValidos, static function ($dia) use ($dias) {
+            return isset($dias[$dia]);
+        }));
+
+        $normalizarHora = static function ($valor): ?string {
+            $valor = trim((string) $valor);
+
+            if (! preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $valor)) {
+                return null;
+            }
+
+            $timestamp = strtotime($valor);
+
+            return $timestamp ? date('H:i:s', $timestamp) : null;
+        };
+
+        $horaInicio = $normalizarHora((string) $this->request->getPost('hora_inicio'));
+        $horaFin    = $normalizarHora((string) $this->request->getPost('hora_fin'));
         $idSistema  = (int) $this->request->getPost('id_sistema');
         $cupoMax    = $this->request->getPost('cupo_max');
         $cupoMax    = ($cupoMax === null || $cupoMax === '') ? null : max(0, (int) $cupoMax);
 
-        $diasValidos = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
-
-        if ($horaInicio === null || $horaFin === null || !in_array($diaSemana, $diasValidos, true) || !$idSistema) {
+        if ($horaInicio === null || $horaFin === null || empty($dias) || ! $idSistema) {
             session()->setFlashdata('error', 'Datos inválidos para el horario');
             return redirect()->to('/admin_horarios');
         }
 
         $sistemaModel = new SistemaModel();
 
-        if (!$sistemaModel->find($idSistema)) {
+        if (! $sistemaModel->find($idSistema)) {
             session()->setFlashdata('error', 'El sistema seleccionado no existe');
             return redirect()->to('/admin_horarios');
         }
 
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $horarioModel = new HorarioModel();
 
-        $horarioModel->insert([
-            'hora_inicio' => date('H:i:s', strtotime($horaInicio)),
-            'hora_fin'    => date('H:i:s', strtotime($horaFin)),
-            'dia_semana'  => $diaSemana,
-            'id_sistema'  => $idSistema,
-            'cupo_max'    => $cupoMax,
-            'baja'        => 'N'
-        ]);
+        foreach ($dias as $dia) {
+            $horarioModel->insert([
+                'hora_inicio' => $horaInicio,
+                'hora_fin'    => $horaFin,
+                'dia_semana'  => $dia,
+                'id_sistema'  => $idSistema,
+                'cupo_max'    => $cupoMax,
+                'baja'        => 'N',
+            ]);
+        }
 
-        session()->setFlashdata('success', 'Horario agregado correctamente');
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            session()->setFlashdata('error', 'No se pudieron guardar los horarios');
+            return redirect()->to('/admin_horarios');
+        }
+
+        $cantidad = count($dias);
+        $mensaje  = $cantidad === 1
+            ? 'Horario agregado correctamente'
+            : 'Horarios agregados correctamente (' . $cantidad . ' días)';
+
+        session()->setFlashdata('success', $mensaje);
         return redirect()->to('/admin_horarios');
     }
 

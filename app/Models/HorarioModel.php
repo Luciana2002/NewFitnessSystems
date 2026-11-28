@@ -49,15 +49,27 @@ class HorarioModel extends Model
             FROM Horario
             INNER JOIN Sistema ON Sistema.id_sistema = Horario.id_sistema
             WHERE Sistema.baja = 'N'
-            ORDER BY Sistema.nombre_sistema, Horario.hora_inicio, Horario.dia_semana
+            ORDER BY
+                CASE Horario.dia_semana
+                    WHEN 'Lunes' THEN 1
+                    WHEN 'Martes' THEN 2
+                    WHEN 'Miercoles' THEN 3
+                    WHEN 'Jueves' THEN 4
+                    WHEN 'Viernes' THEN 5
+                    WHEN 'Sabado' THEN 6
+                    WHEN 'Domingo' THEN 7
+                    ELSE 8
+                END,
+                Horario.hora_inicio,
+                Sistema.nombre_sistema
         ";
 
         return $db->query($sql)->getResultArray();
     }
 
-    public function getHorariosActivos()
+    public function getHorariosActivos(?array $sistemasPermitidos = null)
     {
-        return $this->select('
+        $builder = $this->select('
                 Horario.id_horario,
                 Horario.hora_inicio,
                 Horario.hora_fin,
@@ -70,7 +82,14 @@ class HorarioModel extends Model
             ')
             ->join('Sistema', 'Sistema.id_sistema = Horario.id_sistema')
             ->where('Horario.baja', 'N')
-            ->where('Sistema.baja', 'N')
+            ->where('Sistema.baja', 'N');
+
+        if ($sistemasPermitidos !== null) {
+            $builder->whereIn('Sistema.nombre_sistema', $sistemasPermitidos);
+        }
+
+        return $builder->orderBy('Horario.hora_inicio', 'ASC')
+            ->orderBy('Horario.dia_semana', 'ASC')
             ->findAll();
     }
 
